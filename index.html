@@ -326,7 +326,7 @@ padding: 0 4px;
 /* MODAL / SHEET */
 .sheet-overlay {
 position: fixed; inset: 0;
-background: rgba(0,0,0,0.4);
+background: rgba(0,0,0,0.55);
 z-index: 200;
 opacity: 0; pointer-events: none;
 transition: opacity 0.3s;
@@ -336,7 +336,7 @@ transition: opacity 0.3s;
 position: fixed;
 bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
 width: 100%; max-width: 430px;
-background: var(–ios-card);
+background: #FFFFFF;
 border-radius: 20px 20px 0 0;
 padding: 0 0 var(–safe-bottom);
 z-index: 201;
@@ -344,6 +344,10 @@ transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 max-height: 85vh;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
+box-shadow: 0 -4px 30px rgba(0,0,0,0.18);
+/* 確保完全不透明 */
+opacity: 1;
+isolation: isolate;
 }
 .sheet.open { transform: translateX(-50%) translateY(0); }
 .sheet-handle {
