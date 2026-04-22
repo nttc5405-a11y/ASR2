@@ -107,7 +107,7 @@ position: relative;
 overflow: hidden;
 }
 .mission-card::before {
-content: ‘’;
+content: “”;
 position: absolute;
 top: -30px; right: -30px;
 width: 120px; height: 120px;
@@ -115,7 +115,7 @@ background: rgba(255,59,48,0.15);
 border-radius: 50%;
 }
 .mission-card::after {
-content: ‘’;
+content: “”;
 position: absolute;
 bottom: -20px; left: 40px;
 width: 80px; height: 80px;
@@ -208,37 +208,52 @@ letter-spacing: 0.5px; margin-bottom: 6px;
 .equip-status { font-size: 12px; margin-top: 4px; }
 
 /* PHASE TIMELINE */
-.phase-list { display: flex; flex-direction: column; margin-bottom: 16px; }
+.phase-list { display: block; margin-bottom: 16px; }
 .phase-item {
-display: -webkit-flex; display: flex; gap: 12px;
+display: -webkit-flex; display: flex;
+gap: 12px;
 padding: 0 4px;
--webkit-align-items: flex-start; align-items: flex-start;
+position: relative;
 }
 .phase-line-col {
 display: -webkit-flex; display: flex;
 -webkit-flex-direction: column; flex-direction: column;
 -webkit-align-items: center; align-items: center;
-width: 28px; min-width: 28px; flex-shrink: 0;
+width: 28px; min-width: 28px;
+position: relative;
+}
+/* 連接線：絕對定位從圓點底部畫到下方 */
+.phase-item:not(:last-child) .phase-line-col::after {
+content: “”;
+position: absolute;
+top: 28px;
+left: 50%;
+transform: translateX(-50%);
+width: 2px;
+bottom: -10px;
+background: #C7C7CC;
 }
 .phase-dot {
-width: 28px; height: 28px;
-border-radius: 50%;
+width: 28px; height: 28px; min-width: 28px; min-height: 28px;
+border-radius: 14px;
 display: -webkit-flex; display: flex;
 -webkit-align-items: center; align-items: center;
 -webkit-justify-content: center; justify-content: center;
 font-size: 13px; font-weight: 700; color: white;
-flex-shrink: 0; z-index: 1;
-min-width: 28px; min-height: 28px;
+position: relative; z-index: 1;
+flex-shrink: 0;
 }
-.phase-connector { width: 2px; flex: 1; min-height: 16px; }
+/* 舊的 connector div 隱藏 */
+.phase-connector { display: none; }
 .phase-content {
-background: var(–ios-card);
+background: #FFFFFF;
 border-radius: 14px;
 padding: 14px;
-margin-bottom: 10px;
+margin-bottom: 20px;
 flex: 1;
 cursor: pointer;
 transition: background 0.1s;
+box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 .phase-content:active { background: var(–ios-gray5); }
 .phase-title { font-size: 15px; font-weight: 700; }
@@ -284,7 +299,7 @@ overflow: hidden;
 }
 .mayday-btn:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(255,59,48,0.3); }
 .mayday-btn::before {
-content: ‘’;
+content: “”;
 position: absolute; inset: 0;
 background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15), transparent 60%);
 }
