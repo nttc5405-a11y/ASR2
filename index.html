@@ -6,1293 +6,528 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ASR2 任務管理</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-
-:root {
-–ios-blue: #007AFF;
-–ios-red: #FF3B30;
-–ios-orange: #FF9500;
-–ios-yellow: #FFCC00;
-–ios-green: #34C759;
-–ios-teal: #5AC8FA;
-–ios-purple: #AF52DE;
-–ios-gray1: #8E8E93;
-–ios-gray2: #AEAEB2;
-–ios-gray3: #C7C7CC;
-–ios-gray4: #D1D1D6;
-–ios-gray5: #E5E5EA;
-–ios-gray6: #F2F2F7;
-–ios-bg: #F2F2F7;
-–ios-card: #FFFFFF;
-–ios-label: #000000;
-–ios-secondary: #3C3C43;
-–ios-separator: rgba(60,60,67,0.12);
-–ios-grouped-bg: #F2F2F7;
-–safe-top: 44px;
-–safe-bottom: 34px;
+:root{
+  --blue:#007AFF;--red:#FF3B30;--orange:#FF9500;--yellow:#FFCC00;
+  --green:#34C759;--teal:#5AC8FA;--purple:#AF52DE;
+  --g1:#8E8E93;--g2:#AEAEB2;--g3:#C7C7CC;--g4:#D1D1D6;--g5:#E5E5EA;--g6:#F2F2F7;
+  --sep:rgba(60,60,67,0.15);--bg:#F2F2F7;--text:#000;
 }
-
-- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-body {
-font-family: -apple-system, ‘Noto Sans TC’, sans-serif;
-background: var(–ios-bg);
-color: var(–ios-label);
-max-width: 430px;
-margin: 0 auto;
-min-height: 100vh;
-position: relative;
-overflow-x: hidden;
-user-select: none;
-}
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
 /* STATUS BAR */
-.status-bar {
-height: var(–safe-top);
-background: #FFFFFF;
-display: -webkit-flex; display: flex;
--webkit-align-items: center; align-items: center;
--webkit-justify-content: space-between; justify-content: space-between;
-padding: 14px 20px 0;
-font-size: 15px;
-font-weight: 600;
-position: sticky;
-top: 0;
-z-index: 100;
-border-bottom: 1px solid var(–ios-separator);
-}
-.status-bar .time { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
-.status-icons { display: flex; gap: 6px; align-items: center; }
-.status-icons svg { width: 16px; height: 12px; }
-
-/* NAVIGATION BAR */
-.nav-bar {
-background: #FFFFFF;
-border-bottom: 1px solid var(–ios-separator);
-padding: 8px 16px 12px;
-position: sticky;
-top: 44px;
-z-index: 99;
-}
-.nav-title { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
-.nav-subtitle { font-size: 13px; color: var(–ios-gray1); margin-top: 2px; }
-.nav-actions { display: flex; gap: 8px; position: absolute; right: 16px; top: 12px; }
-.nav-btn {
-width: 32px; height: 32px;
-background: var(–ios-gray5);
-border-radius: 50%;
-border: none;
-display: flex; align-items: center; justify-content: center;
-cursor: pointer;
-transition: background 0.15s;
-}
-.nav-btn:active { background: var(–ios-gray4); }
-.nav-btn svg { width: 16px; height: 16px; fill: var(–ios-blue); }
-
-/* SCROLL AREA */
-.scroll-area {
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-padding: 16px 16px 100px;
-}
-
-/* MISSION HEADER CARD */
-.mission-card {
-background: linear-gradient(135deg, #1C1C1E 0%, #2C2C2E 100%);
-border-radius: 20px;
-padding: 20px;
-margin-bottom: 16px;
-color: white;
-position: relative;
-overflow: hidden;
-}
-.mission-card::before {
-content: “”;
-position: absolute;
-top: -30px; right: -30px;
-width: 120px; height: 120px;
-background: rgba(255,59,48,0.15);
-border-radius: 50%;
-}
-.mission-card::after {
-content: “”;
-position: absolute;
-bottom: -20px; left: 40px;
-width: 80px; height: 80px;
-background: rgba(0,122,255,0.1);
-border-radius: 50%;
-}
-.mission-badge {
-display: inline-flex; align-items: center; gap: 5px;
-background: var(–ios-red);
-color: white;
-font-size: 11px;
-font-weight: 700;
-letter-spacing: 0.5px;
-padding: 4px 10px;
-border-radius: 20px;
-text-transform: uppercase;
-margin-bottom: 10px;
-}
-.mission-badge .dot { width: 6px; height: 6px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.8); } }
-.mission-name { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.mission-meta { display: flex; gap: 16px; margin-top: 12px; }
-.meta-item { display: flex; flex-direction: column; gap: 2px; }
-.meta-label { font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.3px; text-transform: uppercase; }
-.meta-value { font-size: 16px; font-weight: 600; }
-.progress-bar { margin-top: 14px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
-.progress-track { background: rgba(255,255,255,0.15); border-radius: 4px; height: 6px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(–ios-blue), var(–ios-teal)); width: 35%; transition: width 0.6s ease; }
-
-/* SECTION HEADER */
-.section-header {
-font-size: 13px;
-font-weight: 600;
-color: var(–ios-gray1);
-text-transform: uppercase;
-letter-spacing: 0.5px;
-padding: 0 4px 8px;
-}
-
-/* ROLE CARDS */
-.role-list { display: flex; flex-direction: column; background: var(–ios-separator); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
-.role-item {
-background: var(–ios-card);
-padding: 14px 16px;
-display: -webkit-flex; display: flex;
--webkit-align-items: center; align-items: center;
-gap: 14px;
-cursor: pointer;
-transition: background 0.1s;
-position: relative;
-border-bottom: 1px solid var(–ios-separator);
-}
-.role-item:last-child { border-bottom: none; }
-.role-icon {
-width: 40px; height: 40px;
-border-radius: 10px;
-display: flex; align-items: center; justify-content: center;
-font-size: 20px;
-flex-shrink: 0;
-}
-.role-info { flex: 1; min-width: 0; }
-.role-name { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; }
-.role-count { font-size: 13px; color: var(–ios-gray1); margin-top: 1px; }
-.role-chevron { color: var(–ios-gray3); font-size: 18px; margin-left: 4px; }
-.role-badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; color: white; margin-left: auto; margin-right: 6px; }
-
-/* EQUIPMENT LIST */
-.equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.equip-card {
-background: var(–ios-card);
-border-radius: 14px;
-padding: 14px;
-cursor: pointer;
-transition: transform 0.1s, background 0.1s;
-position: relative;
-}
-.equip-card:active { transform: scale(0.97); background: var(–ios-gray5); }
-.equip-card.checked::after {
-content: ‘✓’;
-position: absolute; top: 10px; right: 12px;
-color: var(–ios-green);
-font-size: 16px; font-weight: 700;
-}
-.equip-num {
-font-size: 11px; font-weight: 700; color: var(–ios-gray1);
-letter-spacing: 0.5px; margin-bottom: 6px;
-}
-.equip-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
-.equip-status { font-size: 12px; margin-top: 4px; }
-
+.sb{height:44px;background:#fff;border-bottom:1px solid var(--sep);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:200;}
+.sb-time{font-size:15px;font-weight:700;}
+/* NAV */
+.nb{background:#fff;border-bottom:1px solid var(--sep);padding:8px 16px 12px;position:sticky;top:44px;z-index:199;}
+.nb-title{font-size:32px;font-weight:800;letter-spacing:-0.5px;}
+.nb-sub{font-size:13px;color:var(--g1);margin-top:2px;}
+.nb-btn{position:absolute;right:16px;top:12px;width:32px;height:32px;background:var(--g5);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+/* PAGES */
+.page{display:none;}.page.active{display:block;}
+/* SCROLL */
+.scroll{padding:16px 16px 100px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+/* MISSION CARD */
+.mc{background:#1C1C1E;border-radius:20px;padding:20px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden;}
+.mc-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;margin-bottom:10px;}
+.mc-dot{width:6px;height:6px;background:#fff;border-radius:3px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+.mc-name{font-size:22px;font-weight:700;}
+.mc-meta{display:flex;gap:20px;margin-top:12px;}
+.mc-mi{display:flex;flex-direction:column;gap:2px;}
+.mc-ml{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;}
+.mc-mv{font-size:16px;font-weight:600;}
+.mc-pr{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.55);margin:14px 0 6px;}
+.mc-pt{background:rgba(255,255,255,.15);border-radius:4px;height:6px;}
+.mc-pf{width:35%;height:6px;border-radius:4px;background:var(--blue);}
+/* NOTIF */
+.notif{background:#2C2C2E;border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:center;margin-bottom:14px;color:#fff;}
+.notif-icon{font-size:24px;flex-shrink:0;}
+.notif-t{font-size:14px;font-weight:700;margin-bottom:2px;}
+.notif-b{font-size:13px;opacity:.85;line-height:1.45;}
+/* MAYDAY */
+.mayday{width:100%;background:var(--red);border:none;border-radius:16px;padding:18px 20px;color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer;margin-bottom:14px;}
+.mayday:active{opacity:.85;}
+.mayday-icon{font-size:28px;}
+.mayday-t{font-size:18px;font-weight:800;letter-spacing:1px;}
+.mayday-s{font-size:12px;opacity:.8;margin-top:2px;}
+/* SECTION HDR */
+.sec-hd{font-size:13px;font-weight:600;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;padding:0 4px 8px;}
+/* ROLE LIST */
+.role-list{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:16px;border:1px solid var(--sep);}
+.role-row{padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--sep);background:#fff;cursor:pointer;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;}
+.role-row:last-child{border-bottom:none;}
+.role-row:active{background:var(--g6);}
+.role-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.role-info{flex:1;}
+.role-name{font-size:16px;font-weight:600;}
+.role-sub{font-size:13px;color:var(--g1);margin-top:1px;}
+.role-badge{font-size:12px;font-weight:700;padding:3px 9px;border-radius:10px;color:#fff;flex-shrink:0;}
+.role-chev{color:var(--g3);font-size:20px;}
 /* PHASE TIMELINE */
-.phase-list { display: block; margin-bottom: 16px; }
-.phase-item {
-display: -webkit-flex; display: flex;
-gap: 12px;
-padding: 0 4px;
-position: relative;
-}
-.phase-line-col {
-display: -webkit-flex; display: flex;
--webkit-flex-direction: column; flex-direction: column;
--webkit-align-items: center; align-items: center;
-width: 28px; min-width: 28px;
-position: relative;
-}
-/* 連接線：絕對定位從圓點底部畫到下方 */
-.phase-item:not(:last-child) .phase-line-col::after {
-content: “”;
-position: absolute;
-top: 28px;
-left: 50%;
-transform: translateX(-50%);
-width: 2px;
-bottom: -10px;
-background: #C7C7CC;
-}
-.phase-dot {
-width: 28px; height: 28px; min-width: 28px; min-height: 28px;
-border-radius: 14px;
-display: -webkit-flex; display: flex;
--webkit-align-items: center; align-items: center;
--webkit-justify-content: center; justify-content: center;
-font-size: 13px; font-weight: 700; color: white;
-position: relative; z-index: 1;
-flex-shrink: 0;
-}
-/* 舊的 connector div 隱藏 */
-.phase-connector { display: none; }
-.phase-content {
-background: #FFFFFF;
-border-radius: 14px;
-padding: 14px;
-margin-bottom: 20px;
-flex: 1;
-cursor: pointer;
-transition: background 0.1s;
-box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-}
-.phase-content:active { background: var(–ios-gray5); }
-.phase-title { font-size: 15px; font-weight: 700; }
-.phase-desc { font-size: 13px; color: var(–ios-gray1); margin-top: 4px; line-height: 1.5; }
-.phase-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 8px; }
-
-/* VICTIM STATUS */
-.victim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.victim-card {
-background: var(–ios-card);
-border-radius: 14px;
-padding: 16px;
-cursor: pointer;
-transition: background 0.1s;
-border: 2px solid transparent;
-}
-.victim-card:active { background: var(–ios-gray5); }
-.victim-card.selected { border-color: var(–ios-blue); }
-.victim-grade { font-size: 28px; font-weight: 800; }
-.victim-label { font-size: 13px; font-weight: 600; margin-top: 4px; }
-.victim-desc { font-size: 11px; color: var(–ios-gray1); margin-top: 3px; line-height: 1.4; }
-.victim-A .victim-grade { color: var(–ios-red); }
-.victim-B .victim-grade { color: var(–ios-orange); }
-.victim-C .victim-grade { color: var(–ios-yellow); }
-.victim-D .victim-grade { color: var(–ios-gray1); }
-
-/* MAYDAY BUTTON */
-.mayday-container { margin-bottom: 16px; }
-.mayday-btn {
-width: 100%;
-background: linear-gradient(135deg, #FF3B30, #FF6B6B);
-border: none;
-border-radius: 16px;
-padding: 18px;
-color: white;
-display: flex; align-items: center; justify-content: center; gap: 12px;
-cursor: pointer;
-box-shadow: 0 4px 20px rgba(255,59,48,0.4);
-transition: transform 0.1s, box-shadow 0.1s;
-position: relative;
-overflow: hidden;
-}
-.mayday-btn:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(255,59,48,0.3); }
-.mayday-btn::before {
-content: “”;
-position: absolute; inset: 0;
-background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15), transparent 60%);
-}
-.mayday-icon { font-size: 28px; }
-.mayday-text { text-align: left; }
-.mayday-title { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
-.mayday-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-
-/* BOTTOM TAB BAR */
-.tab-bar {
-position: fixed;
-bottom: 0; left: 50%; transform: translateX(-50%);
-width: 100%; max-width: 430px;
-background: #FFFFFF;
-border-top: 1px solid var(–ios-separator);
-display: flex;
-padding: 8px 0 var(–safe-bottom);
-z-index: 100;
-}
-.tab-item {
-flex: 1;
-display: flex; flex-direction: column; align-items: center; gap: 3px;
-padding: 6px 4px 2px;
-cursor: pointer;
-color: var(–ios-gray2);
-transition: color 0.15s;
-font-size: 10px; font-weight: 500;
-border: none; background: none;
--webkit-appearance: none;
-}
-.tab-item.active { color: var(–ios-blue); }
-.tab-item svg { width: 24px; height: 24px; }
-.tab-badge {
-position: relative;
-}
-.tab-badge::after {
-content: ‘3’;
-position: absolute; top: -4px; right: -8px;
-background: var(–ios-red);
-color: white; font-size: 9px; font-weight: 700;
-min-width: 16px; height: 16px;
-border-radius: 8px;
-display: flex; align-items: center; justify-content: center;
-padding: 0 4px;
-}
-
-/* MODAL / SHEET */
-.sheet-overlay {
-position: fixed; inset: 0;
-background: rgba(0,0,0,0.55);
-z-index: 200;
-opacity: 0; pointer-events: none;
-transition: opacity 0.3s;
-}
-.sheet-overlay.open { opacity: 1; pointer-events: all; }
-.sheet {
-position: fixed;
-bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-width: 100%; max-width: 430px;
-background: #FFFFFF;
-border-radius: 20px 20px 0 0;
-padding: 0 0 var(–safe-bottom);
-z-index: 201;
-transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
-max-height: 85vh;
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-box-shadow: 0 -4px 30px rgba(0,0,0,0.18);
-/* 確保完全不透明 */
-opacity: 1;
-isolation: isolate;
-}
-.sheet.open { transform: translateX(-50%) translateY(0); }
-.sheet-handle {
-width: 36px; height: 4px;
-background: var(–ios-gray4);
-border-radius: 2px;
-margin: 10px auto 4px;
-}
-.sheet-header { padding: 12px 20px 16px; border-bottom: 0.5px solid var(–ios-separator); }
-.sheet-title { font-size: 17px; font-weight: 700; }
-.sheet-subtitle { font-size: 13px; color: var(–ios-gray1); margin-top: 2px; }
-.sheet-body { padding: 16px 20px; }
-.sheet-section { margin-bottom: 20px; }
-.sheet-section-title { font-size: 13px; font-weight: 600; color: var(–ios-gray1); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-.duty-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(–ios-separator); }
-.duty-row:last-child { border-bottom: none; }
-.duty-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; margin-top: 1px; }
-.duty-text { font-size: 14px; line-height: 1.5; color: var(–ios-secondary); }
-
-/* PAGE VIEWS */
-.page { display: none; }
-.page.active { display: block; }
-
-/* SEARCH BAR */
-.search-bar {
-background: var(–ios-gray5);
-border-radius: 12px;
-padding: 10px 14px;
-display: flex; align-items: center; gap: 8px;
-margin-bottom: 16px;
-}
-.search-bar input {
-background: none; border: none; outline: none;
-font-size: 15px; font-family: inherit;
-flex: 1; color: var(–ios-label);
-}
-.search-icon { color: var(–ios-gray1); font-size: 14px; }
-
-/* NOTIFICATION BANNER */
-.notif-banner {
-background: linear-gradient(135deg, #1C1C1E, #3A3A3C);
-border-radius: 14px;
-padding: 14px 16px;
-display: flex; gap: 12px; align-items: center;
-margin-bottom: 12px;
-color: white;
-}
-.notif-icon { font-size: 24px; flex-shrink: 0; }
-.notif-text { font-size: 13px; line-height: 1.5; opacity: 0.9; }
-.notif-bold { font-weight: 700; font-size: 14px; }
-
+.phase-list{margin-bottom:16px;}
+.phase-item{display:flex;padding:0 4px;align-items:stretch;}
+.phase-col{width:44px;min-width:44px;display:flex;flex-direction:column;align-items:center;}
+.phase-dot{width:32px;height:32px;min-height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.phase-line{width:3px;background:var(--g4);flex:1;min-height:20px;margin:3px 0;}
+.phase-item:last-child .phase-line{display:none;}
+.phase-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;flex:1;cursor:pointer;border:1px solid var(--sep);margin-left:10px;}
+.phase-card:active{background:var(--g6);}
+.phase-card-t{font-size:15px;font-weight:700;}
+.phase-card-d{font-size:13px;color:var(--g1);margin-top:4px;line-height:1.5;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;}
 /* CHECKLIST */
-.checklist { display: flex; flex-direction: column; gap: 1px; background: var(–ios-separator); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
-.check-row {
-background: var(–ios-card);
-padding: 13px 16px;
-display: flex; align-items: center; gap: 14px;
-cursor: pointer; transition: background 0.1s;
-}
-.check-row:active { background: var(–ios-gray5); }
-.check-circle {
-width: 24px; height: 24px;
-border-radius: 50%;
-border: 2px solid var(–ios-gray3);
-flex-shrink: 0;
-display: flex; align-items: center; justify-content: center;
-transition: all 0.2s;
-}
-.check-row.done .check-circle {
-background: var(–ios-green);
-border-color: var(–ios-green);
-}
-.check-row.done .check-circle::after { content: ‘✓’; color: white; font-size: 13px; font-weight: 700; }
-.check-row.done .check-label { color: var(–ios-gray2); text-decoration: line-through; }
-.check-label { font-size: 15px; }
-
-/* SITE STATUS CARDS */
-.site-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.site-card {
-background: var(–ios-card);
-border-radius: 16px;
-padding: 16px;
-cursor: pointer; transition: background 0.1s;
-}
-.site-card:active { background: var(–ios-gray5); }
-.site-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.site-code { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-.site-status-tag { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 8px; color: white; }
-.site-address { font-size: 13px; color: var(–ios-gray1); margin-bottom: 10px; }
-.site-metrics { display: flex; gap: 16px; }
-.metric { display: flex; flex-direction: column; gap: 2px; }
-.metric-val { font-size: 18px; font-weight: 700; }
-.metric-lab { font-size: 11px; color: var(–ios-gray1); }
-
-/* ANIMATIONS */
-@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-.scroll-area > * { animation: slideUp 0.4s ease both; }
-.scroll-area > *:nth-child(2) { animation-delay: 0.05s; }
-.scroll-area > *:nth-child(3) { animation-delay: 0.1s; }
-.scroll-area > *:nth-child(4) { animation-delay: 0.15s; }
-.scroll-area > *:nth-child(5) { animation-delay: 0.2s; }
+.cklist{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--sep);}
+.ck-row{padding:13px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--sep);cursor:pointer;background:#fff;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;}
+.ck-row:last-child{border-bottom:none;}
+.ck-row:active{background:var(--g6);}
+.ck-circle{width:24px;height:24px;border-radius:12px;border:2px solid var(--g3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+.ck-row.done .ck-circle{background:var(--green);border-color:var(--green);}
+.ck-row.done .ck-label{color:var(--g2);text-decoration:line-through;}
+.ck-label{font-size:15px;}
+.ck-count{text-align:center;font-size:13px;color:var(--g1);font-weight:500;padding:10px 0 16px;}
+/* VICTIM */
+.vgrid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.vcard{width:calc(50% - 5px);background:#fff;border-radius:14px;padding:16px;border:2px solid var(--sep);cursor:pointer;}
+.vcard:active{background:var(--g6);}
+.vcard.selected{border-color:var(--blue);}
+.vgrade{font-size:32px;font-weight:800;}
+.vname{font-size:13px;font-weight:700;margin-top:4px;}
+.vdesc{font-size:11px;color:var(--g1);margin-top:3px;line-height:1.4;}
+/* SITE */
+.site-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;border:1px solid var(--sep);cursor:pointer;}
+.site-card:active{background:var(--g6);}
+.site-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.site-code{font-size:18px;font-weight:800;}
+.site-st{font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;color:#fff;}
+.site-addr{font-size:13px;color:var(--g1);margin-bottom:10px;}
+.site-m{display:flex;gap:20px;}
+.mv{font-size:18px;font-weight:700;}
+.ml{font-size:11px;color:var(--g1);margin-top:2px;}
+/* INFO LIST */
+.ilist{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:16px;border:1px solid var(--sep);}
+.irow{padding:13px 16px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--sep);}
+.irow:last-child{border-bottom:none;}
+.ii{font-size:22px;flex-shrink:0;}
+.it{font-size:15px;font-weight:700;}
+.is{font-size:13px;color:var(--g1);margin-top:2px;}
+/* TAB BAR */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--sep);display:flex;padding:8px 0 28px;z-index:300;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 2px;background:none;border:none;color:var(--g2);font-size:10px;font-weight:500;cursor:pointer;font-family:inherit;}
+.tab-btn.active{color:var(--blue);}
+.tab-btn svg{width:24px;height:24px;}
+.tbw{position:relative;display:inline-block;}
+.tbw span{position:absolute;top:-4px;right:-10px;background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+/* OVERLAY */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:400;display:none;}
+.overlay.open{display:block;}
+/* SHEET */
+.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:#fff;border-radius:20px 20px 0 0;z-index:500;max-height:82vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:32px;transition:transform .35s ease;box-shadow:0 -2px 20px rgba(0,0,0,.15);}
+.sheet.open{transform:translateX(-50%) translateY(0);}
+.sh{width:36px;height:4px;background:var(--g4);border-radius:2px;margin:10px auto 6px;}
+.shd{padding:10px 20px 14px;border-bottom:1px solid var(--sep);}
+.sht{font-size:18px;font-weight:700;}
+.shs{font-size:13px;color:var(--g1);margin-top:2px;}
+.shb{padding:16px 20px;}
+.shsec{margin-bottom:20px;}
+.shst{font-size:12px;font-weight:600;color:var(--g1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.dr{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--sep);}
+.dr:last-child{border-bottom:none;}
+.dn{width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+.dt{font-size:14px;line-height:1.55;color:#3C3C43;}
 </style>
-
 </head>
 <body>
 
-<!-- STATUS BAR -->
-
-<div class="status-bar">
-  <span class="time" id="clock">09:41</span>
-  <div class="status-icons">
-    <svg viewBox="0 0 17 12" fill="currentColor"><path d="M1 4.5a7.5 7.5 0 0 1 15 0M4 7a5 5 0 0 1 10 0M7 9.5a2.5 2.5 0 0 1 5 0"/><circle cx="8.5" cy="11.5" r="1.5"/></svg>
-    <svg viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="0" width="21" height="12" rx="3.5" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="3.5" width="3" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="1.5" y="1.5" width="15" height="9" rx="2" fill="currentColor"/></svg>
+<div class="sb">
+  <span class="sb-time" id="clock">09:41</span>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <svg width="16" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 4.5a7.5 7.5 0 0 1 15 0M4 7a5 5 0 0 1 10 0M7 9.5a2.5 2.5 0 0 1 5 0"/><circle cx="8.5" cy="11" r="1.2" fill="currentColor" stroke="none"/></svg>
+    <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity=".35"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="currentColor" fill-opacity=".4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/></svg>
   </div>
 </div>
 
 <!-- PAGE: 任務 -->
 
 <div id="page-mission" class="page active">
-  <div class="nav-bar">
-    <div class="nav-title">任務概覽</div>
-    <div class="nav-subtitle">ASR2 · 台東消防 TW-V-10</div>
-    <div class="nav-actions">
-      <button class="nav-btn" onclick="showSheet('sheet-mayday')">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#FF3B30" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      </button>
-    </div>
+  <div class="nb">
+    <div class="nb-title">任務概覽</div>
+    <div class="nb-sub">ASR2 · 台東消防 TW-V-10</div>
+    <button class="nb-btn" onclick="openSheet('sheet-mayday')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </button>
   </div>
-  <div class="scroll-area">
-    <!-- MISSION CARD -->
-    <div class="mission-card">
-      <div class="mission-badge"><span class="dot"></span>進行中</div>
-      <div class="mission-name">ASR2 — 快速評估任務</div>
-      <div class="mission-meta">
-        <div class="meta-item">
-          <span class="meta-label">人員</span>
-          <span class="meta-value">17人</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">場地</span>
-          <span class="meta-value">A-1</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">時間</span>
-          <span class="meta-value" id="timer">00:00</span>
-        </div>
+  <div class="scroll">
+    <div class="mc">
+      <div class="mc-badge"><span class="mc-dot"></span>進行中</div>
+      <div class="mc-name">ASR2 — 快速評估任務</div>
+      <div class="mc-meta">
+        <div class="mc-mi"><span class="mc-ml">人員</span><span class="mc-mv">17人</span></div>
+        <div class="mc-mi"><span class="mc-ml">場地</span><span class="mc-mv">A-1</span></div>
+        <div class="mc-mi"><span class="mc-ml">時間</span><span class="mc-mv" id="timer">00:00</span></div>
       </div>
-      <div class="progress-bar">
-        <div class="progress-label"><span>整體任務進度</span><span>35%</span></div>
-        <div class="progress-track"><div class="progress-fill"></div></div>
-      </div>
+      <div class="mc-pr"><span>整體任務進度</span><span>35%</span></div>
+      <div class="mc-pt"><div class="mc-pf"></div></div>
     </div>
-
-```
-<!-- NOTIFICATION -->
-<div class="notif-banner">
-  <div class="notif-icon">📡</div>
-  <div class="notif-text">
-    <div class="notif-bold">UCC 指令</div>
-    工作場地 A-1 已分配，請帶隊官確認人員集合後出發
-  </div>
-</div>
-
-<!-- MAYDAY -->
-<div class="mayday-container">
-  <button class="mayday-btn" onclick="showSheet('sheet-mayday')">
-    <div class="mayday-icon">🚨</div>
-    <div class="mayday-text">
-      <div class="mayday-title">MAYDAY</div>
-      <div class="mayday-sub">長按 3 秒啟動緊急呼叫</div>
+    <div class="notif">
+      <div class="notif-icon">📡</div>
+      <div><div class="notif-t">UCC 指令</div><div class="notif-b">工作場地 A-1 已分配，請帶隊官確認人員集合後出發</div></div>
     </div>
-  </button>
-</div>
-
-<!-- ROLES -->
-<div class="section-header">人員分工</div>
-<div class="role-list">
-  <div class="role-item" onclick="showSheet('sheet-commander')">
-    <div class="role-icon" style="background:#FF3B3020">🎖️</div>
-    <div class="role-info">
-      <div class="role-name">帶隊官</div>
-      <div class="role-count">管理組 · 1名</div>
+    <button class="mayday" onclick="openSheet('sheet-mayday')">
+      <span class="mayday-icon">🚨</span>
+      <div><div class="mayday-t">MAYDAY</div><div class="mayday-s">長按 3 秒啟動緊急呼叫</div></div>
+    </button>
+    <div class="sec-hd">人員分工</div>
+    <div class="role-list">
+      <button class="role-row" onclick="openSheet('sheet-commander')"><div class="role-icon" style="background:#FF3B3020">🎖️</div><div class="role-info"><div class="role-name">帶隊官</div><div class="role-sub">管理組 · 1名</div></div><span class="role-badge" style="background:var(--red)">指揮</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-staff')"><div class="role-icon" style="background:#FF950020">📋</div><div class="role-info"><div class="role-name">管理幕僚</div><div class="role-sub">救援組 · 1名</div></div><span class="role-badge" style="background:var(--orange)">文管</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-safety')"><div class="role-icon" style="background:#FFCC0020">🦺</div><div class="role-info"><div class="role-name">安全官</div><div class="role-sub">救援組 · 1名</div></div><span class="role-badge" style="background:var(--yellow);color:#000">安全</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-s1')"><div class="role-icon" style="background:#007AFF20">🔍</div><div class="role-info"><div class="role-name">搜索1組</div><div class="role-sub">搜索組2名 + 結構技師</div></div><span class="role-badge" style="background:var(--blue)">搜索</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-s2')"><div class="role-icon" style="background:#007AFF20">🔎</div><div class="role-info"><div class="role-name">搜索2組</div><div class="role-sub">搜索組 · 2名</div></div><span class="role-badge" style="background:var(--blue)">搜索</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-s3')"><div class="role-icon" style="background:#5AC8FA20">🚧</div><div class="role-info"><div class="role-name">搜索3組</div><div class="role-sub">救援組 · 2名</div></div><span class="role-badge" style="background:var(--teal)">管制</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-med')"><div class="role-icon" style="background:#34C75920">🏥</div><div class="role-info"><div class="role-name">醫療組</div><div class="role-sub">2名</div></div><span class="role-badge" style="background:var(--green)">醫療</span><span class="role-chev">›</span></button>
+      <button class="role-row" onclick="openSheet('sheet-rescue')"><div class="role-icon" style="background:#AF52DE20">⛏️</div><div class="role-info"><div class="role-name">救援組</div><div class="role-sub">5名</div></div><span class="role-badge" style="background:var(--purple)">救援</span><span class="role-chev">›</span></button>
     </div>
-    <div class="role-badge" style="background:var(--ios-red)">指揮</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-staff')">
-    <div class="role-icon" style="background:#FF950020">📋</div>
-    <div class="role-info">
-      <div class="role-name">管理幕僚</div>
-      <div class="role-count">救援組 · 1名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-orange)">文管</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-safety')">
-    <div class="role-icon" style="background:#FFCC0020">🦺</div>
-    <div class="role-info">
-      <div class="role-name">安全官</div>
-      <div class="role-count">救援組 · 1名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-yellow); color:#000">安全</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-search1')">
-    <div class="role-icon" style="background:#007AFF20">🔍</div>
-    <div class="role-info">
-      <div class="role-name">搜索1組</div>
-      <div class="role-count">搜索組2名 + 結構技師</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-blue)">搜索</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-search2')">
-    <div class="role-icon" style="background:#007AFF20">🔎</div>
-    <div class="role-info">
-      <div class="role-name">搜索2組</div>
-      <div class="role-count">搜索組 · 2名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-blue)">搜索</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-search3')">
-    <div class="role-icon" style="background:#5AC8FA20">🚧</div>
-    <div class="role-info">
-      <div class="role-name">搜索3組</div>
-      <div class="role-count">救援組 · 2名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-teal)">管制</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-medical')">
-    <div class="role-icon" style="background:#34C75920">🏥</div>
-    <div class="role-info">
-      <div class="role-name">醫療組</div>
-      <div class="role-count">2名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-green)">醫療</div>
-    <div class="role-chevron">›</div>
-  </div>
-  <div class="role-item" onclick="showSheet('sheet-rescue')">
-    <div class="role-icon" style="background:#AF52DE20">⛏️</div>
-    <div class="role-info">
-      <div class="role-name">救援組</div>
-      <div class="role-count">5名</div>
-    </div>
-    <div class="role-badge" style="background:var(--ios-purple)">救援</div>
-    <div class="role-chevron">›</div>
-  </div>
-</div>
-```
-
   </div>
 </div>
 
 <!-- PAGE: 流程 -->
 
 <div id="page-phase" class="page">
-  <div class="nav-bar">
-    <div class="nav-title">作業流程</div>
-    <div class="nav-subtitle">ASR2 標準程序</div>
-  </div>
-  <div class="scroll-area">
+  <div class="nb"><div class="nb-title">作業流程</div><div class="nb-sub">ASR2 標準程序</div></div>
+  <div class="scroll">
     <div class="phase-list">
-
-```
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-blue)">1</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase1')">
-      <div class="phase-title">BoO — 任務領取</div>
-      <div class="phase-desc">管理組前往UCC接受工作場地分配，返回後召集ASR2人員進行任務簡報</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#007AFF20; color:var(--ios-blue)">UCC</span>
-        <span class="tag" style="background:#34C75920; color:var(--ios-green)">簡報</span>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--blue)">1</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p1')"><div class="phase-card-t">BoO — 任務領取</div><div class="phase-card-d">管理組前往UCC接受工作場地分配，返回後召集ASR2人員進行任務簡報</div><div class="tags"><span class="tag" style="background:#007AFF20;color:var(--blue)">UCC</span><span class="tag" style="background:#34C75920;color:var(--green)">簡報</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--teal)">2</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p2')"><div class="phase-card-t">出發前準備</div><div class="phase-card-d">換洗衣物→健康檢查→消毒罐→共裝整理→穿個裝→入口管制集合</div><div class="tags"><span class="tag" style="background:#FFCC0030;color:#7A6000">準備</span><span class="tag" style="background:#FF950020;color:var(--orange)">器材</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--green)">3</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p3')"><div class="phase-card-t">抵達工作場地</div><div class="phase-card-d">設立緊急集合地點、搭設前進指揮所，安全官說明冷熱區分配</div><div class="tags"><span class="tag" style="background:#FF3B3020;color:var(--red)">安全</span><span class="tag" style="background:#5AC8FA20;color:#0080A0">冷熱區</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--orange)">4</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p4')"><div class="phase-card-t">快速搜索</div><div class="phase-card-d">三組同步展開：環境風險評估、位移偵測、封鎖線管制，精密儀器輔助</div><div class="tags"><span class="tag" style="background:#007AFF20;color:var(--blue)">搜索1組</span><span class="tag" style="background:#007AFF20;color:var(--blue)">搜索2組</span><span class="tag" style="background:#5AC8FA20;color:#0080A0">搜索3組</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--red)">5</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p5')"><div class="phase-card-t">評估回報</div><div class="phase-card-d">繪製受困者標記與工作場地標記，醫療組評估生命徵象，決定ABCD等級</div><div class="tags"><span class="tag" style="background:#34C75920;color:var(--green)">醫療</span><span class="tag" style="background:#FF3B3020;color:var(--red)">A/B/C/D</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--purple)">6</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p6')"><div class="phase-card-t">撤離與清消</div><div class="phase-card-d">上車前完成消毒，裝備全部收整，向入口管制站報到，前往下一場地</div><div class="tags"><span class="tag" style="background:#34C75920;color:var(--green)">清消</span><span class="tag" style="background:#FFCC0030;color:#7A6000">下一場地</span></div></div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-col"><div class="phase-dot" style="background:var(--g1)">7</div><div class="phase-line"></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p7')"><div class="phase-card-t">返隊</div><div class="phase-card-d">清消通道→更換衣物→入口管制報到→清點人員→救護站健康檢查→資料回報</div><div class="tags"><span class="tag" style="background:#8E8E9320;color:var(--g1)">收隊</span><span class="tag" style="background:#34C75920;color:var(--green)">健康檢查</span></div></div>
       </div>
     </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-teal)">2</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase2')">
-      <div class="phase-title">出發前準備</div>
-      <div class="phase-desc">換洗衣物→健康檢查→消毒罐→共裝整理→穿個裝→入口管制集合</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#FFCC0020; color:#B8860B">準備</span>
-        <span class="tag" style="background:#FF950020; color:var(--ios-orange)">器材</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-green)">3</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase3')">
-      <div class="phase-title">抵達工作場地</div>
-      <div class="phase-desc">設立緊急集合地點、搭設前進指揮所，安全官說明冷熱區分配</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#FF3B3020; color:var(--ios-red)">安全</span>
-        <span class="tag" style="background:#5AC8FA20; color:var(--ios-teal)">冷熱區</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-orange)">4</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase4')">
-      <div class="phase-title">快速搜索</div>
-      <div class="phase-desc">三組同步展開：環境風險評估、位移偵測、封鎖線管制，精密儀器輔助</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#007AFF20; color:var(--ios-blue)">搜索1組</span>
-        <span class="tag" style="background:#007AFF20; color:var(--ios-blue)">搜索2組</span>
-        <span class="tag" style="background:#5AC8FA20; color:var(--ios-teal)">搜索3組</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-red)">5</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase5')">
-      <div class="phase-title">評估回報</div>
-      <div class="phase-desc">繪製受困者標記與工作場地標記，醫療組評估生命徵象，決定ABCD等級</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#34C75920; color:var(--ios-green)">醫療</span>
-        <span class="tag" style="background:#FF3B3020; color:var(--ios-red)">A/B/C/D</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-purple)">6</div>
-      <div class="phase-connector" style="background:var(--ios-gray4)"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase6')">
-      <div class="phase-title">撤離與清消</div>
-      <div class="phase-desc">上車前完成消毒，裝備全部收整，向入口管制站報到，前往下一場地</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#34C75920; color:var(--ios-green)">清消</span>
-        <span class="tag" style="background:#FFCC0020; color:#B8860B">下一場地</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="phase-item">
-    <div class="phase-line-col">
-      <div class="phase-dot" style="background:var(--ios-gray1)">7</div>
-      <div class="phase-connector" style="background:transparent"></div>
-    </div>
-    <div class="phase-content" onclick="showSheet('sheet-phase7')">
-      <div class="phase-title">返隊</div>
-      <div class="phase-desc">清消通道→更換衣物→入口管制報到→清點人員→救護站健康檢查→資料回報</div>
-      <div class="phase-tags">
-        <span class="tag" style="background:#8E8E9320; color:var(--ios-gray1)">收隊</span>
-        <span class="tag" style="background:#34C75920; color:var(--ios-green)">健康檢查</span>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
   </div>
 </div>
 
 <!-- PAGE: 器材 -->
 
 <div id="page-equip" class="page">
-  <div class="nav-bar">
-    <div class="nav-title">器材清單</div>
-    <div class="nav-subtitle">點擊勾選確認攜帶</div>
-  </div>
-  <div class="scroll-area">
-    <div class="checklist" id="equip-checklist">
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">① 驗電棒</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">② 五用氣體偵測器</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">③ 雷射位移監測儀</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">④ 聲納搜索儀</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑤ 蛇管鏡</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑥ 地音探測器</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑦ 無線電</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑧ 平板電腦</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑨ 紙本工作表 & 平面圖</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑩ 消毒罐</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑪ 瓦斯汽笛</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑫ 指揮帳</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑬ 人員管制板</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑭ 封鎖線</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑮ 急救包</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑯ 水 & 乾糧</span></div>
-      <div class="check-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="check-label">⑰ 個人防護裝備（全套）</span></div>
+  <div class="nb"><div class="nb-title">器材清單</div><div class="nb-sub">點擊勾選確認攜帶</div></div>
+  <div class="scroll">
+    <div class="cklist" id="cklist">
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">① 驗電棒</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">② 五用氣體偵測器</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">③ 雷射位移監測儀</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">④ 聲納搜索儀</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑤ 蛇管鏡</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑥ 地音探測器</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑦ 無線電</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑧ 平板電腦</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑨ 紙本工作表 &amp; 平面圖</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑩ 消毒罐</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑪ 瓦斯汽笛</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑫ 指揮帳</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑬ 人員管制板</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑭ 封鎖線</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑮ 急救包</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑯ 水 &amp; 乾糧</span></button>
+      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑰ 個人防護裝備（全套）</span></button>
     </div>
-    <div style="text-align:center; color:var(--ios-gray1); font-size:13px; padding:8px 0 16px; font-weight:500" id="equip-count">已確認：0 / 17 項</div>
+    <div class="ck-count" id="ck-count">已確認：0 / 17 項</div>
   </div>
 </div>
 
 <!-- PAGE: 場地 -->
 
 <div id="page-site" class="page">
-  <div class="nav-bar">
-    <div class="nav-title">場地評估</div>
-    <div class="nav-subtitle">工作場地狀態總覽</div>
-  </div>
-  <div class="scroll-area">
-    <!-- VICTIM STATUS -->
-    <div class="section-header">受困者等級</div>
-    <div class="victim-grid">
-      <div class="victim-card victim-A" onclick="selectVictim(this,'A')">
-        <div class="victim-grade">A</div>
-        <div class="victim-label">確定有人</div>
-        <div class="victim-desc">12小時以內，可接觸受困者</div>
-      </div>
-      <div class="victim-card victim-B" onclick="selectVictim(this,'B')">
-        <div class="victim-grade">B</div>
-        <div class="victim-label">確定有人</div>
-        <div class="victim-desc">12小時以上，可接觸受困者</div>
-      </div>
-      <div class="victim-card victim-C" onclick="selectVictim(this,'C')">
-        <div class="victim-grade">C</div>
-        <div class="victim-label">可能有人</div>
-        <div class="victim-desc">無法確認，關係人指稱有人</div>
-      </div>
-      <div class="victim-card victim-D" onclick="selectVictim(this,'D')">
-        <div class="victim-grade">D</div>
-        <div class="victim-label">僅罹難者</div>
-        <div class="victim-desc">無存活者跡象</div>
-      </div>
+  <div class="nb"><div class="nb-title">場地評估</div><div class="nb-sub">工作場地狀態總覽</div></div>
+  <div class="scroll">
+    <div class="sec-hd">受困者等級</div>
+    <div class="vgrid">
+      <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--red)">A</div><div class="vname">確定有人</div><div class="vdesc">12小時以內，可接觸受困者</div></div>
+      <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--orange)">B</div><div class="vname">確定有人</div><div class="vdesc">12小時以上，可接觸受困者</div></div>
+      <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--yellow)">C</div><div class="vname">可能有人</div><div class="vdesc">無法確認，關係人指稱有人</div></div>
+      <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--g1)">D</div><div class="vname">僅罹難者</div><div class="vdesc">無存活者跡象</div></div>
     </div>
-
-```
-<div class="section-header">任務場地</div>
-<div class="site-cards">
-  <div class="site-card" onclick="showSheet('sheet-site-a1')">
-    <div class="site-card-header">
-      <div class="site-code">場地 A-1</div>
-      <div class="site-status-tag" style="background:var(--ios-orange)">評估中</div>
+    <div class="sec-hd">任務場地</div>
+    <div class="site-card" onclick="openSheet('sheet-site1')">
+      <div class="site-head"><div class="site-code">場地 A-1</div><div class="site-st" style="background:var(--orange)">評估中</div></div>
+      <div class="site-addr">台東市中正路 xxx 號</div>
+      <div class="site-m"><div><div class="mv" style="color:var(--orange)">C</div><div class="ml">受困等級</div></div><div><div class="mv">RC造</div><div class="ml">建築類型</div></div><div><div class="mv">30分</div><div class="ml">已用時間</div></div></div>
     </div>
-    <div class="site-address">台東市中正路 xxx 號</div>
-    <div class="site-metrics">
-      <div class="metric"><div class="metric-val" style="color:var(--ios-orange)">C</div><div class="metric-lab">受困等級</div></div>
-      <div class="metric"><div class="metric-val">RC造</div><div class="metric-lab">建築類型</div></div>
-      <div class="metric"><div class="metric-val">30分</div><div class="metric-lab">已用時間</div></div>
+    <div class="site-card" onclick="openSheet('sheet-site2')">
+      <div class="site-head"><div class="site-code">場地 A-2</div><div class="site-st" style="background:var(--g1)">待命</div></div>
+      <div class="site-addr">台東市更生路 xxx 號</div>
+      <div class="site-m"><div><div class="mv" style="color:var(--g1)">—</div><div class="ml">受困等級</div></div><div><div class="mv">待評估</div><div class="ml">建築類型</div></div><div><div class="mv">—</div><div class="ml">已用時間</div></div></div>
     </div>
-  </div>
-  <div class="site-card" onclick="showSheet('sheet-site-a2')">
-    <div class="site-card-header">
-      <div class="site-code">場地 A-2</div>
-      <div class="site-status-tag" style="background:var(--ios-gray1)">待命</div>
+    <div class="sec-hd">哨音規定</div>
+    <div class="ilist">
+      <div class="irow"><div class="ii">📢</div><div><div class="it">短 1聲</div><div class="is">注意 / 停止作業</div></div></div>
+      <div class="irow"><div class="ii">📢</div><div><div class="it">短 2聲</div><div class="is">繼續作業</div></div></div>
+      <div class="irow"><div class="ii">🚨</div><div><div class="it" style="color:var(--red)">長 3聲</div><div class="is">立即撤離（緊急）</div></div></div>
     </div>
-    <div class="site-address">台東市更生路 xxx 號</div>
-    <div class="site-metrics">
-      <div class="metric"><div class="metric-val" style="color:var(--ios-gray1)">—</div><div class="metric-lab">受困等級</div></div>
-      <div class="metric"><div class="metric-val">待評估</div><div class="metric-lab">建築類型</div></div>
-      <div class="metric"><div class="metric-val">—</div><div class="metric-lab">已用時間</div></div>
+    <div class="sec-hd">代碼說明</div>
+    <div class="ilist">
+      <div class="irow"><div class="ii">🇹🇼</div><div><div class="it">國內代碼 TW-V-10</div></div></div>
+      <div class="irow"><div class="ii">✈️</div><div><div class="it">出國代碼 TPE-10</div></div></div>
     </div>
   </div>
 </div>
 
-<!-- WHISTLE SIGNALS -->
-<div class="section-header">哨音規定</div>
-<div class="checklist">
-  <div class="check-row" style="cursor:default">
-    <div style="font-size:22px">📢</div>
-    <div>
-      <div class="check-label" style="font-weight:700">短 1聲</div>
-      <div style="font-size:13px; color:var(--ios-gray1); margin-top:2px">注意 / 停止作業</div>
-    </div>
-  </div>
-  <div class="check-row" style="cursor:default">
-    <div style="font-size:22px">📢</div>
-    <div>
-      <div class="check-label" style="font-weight:700">短 2聲</div>
-      <div style="font-size:13px; color:var(--ios-gray1); margin-top:2px">繼續作業</div>
-    </div>
-  </div>
-  <div class="check-row" style="cursor:default">
-    <div style="font-size:22px">🚨</div>
-    <div>
-      <div class="check-label" style="font-weight:700; color:var(--ios-red)">長 3聲</div>
-      <div style="font-size:13px; color:var(--ios-gray1); margin-top:2px">立即撤離（緊急）</div>
-    </div>
-  </div>
-</div>
+<!-- TAB BAR -->
 
-<div class="section-header">代碼說明</div>
-<div class="checklist">
-  <div class="check-row" style="cursor:default">
-    <div class="check-label">🇹🇼 國內代碼 <strong>TW-V-10</strong></div>
-  </div>
-  <div class="check-row" style="cursor:default">
-    <div class="check-label">✈️ 出國代碼 <strong>TPE-10</strong></div>
-  </div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- BOTTOM TAB BAR -->
-
-<div class="tab-bar">
-  <button class="tab-item active" onclick="switchPage('mission',this)">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-    任務
+<div class="tabbar">
+  <button class="tab-btn active" onclick="switchPage('mission',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="2"/></svg>任務
   </button>
-  <button class="tab-item" onclick="switchPage('phase',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    流程
+  <button class="tab-btn" onclick="switchPage('phase',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>流程
   </button>
-  <button class="tab-item" onclick="switchPage('equip',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    器材
+  <button class="tab-btn" onclick="switchPage('equip',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>器材
   </button>
-  <button class="tab-item" onclick="switchPage('site',this)">
-    <div class="tab-badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-    </div>
-    場地
+  <button class="tab-btn" onclick="switchPage('site',this)">
+    <div class="tbw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>3</span></div>場地
   </button>
 </div>
 
-<!-- ====== SHEETS ====== -->
+<!-- OVERLAY -->
 
-<div class="sheet-overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
 
-<!-- MAYDAY SHEET -->
+<!-- SHEETS -->
 
 <div class="sheet" id="sheet-mayday">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="color:var(--ios-red); font-size:24px; margin-bottom:6px">🚨</div>
-    <div class="sheet-title" style="color:var(--ios-red)">MAYDAY 程序</div>
-    <div class="sheet-subtitle">緊急狀況啟動流程</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">瓦斯汽笛使用</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">1</div><div class="duty-text">由<strong>安全官</strong>負責瓦斯汽笛使用</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">2</div><div class="duty-text">聽到<strong>長聲3聲</strong>，所有人員立即停止作業</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">3</div><div class="duty-text">依<strong>撤離路線</strong>前往集結區</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">4</div><div class="duty-text">帶隊官在集結區<strong>清點人員</strong>，向UCC回報</div></div>
-    </div>
-    <div class="sheet-section">
-      <div class="sheet-section-title">集結區規定</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">!</div><div class="duty-text">冷熱區由<strong>安全官</strong>於抵達現場後立即劃定</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">!</div><div class="duty-text">集結區位於<strong>冷區</strong>，所有非作業人員於此待命</div></div>
-    </div>
-  </div>
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🚨</div><div class="sht" style="color:var(--red)">MAYDAY 程序</div><div class="shs">緊急狀況啟動流程</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">瓦斯汽笛使用</div>
+    <div class="dr"><div class="dn" style="background:var(--red)">1</div><div class="dt">由<strong>安全官</strong>負責瓦斯汽笛使用</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">2</div><div class="dt">聽到<strong>長聲3聲</strong>，所有人員立即停止作業</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">3</div><div class="dt">依<strong>撤離路線</strong>前往集結區</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">4</div><div class="dt">帶隊官在集結區<strong>清點人員</strong>，向UCC回報</div></div>
+  </div><div class="shsec"><div class="shst">集結區規定</div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">冷熱區由<strong>安全官</strong>於抵達現場後立即劃定</div></div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">集結區位於<strong>冷區</strong>，所有非作業人員於此待命</div></div>
+  </div></div>
 </div>
-
-<!-- COMMANDER SHEET -->
 
 <div class="sheet" id="sheet-commander">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🎖️</div>
-    <div class="sheet-title">帶隊官</div>
-    <div class="sheet-subtitle">管理組 · 1名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">1</div><div class="duty-text">任務說明與分工安排</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">2</div><div class="duty-text">蒐集現場情資，進行現場決斷</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">3</div><div class="duty-text">每個工作場地結束後向管理組回報</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">4</div><div class="duty-text">轉報 UCC 判斷是否立即派隊前往</div></div>
-    </div>
-  </div>
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🎖️</div><div class="sht">帶隊官</div><div class="shs">管理組 · 1名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--red)">1</div><div class="dt">任務說明與分工安排</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">2</div><div class="dt">蒐集現場情資，進行現場決斷</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">3</div><div class="dt">每個工作場地結束後向管理組回報</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">4</div><div class="dt">轉報 UCC 判斷是否立即派隊前往</div></div>
+  </div></div>
 </div>
-
-<!-- STAFF SHEET -->
 
 <div class="sheet" id="sheet-staff">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">📋</div>
-    <div class="sheet-title">管理幕僚</div>
-    <div class="sheet-subtitle">救援組 · 1名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">1</div><div class="duty-text">出發前確認所攜器材數量</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">2</div><div class="duty-text">協助蒐集現場情資</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">3</div><div class="duty-text">繪製<strong>平面圖</strong>、填寫「工作場地評估表」</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">4</div><div class="duty-text">與現場民眾、關係人接洽，判斷特殊狀況（金庫、倒塌、建築結構、倉庫內容物）</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">5</div><div class="duty-text">負責現場拍照或錄影</div></div>
-    </div>
-  </div>
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">📋</div><div class="sht">管理幕僚</div><div class="shs">救援組 · 1名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">1</div><div class="dt">出發前確認所攜器材數量</div></div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">2</div><div class="dt">協助蒐集現場情資</div></div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">3</div><div class="dt">繪製<strong>平面圖</strong>、填寫「工作場地評估表」</div></div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">4</div><div class="dt">與現場民眾、關係人接洽，判斷特殊狀況（金庫、倒塌、建築結構、倉庫內容物）</div></div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">5</div><div class="dt">負責現場拍照或錄影</div></div>
+  </div></div>
 </div>
-
-<!-- SAFETY SHEET -->
 
 <div class="sheet" id="sheet-safety">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🦺</div>
-    <div class="sheet-title">安全官</div>
-    <div class="sheet-subtitle">救援組 · 1名 · 專注於安全</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-yellow); color:#000">1</div><div class="duty-text"><strong>集結區冷熱區劃定</strong>，說明撤離、集結、哨音規定</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-yellow); color:#000">2</div><div class="duty-text">負責現場任務安全監控</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-yellow); color:#000">3</div><div class="duty-text">負責<strong>緊急狀況瓦斯汽笛</strong>使用</div></div>
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🦺</div><div class="sht">安全官</div><div class="shs">救援組 · 1名 · 專注於安全</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">1</div><div class="dt"><strong>集結區冷熱區劃定</strong>，說明撤離、集結、哨音規定</div></div>
+    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">2</div><div class="dt">負責現場任務安全監控</div></div>
+    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">3</div><div class="dt">負責<strong>緊急狀況瓦斯汽笛</strong>使用</div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-s1">
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🔍</div><div class="sht">搜索1組</div><div class="shs">搜索組2名 + 結構技師</div></div>
+  <div class="shb">
+    <div class="shsec"><div class="shst">職責</div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">使用<strong>五用氣體偵測器</strong>、<strong>驗電棒</strong>進行環境風險評估</div></div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">執行<strong>快速搜索</strong></div></div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">3</div><div class="dt">協助<strong>結構技師</strong>判定建築物安全性</div></div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">4</div><div class="dt">描繪「受困者標記」及「工作場地標記」（攜帶筆）</div></div>
+    </div>
+    <div class="shsec"><div class="shst">結構技師</div>
+      <div class="dr"><div class="dn" style="background:var(--teal)">!</div><div class="dt">就現場建築物是否能執行救援進行安全認定</div></div>
+      <div class="dr"><div class="dn" style="background:var(--teal)">!</div><div class="dt">提供有關結構安全諮詢</div></div>
     </div>
   </div>
 </div>
 
-<!-- SEARCH1 SHEET -->
-
-<div class="sheet" id="sheet-search1">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🔍</div>
-    <div class="sheet-title">搜索1組</div>
-    <div class="sheet-subtitle">搜索組2名 + 結構技師</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">1</div><div class="duty-text">使用<strong>五用氣體偵測器</strong>、<strong>驗電棒</strong>進行環境風險評估</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">2</div><div class="duty-text">執行<strong>快速搜索</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">3</div><div class="duty-text">協助<strong>結構技師</strong>判定建築物安全性</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">4</div><div class="duty-text">描繪「<strong>受困者標記</strong>」及「<strong>工作場地標記</strong>」（攜帶筆）</div></div>
-    </div>
-    <div class="sheet-section">
-      <div class="sheet-section-title">結構技師任務</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">!</div><div class="duty-text">就現場建築物是否能執行救援進行安全認定</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">!</div><div class="duty-text">提供有關結構安全諮詢</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-s2">
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🔎</div><div class="sht">搜索2組</div><div class="shs">搜索組 · 2名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">架設<strong>位移偵測儀</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">架設完畢後隨第一組進行快速搜索</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">3</div><div class="dt">攜帶<strong>精密儀器</strong>，視情況進行儀器搜索</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">4</div><div class="dt">研判是否可立即處理，或需後續救援組（ASR3）</div></div>
+  </div></div>
 </div>
 
-<!-- SEARCH2 SHEET -->
-
-<div class="sheet" id="sheet-search2">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🔎</div>
-    <div class="sheet-title">搜索2組</div>
-    <div class="sheet-subtitle">搜索組 · 2名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">1</div><div class="duty-text">架設<strong>位移偵測儀</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">2</div><div class="duty-text">架設完畢後隨第一組進行快速搜索</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">3</div><div class="duty-text">攜帶<strong>精密儀器</strong>，視情況進行儀器搜索</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">4</div><div class="duty-text">研判是否可立即處理，或需後續救援組（ASR3）</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-s3">
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🚧</div><div class="sht">搜索3組</div><div class="shs">救援組 · 2名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">1</div><div class="dt">架設<strong>集結區帳篷</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">2</div><div class="dt">拉<strong>封鎖線</strong>，協助劃設冷熱區</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">3</div><div class="dt">管制現場人員進出</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">4</div><div class="dt">如有需要，結合1、2組進行搜索</div></div>
+  </div></div>
 </div>
 
-<!-- SEARCH3 SHEET -->
-
-<div class="sheet" id="sheet-search3">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🚧</div>
-    <div class="sheet-title">搜索3組</div>
-    <div class="sheet-subtitle">救援組 · 2名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">1</div><div class="duty-text">架設<strong>集結區帳篷</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">2</div><div class="duty-text">拉<strong>封鎖線</strong>，協助劃設冷熱區</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">3</div><div class="duty-text">管制現場人員進出</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">4</div><div class="duty-text">如有需要，結合1、2組進行搜索</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-med">
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🏥</div><div class="sht">醫療組</div><div class="shs">2名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--green)">1</div><div class="dt">攜帶基本救護器材，於現場<strong>隨時待命</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">2</div><div class="dt"><strong>救難人員受傷醫療</strong>為優先</div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">3</div><div class="dt">如可接觸受困者，評估其<strong>生命徵象</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">4</div><div class="dt">協助決定搶救優先順序（A/B/C/D）</div></div>
+  </div></div>
 </div>
-
-<!-- MEDICAL SHEET -->
-
-<div class="sheet" id="sheet-medical">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">🏥</div>
-    <div class="sheet-title">醫療組</div>
-    <div class="sheet-subtitle">2名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">1</div><div class="duty-text">攜帶基本救護器材，於現場<strong>隨時待命</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">2</div><div class="duty-text"><strong>救難人員受傷醫療</strong>為優先</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">3</div><div class="duty-text">如可接觸受困者，評估其<strong>生命徵象</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">4</div><div class="duty-text">協助決定搶救優先順序（A/B/C/D）</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- RESCUE SHEET -->
 
 <div class="sheet" id="sheet-rescue">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div style="font-size:28px; margin-bottom:6px">⛏️</div>
-    <div class="sheet-title">救援組</div>
-    <div class="sheet-subtitle">5名</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">職責</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-purple)">1</div><div class="duty-text">執行現場「<strong>快速搜索</strong>」任務</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-purple)">2</div><div class="duty-text">架設<strong>集結區帳篷</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-purple)">3</div><div class="duty-text">BoO 領取任務 + 器材整理</div></div>
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">⛏️</div><div class="sht">救援組</div><div class="shs">5名</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">職責</div>
+    <div class="dr"><div class="dn" style="background:var(--purple)">1</div><div class="dt">執行現場「<strong>快速搜索</strong>」任務</div></div>
+    <div class="dr"><div class="dn" style="background:var(--purple)">2</div><div class="dt">架設<strong>集結區帳篷</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--purple)">3</div><div class="dt">BoO 領取任務 + 器材整理</div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-p1">
+  <div class="sh"></div><div class="shd"><div class="sht">① BoO — 任務領取</div><div class="shs">出發前準備階段</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">步驟</div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">管理組人員前往 <strong>UCC</strong> 接受工作場地分配</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">返回管理組，召集ASR2人員進行<strong>任務簡報</strong>與工作提示</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">3</div><div class="dt">個人換洗衣物放置盥洗處</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">4</div><div class="dt">救護組健康檢查，領取消毒罐</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">5</div><div class="dt">整理共裝放置側門</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">6</div><div class="dt">穿著個裝後至<strong>入口管制處</strong>集合</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">7</div><div class="dt">向出入口管制報到後<strong>出發</strong></div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-p2">
+  <div class="sh"></div><div class="shd"><div class="sht">② 出發前準備</div><div class="shs">器材確認、健康檢查</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">流程</div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">1</div><div class="dt">個人換洗衣物放置盥洗處</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">2</div><div class="dt">救護組健康檢查並領取<strong>消毒罐</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">3</div><div class="dt">整理共裝放置側門</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal)">4</div><div class="dt">穿著<strong>個人防護裝備</strong>後到入口管制處集合</div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-p3">
+  <div class="sh"></div><div class="shd"><div class="sht">③ 抵達工作場地</div><div class="shs">初期建立指揮架構</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">步驟</div>
+    <div class="dr"><div class="dn" style="background:var(--green)">1</div><div class="dt">設立<strong>緊急集合地點</strong>，搭設前進指揮所</div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">2</div><div class="dt">安全官說明工作分配、冷熱區，提示安全注意事項及集結區劃定</div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">3</div><div class="dt">管理幕僚接觸<strong>現場關係人</strong>，蒐集情資，繪製平面圖、填寫工作場地評估表</div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-p4">
+  <div class="sh"></div><div class="shd"><div class="sht">④ 快速搜索</div><div class="shs">三組同步展開</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">各組任務</div>
+    <div class="dr"><div class="dn" style="background:var(--blue);font-size:10px">1組</div><div class="dt">驗電棒 + 五用偵測器進行<strong>環境風險評估</strong>，判定建築物安全性</div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue);font-size:10px">2組</div><div class="dt">架設<strong>位移偵測儀</strong>，攜帶精密儀器輔助搜索</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal);font-size:10px">3組</div><div class="dt">拉<strong>封鎖線</strong>、劃分冷熱區、管制人員進出</div></div>
+  </div></div>
+</div>
+
+<div class="sheet" id="sheet-p5">
+  <div class="sh"></div><div class="shd"><div class="sht">⑤ 評估回報</div><div class="shs">ABCD 等級判斷</div></div>
+  <div class="shb">
+    <div class="shsec"><div class="shst">受困者等級</div>
+      <div class="dr"><div class="dn" style="background:var(--red)">A</div><div class="dt"><strong>有人，12小時以內</strong>，可接觸</div></div>
+      <div class="dr"><div class="dn" style="background:var(--orange)">B</div><div class="dt"><strong>有人，12小時以上</strong>，可接觸</div></div>
+      <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">C</div><div class="dt"><strong>可能有人</strong>，關係人說有但找不到</div></div>
+      <div class="dr"><div class="dn" style="background:var(--g1)">D</div><div class="dt"><strong>只有罹難者</strong></div></div>
+    </div>
+    <div class="shsec"><div class="shst">回報流程</div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">評估完畢後<strong>回報管理組</strong>該場地情形</div></div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">管理組轉報 <strong>UCC</strong>，協助後續救援任務派遣</div></div>
     </div>
   </div>
 </div>
 
-<!-- PHASE SHEETS -->
-
-<div class="sheet" id="sheet-phase1">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-title">① BoO — 任務領取</div>
-    <div class="sheet-subtitle">出發前準備階段</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">步驟</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">1</div><div class="duty-text">管理組人員前往<strong>UCC</strong>接受工作場地分配</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">2</div><div class="duty-text">返回管理組，召集ASR2人員進行<strong>任務簡報</strong>與工作提示</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">3</div><div class="duty-text">個人換洗衣物放置盥洗處</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">4</div><div class="duty-text">救護組健康檢查，領取消毒罐</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">5</div><div class="duty-text">整理共裝放置側門</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">6</div><div class="duty-text">穿著個裝後至<strong>入口管制處</strong>集合</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">7</div><div class="duty-text">向出入口管制報到後<strong>出發</strong></div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-p6">
+  <div class="sh"></div><div class="shd"><div class="sht">⑥ 撤離與清消</div><div class="shs">上車前完成</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">步驟</div>
+    <div class="dr"><div class="dn" style="background:var(--green)">1</div><div class="dt">上車前完成<strong>消毒工作</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">2</div><div class="dt">裝備<strong>全部收整</strong>（下次不一定分配到同樣場地）</div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">3</div><div class="dt">離開現場，前往下一場地，重複1-6工作項目</div></div>
+  </div></div>
 </div>
 
-<div class="sheet" id="sheet-phase3">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-title">③ 抵達工作場地</div>
-    <div class="sheet-subtitle">初期建立指揮架構</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">步驟</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">1</div><div class="duty-text">設立<strong>緊急集合地點</strong>，搭設前進指揮所</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">2</div><div class="duty-text">安全官說明工作分配、冷熱區，提示安全注意事項及集結區劃定</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">3</div><div class="duty-text">管理幕僚接觸<strong>現場關係人</strong>，蒐集情資，繪製平面圖、填寫工作場地評估表</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-p7">
+  <div class="sh"></div><div class="shd"><div class="sht">⑦ 返隊</div><div class="shs">收隊程序</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">步驟</div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">1</div><div class="dt">BoO 門口經過<strong>清消通道</strong>，更換衣物</div></div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">2</div><div class="dt">確認自身清潔後，前往<strong>入口管制站報到</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">3</div><div class="dt"><strong>清點返隊人員</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">4</div><div class="dt">前往<strong>救護站</strong>檢查健康情形（2小時內可分別前往）</div></div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">5</div><div class="dt">將現場相關資料<strong>回報管理組</strong>（並轉交 UCC）</div></div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">6</div><div class="dt">由 UCC 下達下一任務指派（ASR3）</div></div>
+  </div></div>
 </div>
 
-<div class="sheet" id="sheet-phase5">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-title">⑤ 評估回報</div>
-    <div class="sheet-subtitle">ABCD 等級判斷</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">受困者等級</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-red)">A</div><div class="duty-text"><strong>有人，12小時以內</strong>，可接觸</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">B</div><div class="duty-text"><strong>有人，12小時以上</strong>，可接觸</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-yellow); color:#000">C</div><div class="duty-text"><strong>可能有人</strong>，關係人說有但找不到</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">D</div><div class="duty-text"><strong>只有罹難者</strong></div></div>
-    </div>
-    <div class="sheet-section">
-      <div class="sheet-section-title">回報流程</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">1</div><div class="duty-text">評估完畢後<strong>回報管理組</strong>該場地情形</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">2</div><div class="duty-text">管理組轉報<strong>UCC</strong>，協助後續救援任務派遣</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-site1">
+  <div class="sh"></div><div class="shd"><div class="sht">場地 A-1</div><div class="shs">台東市中正路 xxx 號 · 評估中</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">現況</div>
+    <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">關係人描述有人受困，現場尚未確認，暫評 <strong>C 級</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--blue)">i</div><div class="dt">RC造 5層樓，1~2樓部分倒塌，結構技師評估中</div></div>
+    <div class="dr"><div class="dn" style="background:var(--green)">✓</div><div class="dt">瓦斯已關閉，電力已斷路</div></div>
+  </div></div>
 </div>
 
-<!-- SITE SHEETS (placeholders) -->
-
-<div class="sheet" id="sheet-site-a1">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-title">場地 A-1</div>
-    <div class="sheet-subtitle">台東市中正路 xxx 號 · 評估中</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">現況</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-orange)">!</div><div class="duty-text">關係人描述有人受困，現場尚未確認，暫評 <strong>C 級</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">i</div><div class="duty-text">RC造 5層樓，1~2樓部分倒塌，結構技師評估中</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">✓</div><div class="duty-text">瓦斯已關閉，電力已斷路</div></div>
-    </div>
-  </div>
-</div>
-<div class="sheet" id="sheet-site-a2">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-title">場地 A-2</div>
-    <div class="sheet-subtitle">台東市更生路 xxx 號 · 待命</div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">現況</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">—</div><div class="duty-text">尚未派隊評估，等待 UCC 指派</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- Generic phase sheets -->
-
-<div class="sheet" id="sheet-phase2">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header"><div class="sheet-title">② 出發前準備</div><div class="sheet-subtitle">器材確認、健康檢查</div></div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">流程</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">1</div><div class="duty-text">個人換洗衣物放置盥洗處</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">2</div><div class="duty-text">救護組健康檢查並領取<strong>消毒罐</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">3</div><div class="duty-text">整理共裝放置側門</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">4</div><div class="duty-text">穿著<strong>個人防護裝備</strong>後到入口管制處集合</div></div>
-    </div>
-  </div>
-</div>
-<div class="sheet" id="sheet-phase4">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header"><div class="sheet-title">④ 快速搜索</div><div class="sheet-subtitle">三組同步展開</div></div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">各組任務</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">1組</div><div class="duty-text">驗電棒 + 五用偵測器進行<strong>環境風險評估</strong>，判定建築物安全性</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-blue)">2組</div><div class="duty-text">架設<strong>位移偵測儀</strong>，攜帶精密儀器輔助搜索</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-teal)">3組</div><div class="duty-text">拉<strong>封鎖線</strong>、劃分冷熱區、管制人員進出</div></div>
-    </div>
-  </div>
-</div>
-<div class="sheet" id="sheet-phase6">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header"><div class="sheet-title">⑥ 撤離與清消</div><div class="sheet-subtitle">上車前完成</div></div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">步驟</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">1</div><div class="duty-text">上車前完成<strong>消毒工作</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">2</div><div class="duty-text">裝備<strong>全部收整</strong>（下次操作不一定分配到同樣場地）</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-green)">3</div><div class="duty-text">離開現場，前往下一場地，重複 1-6 工作項目</div></div>
-    </div>
-  </div>
-</div>
-<div class="sheet" id="sheet-phase7">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header"><div class="sheet-title">⑦ 返隊</div><div class="sheet-subtitle">收隊程序</div></div>
-  <div class="sheet-body">
-    <div class="sheet-section">
-      <div class="sheet-section-title">步驟</div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">1</div><div class="duty-text">BoO 門口經過<strong>清消通道</strong>，更換衣物</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">2</div><div class="duty-text">確認自身清潔後，前往<strong>入口管制站報到</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">3</div><div class="duty-text"><strong>清點返隊人員</strong></div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">4</div><div class="duty-text">前往<strong>救護站</strong>檢查健康情形（2小時內可分別前往）</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">5</div><div class="duty-text">將現場相關資料<strong>回報管理組</strong>（並轉交 UCC）</div></div>
-      <div class="duty-row"><div class="duty-num" style="background:var(--ios-gray1)">6</div><div class="duty-text">由 UCC 下達下一任務指派（ASR3）</div></div>
-    </div>
-  </div>
+<div class="sheet" id="sheet-site2">
+  <div class="sh"></div><div class="shd"><div class="sht">場地 A-2</div><div class="shs">台東市更生路 xxx 號 · 待命</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">現況</div>
+    <div class="dr"><div class="dn" style="background:var(--g1)">—</div><div class="dt">尚未派隊評估，等待 UCC 指派</div></div>
+  </div></div>
 </div>
 
 <script>
-  // Clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      now.getHours().toString().padStart(2,'0') + ':' +
-      now.getMinutes().toString().padStart(2,'0');
-  }
-  updateClock(); setInterval(updateClock, 10000);
-
-  // Mission Timer
-  let startTime = Date.now();
-  setInterval(() => {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const m = Math.floor(elapsed / 60).toString().padStart(2,'0');
-    const s = (elapsed % 60).toString().padStart(2,'0');
-    document.getElementById('timer').textContent = m + ':' + s;
-  }, 1000);
-
-  // Page switching
-  function switchPage(id, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // Sheet
-  function showSheet(id) {
-    document.getElementById('overlay').classList.add('open');
-    document.getElementById(id).classList.add('open');
-  }
-  function closeSheet() {
-    document.getElementById('overlay').classList.remove('open');
-    document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open'));
-  }
-
-  // Equipment checklist
-  let checkedCount = 0;
-  function toggleCheck(row) {
-    row.classList.toggle('done');
-    checkedCount = document.querySelectorAll('.check-row.done').length;
-    document.getElementById('equip-count').textContent = '已確認：' + checkedCount + ' / 17 項';
-  }
-
-  // Victim selection
-  function selectVictim(card, grade) {
-    document.querySelectorAll('.victim-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-  }
+function updateClock(){var n=new Date();document.getElementById('clock').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);}
+updateClock();setInterval(updateClock,10000);
+var t0=Date.now();
+setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById('timer').textContent=('0'+Math.floor(s/60)).slice(-2)+':'+('0'+(s%60)).slice(-2);},1000);
+function switchPage(id,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function openSheet(id){document.getElementById('overlay').classList.add('open');document.getElementById(id).classList.add('open');}
+function closeSheet(){document.getElementById('overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(function(s){s.classList.remove('open');});}
+function toggleCk(row){
+  row.classList.toggle('done');
+  row.querySelector('.ck-circle').textContent=row.classList.contains('done')?'✓':'';
+  document.getElementById('ck-count').textContent='已確認：'+document.querySelectorAll('.ck-row.done').length+' / 17 項';
+}
+function selectV(card){document.querySelectorAll('.vcard').forEach(function(c){c.classList.remove('selected');});card.classList.add('selected');}
 </script>
 
 </body>
