@@ -49,16 +49,17 @@ user-select: none;
 /* STATUS BAR */
 .status-bar {
 height: var(–safe-top);
-background: var(–ios-card);
-display: flex;
-align-items: center;
-justify-content: space-between;
+background: #FFFFFF;
+display: -webkit-flex; display: flex;
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: space-between; justify-content: space-between;
 padding: 14px 20px 0;
 font-size: 15px;
 font-weight: 600;
 position: sticky;
 top: 0;
 z-index: 100;
+border-bottom: 1px solid var(–ios-separator);
 }
 .status-bar .time { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
 .status-icons { display: flex; gap: 6px; align-items: center; }
@@ -66,10 +67,8 @@ z-index: 100;
 
 /* NAVIGATION BAR */
 .nav-bar {
-background: rgba(255,255,255,0.92);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-border-bottom: 0.5px solid var(–ios-separator);
+background: #FFFFFF;
+border-bottom: 1px solid var(–ios-separator);
 padding: 8px 16px 12px;
 position: sticky;
 top: 44px;
@@ -158,16 +157,18 @@ padding: 0 4px 8px;
 }
 
 /* ROLE CARDS */
-.role-list { display: flex; flex-direction: column; gap: 1px; background: var(–ios-separator); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+.role-list { display: flex; flex-direction: column; background: var(–ios-separator); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
 .role-item {
 background: var(–ios-card);
 padding: 14px 16px;
-display: flex; align-items: center; gap: 14px;
+display: -webkit-flex; display: flex;
+-webkit-align-items: center; align-items: center;
+gap: 14px;
 cursor: pointer;
 transition: background 0.1s;
 position: relative;
+border-bottom: 1px solid var(–ios-separator);
 }
-.role-item:active { background: var(–ios-gray5); }
 .role-item:last-child { border-bottom: none; }
 .role-icon {
 width: 40px; height: 40px;
@@ -207,20 +208,29 @@ letter-spacing: 0.5px; margin-bottom: 6px;
 .equip-status { font-size: 12px; margin-top: 4px; }
 
 /* PHASE TIMELINE */
-.phase-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; }
+.phase-list { display: flex; flex-direction: column; margin-bottom: 16px; }
 .phase-item {
-display: flex; gap: 12px;
+display: -webkit-flex; display: flex; gap: 12px;
 padding: 0 4px;
+-webkit-align-items: flex-start; align-items: flex-start;
 }
-.phase-line-col { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.phase-line-col {
+display: -webkit-flex; display: flex;
+-webkit-flex-direction: column; flex-direction: column;
+-webkit-align-items: center; align-items: center;
+width: 28px; min-width: 28px; flex-shrink: 0;
+}
 .phase-dot {
 width: 28px; height: 28px;
 border-radius: 50%;
-display: flex; align-items: center; justify-content: center;
+display: -webkit-flex; display: flex;
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: center; justify-content: center;
 font-size: 13px; font-weight: 700; color: white;
 flex-shrink: 0; z-index: 1;
+min-width: 28px; min-height: 28px;
 }
-.phase-connector { width: 2px; flex: 1; min-height: 12px; }
+.phase-connector { width: 2px; flex: 1; min-height: 16px; }
 .phase-content {
 background: var(–ios-card);
 border-radius: 14px;
@@ -288,10 +298,8 @@ background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15), transpare
 position: fixed;
 bottom: 0; left: 50%; transform: translateX(-50%);
 width: 100%; max-width: 430px;
-background: rgba(255,255,255,0.92);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-border-top: 0.5px solid var(–ios-separator);
+background: #FFFFFF;
+border-top: 1px solid var(–ios-separator);
 display: flex;
 padding: 8px 0 var(–safe-bottom);
 z-index: 100;
