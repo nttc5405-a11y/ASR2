@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -148,7 +147,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- PAGE: 任務 -->
-
 <div id="page-mission" class="page active">
   <div class="nb">
     <div class="nb-title">任務概覽</div>
@@ -192,7 +190,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- PAGE: 流程 -->
-
 <div id="page-phase" class="page">
   <div class="nb"><div class="nb-title">作業流程</div><div class="nb-sub">ASR2 標準程序</div></div>
   <div class="scroll">
@@ -230,7 +227,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- PAGE: 器材 -->
-
 <div id="page-equip" class="page">
   <div class="nb"><div class="nb-title">器材清單</div><div class="nb-sub">點擊勾選確認攜帶</div></div>
   <div class="scroll">
@@ -258,7 +254,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- PAGE: 場地 -->
-
 <div id="page-site" class="page">
   <div class="nb"><div class="nb-title">場地評估</div><div class="nb-sub">工作場地狀態總覽</div></div>
   <div class="scroll">
@@ -280,12 +275,78 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       <div class="site-addr">台東市更生路 xxx 號</div>
       <div class="site-m"><div><div class="mv" style="color:var(--g1)">—</div><div class="ml">受困等級</div></div><div><div class="mv">待評估</div><div class="ml">建築類型</div></div><div><div class="mv">—</div><div class="ml">已用時間</div></div></div>
     </div>
-    <div class="sec-hd">哨音規定</div>
+    <div class="sec-hd">INSARAG 訊號</div>
     <div class="ilist">
-      <div class="irow"><div class="ii">📢</div><div><div class="it">短 1聲</div><div class="is">注意 / 停止作業</div></div></div>
-      <div class="irow"><div class="ii">📢</div><div><div class="it">短 2聲</div><div class="is">繼續作業</div></div></div>
-      <div class="irow"><div class="ii">🚨</div><div><div class="it" style="color:var(--red)">長 3聲</div><div class="is">立即撤離（緊急）</div></div></div>
+      <div class="irow" onclick="openSheet('sheet-insarag')">
+        <div style="font-size:22px;flex-shrink:0">🚨</div>
+        <div style="flex:1">
+          <div class="it" style="color:var(--red)">撤離</div>
+          <div class="is">3短聲，每次1秒｜重複至疏散完畢</div>
+        </div>
+        <div style="font-size:12px;color:var(--g3);letter-spacing:3px;font-weight:700">－ － －</div>
+      </div>
+      <div class="irow" onclick="openSheet('sheet-insarag')">
+        <div style="font-size:22px;flex-shrink:0">🔇</div>
+        <div style="flex:1">
+          <div class="it">動作暫停（安靜）</div>
+          <div class="is">1長聲，持續3秒</div>
+        </div>
+        <div style="font-size:12px;color:var(--g3);letter-spacing:1px;font-weight:700">———</div>
+      </div>
+      <div class="irow" onclick="openSheet('sheet-insarag')">
+        <div style="font-size:22px;flex-shrink:0">▶️</div>
+        <div style="flex:1">
+          <div class="it">恢復動作</div>
+          <div class="is">1長聲 + 1短聲</div>
+        </div>
+        <div style="font-size:12px;color:var(--g3);letter-spacing:2px;font-weight:700">——  －</div>
+      </div>
     </div>
+
+    <div class="sec-hd">工作場地標記</div>
+    <div class="ilist" style="cursor:pointer" onclick="openSheet('sheet-marking')">
+      <div class="irow" style="align-items:center">
+        <div style="font-size:22px;flex-shrink:0">🔲</div>
+        <div style="flex:1"><div class="it">工作場地標記</div><div class="is">INSARAG 標準格式，點擊查看圖示</div></div>
+        <div style="color:var(--g3);font-size:20px">›</div>
+      </div>
+    </div>
+
+    <div class="sec-hd">受困者標記</div>
+    <div class="ilist" style="cursor:pointer" onclick="openSheet('sheet-victim-marking')">
+      <div class="irow" style="align-items:center">
+        <div style="font-size:22px;flex-shrink:0">🔴</div>
+        <div style="flex:1"><div class="it">受困者標記</div><div class="is">INSARAG 標準格式，點擊查看圖示</div></div>
+        <div style="color:var(--g3);font-size:20px">›</div>
+      </div>
+    </div>
+
+    <div class="sec-hd">快速清理標記 RCM</div>
+    <div class="ilist" style="cursor:pointer" onclick="openSheet('sheet-rcm')">
+      <div class="irow" style="align-items:center">
+        <div style="font-size:22px;flex-shrink:0">🔶</div>
+        <div style="flex:1">
+          <div class="it" style="color:var(--green)">C — 已清理</div>
+          <div class="is">所有生還者與罹難者皆已救出/移出</div>
+        </div>
+        <div style="color:var(--g3);font-size:20px">›</div>
+      </div>
+      <div class="irow">
+        <div style="font-size:22px;flex-shrink:0">🔶</div>
+        <div>
+          <div class="it" style="color:var(--orange)">D — 只有罹難者</div>
+          <div class="is">完全搜索後現場只有罹難者</div>
+        </div>
+      </div>
+      <div class="irow">
+        <div style="font-size:22px;flex-shrink:0">📐</div>
+        <div>
+          <div class="it">20cm 菱形</div>
+          <div class="is">橘色噴漆，含隊伍代碼與日期（如 AUS-01 10月12日）</div>
+        </div>
+      </div>
+    </div>
+
     <div class="sec-hd">代碼說明</div>
     <div class="ilist">
       <div class="irow"><div class="ii">🇹🇼</div><div><div class="it">國內代碼 TW-V-10</div></div></div>
@@ -295,7 +356,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- TAB BAR -->
-
 <div class="tabbar">
   <button class="tab-btn active" onclick="switchPage('mission',this)">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="2"/></svg>任務
@@ -312,18 +372,16 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <!-- OVERLAY -->
-
 <div class="overlay" id="overlay" onclick="closeSheet()"></div>
 
 <!-- SHEETS -->
-
 <div class="sheet" id="sheet-mayday">
   <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🚨</div><div class="sht" style="color:var(--red)">MAYDAY 程序</div><div class="shs">緊急狀況啟動流程</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">瓦斯汽笛使用</div>
-    <div class="dr"><div class="dn" style="background:var(--red)">1</div><div class="dt">由<strong>安全官</strong>負責瓦斯汽笛使用</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">2</div><div class="dt">聽到<strong>長聲3聲</strong>，所有人員立即停止作業</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">3</div><div class="dt">依<strong>撤離路線</strong>前往集結區</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">4</div><div class="dt">帶隊官在集結區<strong>清點人員</strong>，向UCC回報</div></div>
+  <div class="shb"><div class="shsec"><div class="shst">INSARAG 撤離訊號</div>
+    <div class="dr"><div class="dn" style="background:var(--red)">!</div><div class="dt">由<strong>安全官</strong>負責瓦斯汽笛使用</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">撤</div><div class="dt"><strong>3短聲（每次1秒）</strong>，重複至現場疏散完畢</div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">離</div><div class="dt">依撤離路線前往集結區，撤離完畢<strong>應清點人數</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">回</div><div class="dt">帶隊官在集結區<strong>清點人員</strong>，向UCC回報</div></div>
   </div><div class="shsec"><div class="shst">集結區規定</div>
     <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">冷熱區由<strong>安全官</strong>於抵達現場後立即劃定</div></div>
     <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">集結區位於<strong>冷區</strong>，所有非作業人員於此待命</div></div>
@@ -509,6 +567,65 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   </div></div>
 </div>
 
+<div class="sheet" id="sheet-insarag">
+  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">📢</div><div class="sht">INSARAG 訊號</div><div class="shs">國際搜救顧問組標準訊號</div></div>
+  <div class="shb">
+    <div class="shsec"><div class="shst">訊號對照表</div>
+      <div class="dr">
+        <div style="width:56px;min-width:56px;background:var(--red);border-radius:10px;padding:6px 4px;text-align:center;margin-top:1px">
+          <div style="color:#fff;font-size:10px;font-weight:800">撤離</div>
+          <div style="color:#fff;font-size:11px;letter-spacing:2px;margin-top:4px">－－－</div>
+        </div>
+        <div class="dt"><strong>3短聲，每次1秒</strong><br>重複至現場疏散完畢；撤離完畢，應清點人數</div>
+      </div>
+      <div class="dr">
+        <div style="width:56px;min-width:56px;background:var(--orange);border-radius:10px;padding:6px 4px;text-align:center;margin-top:1px">
+          <div style="color:#fff;font-size:10px;font-weight:800">暫停</div>
+          <div style="color:#fff;font-size:11px;letter-spacing:1px;margin-top:4px">———</div>
+        </div>
+        <div class="dt"><strong>1長聲，持續3秒</strong><br>動作暫停（安靜）</div>
+      </div>
+      <div class="dr">
+        <div style="width:56px;min-width:56px;background:var(--green);border-radius:10px;padding:6px 4px;text-align:center;margin-top:1px">
+          <div style="color:#fff;font-size:10px;font-weight:800">恢復</div>
+          <div style="color:#fff;font-size:11px;letter-spacing:1px;margin-top:4px">—— －</div>
+        </div>
+        <div class="dt"><strong>1長聲 + 1短聲</strong><br>恢復動作</div>
+      </div>
+    </div>
+    <div class="shsec"><div class="shst">注意事項</div>
+      <div class="dr"><div class="dn" style="background:var(--red)">!</div><div class="dt">由<strong>安全官</strong>負責瓦斯汽笛操作</div></div>
+      <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">撤離完畢後，帶隊官應立即於集結區<strong>清點人數</strong></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-marking">
+  <div class="sh"></div>
+  <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔲</div><div class="sht">工作場地標記</div><div class="shs">INSARAG 標準格式</div></div>
+  <div class="shb">
+    <img src="工作場地標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+  </div>
+</div>
+
+<div class="sheet" id="sheet-victim-marking">
+  <div class="sh"></div>
+  <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔴</div><div class="sht">受困者標記</div><div class="shs">INSARAG 標準格式</div></div>
+  <div class="shb">
+    <img src="受困者標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+  </div>
+</div>
+
+<div class="sheet" id="sheet-rcm">
+  <div class="sh"></div>
+  <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔶</div><div class="sht">快速清理標記 RCM</div><div class="shs">Rapid Clearance Marking</div></div>
+  <div class="shb">
+    <div class="shsec"><div class="shst">快速清理標記</div>
+      <img src="images/快速清理標記RCM.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+    </div>
+  </div>
+</div>
+
 <script>
 function updateClock(){var n=new Date();document.getElementById('clock').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);}
 updateClock();setInterval(updateClock,10000);
@@ -529,6 +646,5 @@ function toggleCk(row){
 }
 function selectV(card){document.querySelectorAll('.vcard').forEach(function(c){c.classList.remove('selected');});card.classList.add('selected');}
 </script>
-
 </body>
 </html>
