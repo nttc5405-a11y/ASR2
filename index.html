@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ASR2 任務管理</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007AFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ASR2">
 <style>
 :root{
   --blue:#007AFF;--red:#FF3B30;--orange:#FF9500;--yellow:#FFCC00;
@@ -21,6 +26,11 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .nb-title{font-size:32px;font-weight:800;letter-spacing:-0.5px;}
 .nb-sub{font-size:13px;color:var(--g1);margin-top:2px;}
 .nb-btn{position:absolute;right:16px;top:12px;width:32px;height:32px;background:var(--g5);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.screenshot-btn{position:absolute;right:56px;top:12px;width:32px;height:32px;background:var(--g5);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.screenshot-btn:active{background:var(--g4);}
+/* 任務頁無右側 nb-btn，截圖按鈕用 right:16px 覆蓋 */
+#page-mission .screenshot-btn{right:56px;}
+#page-phase .screenshot-btn,#page-equip .screenshot-btn,#page-site .screenshot-btn{right:16px;}
 /* PAGES */
 .page{display:none;}.page.active{display:block;}
 /* SCROLL */
@@ -154,6 +164,9 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
     <button class="nb-btn" onclick="openSheet('sheet-mayday')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </button>
+    <button class="screenshot-btn" onclick="takeScreenshot('mission')" title="截圖">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
   </div>
   <div class="scroll">
     <div class="mc">
@@ -191,7 +204,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 
 <!-- PAGE: 流程 -->
 <div id="page-phase" class="page">
-  <div class="nb"><div class="nb-title">作業流程</div><div class="nb-sub">ASR2 標準程序</div></div>
+  <div class="nb"><div class="nb-title">作業流程</div><div class="nb-sub">ASR2 標準程序</div><button class="screenshot-btn" onclick="takeScreenshot('phase')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
   <div class="scroll">
     <div class="phase-list">
       <div class="phase-item">
@@ -228,7 +241,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 
 <!-- PAGE: 器材 -->
 <div id="page-equip" class="page">
-  <div class="nb"><div class="nb-title">器材清單</div><div class="nb-sub">點擊勾選確認攜帶</div></div>
+  <div class="nb"><div class="nb-title">器材清單</div><div class="nb-sub">點擊勾選確認攜帶</div><button class="screenshot-btn" onclick="takeScreenshot('equip')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
   <div class="scroll">
     <div class="cklist" id="cklist">
       <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">① 驗電棒</span></button>
@@ -250,12 +263,13 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑰ 個人防護裝備（全套）</span></button>
     </div>
     <div class="ck-count" id="ck-count">已確認：0 / 17 項</div>
+    <button onclick="resetChecklist()" style="display:block;margin:0 auto 16px;padding:10px 28px;background:var(--g5);border:none;border-radius:12px;font-size:14px;font-weight:600;color:var(--g1);cursor:pointer;">清除全部勾選</button>
   </div>
 </div>
 
 <!-- PAGE: 場地 -->
 <div id="page-site" class="page">
-  <div class="nb"><div class="nb-title">場地評估</div><div class="nb-sub">工作場地狀態總覽</div></div>
+  <div class="nb"><div class="nb-title">場地評估</div><div class="nb-sub">工作場地狀態總覽</div><button class="screenshot-btn" onclick="takeScreenshot('site')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
   <div class="scroll">
     <div class="sec-hd">受困者等級</div>
     <div class="vgrid">
@@ -604,7 +618,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   <div class="sh"></div>
   <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔲</div><div class="sht">工作場地標記</div><div class="shs">INSARAG 標準格式</div></div>
   <div class="shb">
-    <img src="工作場地標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+    <img src="工作場地標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\'padding:32px;text-align:center;color:var(--g2);font-size:14px\'>⚠️ 圖片檔案未找到<br><small>請確認 工作場地標記.PNG 已放置於同一資料夾</small></div>');">
   </div>
 </div>
 
@@ -612,7 +626,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   <div class="sh"></div>
   <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔴</div><div class="sht">受困者標記</div><div class="shs">INSARAG 標準格式</div></div>
   <div class="shb">
-    <img src="受困者標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+    <img src="受困者標記.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\'padding:32px;text-align:center;color:var(--g2);font-size:14px\'>⚠️ 圖片檔案未找到<br><small>請確認 受困者標記.PNG 已放置於同一資料夾</small></div>');">
   </div>
 </div>
 
@@ -621,30 +635,123 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   <div class="shd"><div style="font-size:28px;margin-bottom:6px">🔶</div><div class="sht">快速清理標記 RCM</div><div class="shs">Rapid Clearance Marking</div></div>
   <div class="shb">
     <div class="shsec"><div class="shst">快速清理標記</div>
-      <img src="快速清理標記RCM.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;">
+      <img src="快速清理標記RCM.PNG" style="width:100%;border-radius:12px;border:1px solid var(--sep);display:block;" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\'padding:32px;text-align:center;color:var(--g2);font-size:14px\'>⚠️ 圖片檔案未找到<br><small>請確認 快速清理標記RCM.PNG 已放置於同一資料夾</small></div>');">
     </div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+/* ── PWA Service Worker 註冊 ── */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}
+
+/* ── 時鐘（每30秒更新一次即可）── */
 function updateClock(){var n=new Date();document.getElementById('clock').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);}
-updateClock();setInterval(updateClock,10000);
-var t0=Date.now();
+updateClock();setInterval(updateClock,30000);
+
+/* ── 任務計時器（持久化）── */
+var t0=parseInt(localStorage.getItem('asr2_mission_start'))||Date.now();
+localStorage.setItem('asr2_mission_start',t0);
 setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById('timer').textContent=('0'+Math.floor(s/60)).slice(-2)+':'+('0'+(s%60)).slice(-2);},1000);
+
+/* ── 頁面切換 ── */
 function switchPage(id,btn){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('page-'+id).classList.add('active');
   btn.classList.add('active');
 }
+
+/* ── Sheet 開關 ── */
 function openSheet(id){document.getElementById('overlay').classList.add('open');document.getElementById(id).classList.add('open');}
 function closeSheet(){document.getElementById('overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(function(s){s.classList.remove('open');});}
+
+/* ── Sheet swipe-down 關閉 ── */
+(function(){
+  var startY=0,startScroll=0,dragging=false;
+  document.addEventListener('touchstart',function(e){
+    var s=document.querySelector('.sheet.open');
+    if(!s)return;
+    startY=e.touches[0].clientY;
+    startScroll=s.scrollTop;
+    dragging=true;
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!dragging)return;
+    var s=document.querySelector('.sheet.open');
+    if(!s)return;
+    var dy=e.touches[0].clientY-startY;
+    if(dy>0&&startScroll<=0){s.style.transform='translateX(-50%) translateY('+dy+'px)';}
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!dragging)return;
+    dragging=false;
+    var s=document.querySelector('.sheet.open');
+    if(!s)return;
+    var dy=e.changedTouches[0].clientY-startY;
+    s.style.transform='';
+    if(dy>80)closeSheet();
+  });
+})();
+
+/* ── 器材清單（持久化）── */
+function saveCk(){
+  var done=[];
+  document.querySelectorAll('.ck-row').forEach(function(r,i){if(r.classList.contains('done'))done.push(i);});
+  localStorage.setItem('asr2_checklist',JSON.stringify(done));
+}
+function loadCk(){
+  var saved=JSON.parse(localStorage.getItem('asr2_checklist')||'[]');
+  var rows=document.querySelectorAll('.ck-row');
+  saved.forEach(function(i){
+    if(rows[i]){rows[i].classList.add('done');rows[i].querySelector('.ck-circle').textContent='✓';}
+  });
+  updateCkCount();
+}
+function updateCkCount(){document.getElementById('ck-count').textContent='已確認：'+document.querySelectorAll('.ck-row.done').length+' / 17 項';}
 function toggleCk(row){
   row.classList.toggle('done');
   row.querySelector('.ck-circle').textContent=row.classList.contains('done')?'✓':'';
-  document.getElementById('ck-count').textContent='已確認：'+document.querySelectorAll('.ck-row.done').length+' / 17 項';
+  updateCkCount();saveCk();
 }
+function resetChecklist(){
+  if(!confirm('確定清除所有勾選？'))return;
+  document.querySelectorAll('.ck-row').forEach(function(r){r.classList.remove('done');r.querySelector('.ck-circle').textContent='';});
+  updateCkCount();localStorage.removeItem('asr2_checklist');
+}
+loadCk();
+
+/* ── MAYDAY 長按3秒 ── */
+(function(){
+  var btn=document.querySelector('.mayday');
+  var timer=null,pressing=false;
+  function start(){pressing=true;timer=setTimeout(function(){if(pressing)openSheet('sheet-mayday');},3000);}
+  function cancel(){pressing=false;clearTimeout(timer);}
+  btn.addEventListener('pointerdown',start);
+  btn.addEventListener('pointerup',cancel);
+  btn.addEventListener('pointerleave',cancel);
+  btn.removeAttribute('onclick');
+})();
+
+/* ── 受困等級選取 ── */
 function selectV(card){document.querySelectorAll('.vcard').forEach(function(c){c.classList.remove('selected');});card.classList.add('selected');}
+
+/* ── 截圖 ── */
+function takeScreenshot(pageId){
+  var page=document.getElementById('page-'+pageId);
+  var scroll=page.querySelector('.scroll');
+  var btn=page.querySelector('.screenshot-btn');
+  btn.style.visibility='hidden';
+  var origScrollTop=scroll?scroll.scrollTop:0;
+  if(scroll)scroll.scrollTop=0;
+  var pageNames={mission:'任務概覽',phase:'作業流程',equip:'器材清單',site:'場地評估'};
+  var now=new Date();
+  var ts=now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2)+'_'+('0'+now.getHours()).slice(-2)+('0'+now.getMinutes()).slice(-2);
+  var filename='ASR2_'+(pageNames[pageId]||pageId)+'_'+ts+'.png';
+  html2canvas(page,{backgroundColor:'#F2F2F7',scale:2,useCORS:true,scrollX:0,scrollY:0,windowWidth:page.offsetWidth,height:page.offsetHeight}).then(function(canvas){
+    var link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();
+  }).finally(function(){btn.style.visibility='';if(scroll)scroll.scrollTop=origScrollTop;});
+}
 </script>
 </body>
 </html>

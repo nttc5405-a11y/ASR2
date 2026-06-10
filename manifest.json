@@ -1,0 +1,23 @@
+{
+  "name": "ASR2 任務管理",
+  "short_name": "ASR2",
+  "description": "台東消防 ASR2 快速評估任務管理系統",
+  "start_url": "/ASR2/",
+  "scope": "/ASR2/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2F2F7",
+  "theme_color": "#007AFF",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
