@@ -192,6 +192,157 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   border: none;
   font-family: inherit;
 }
+/* LOGISTICS STYLES */
+.logistics-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.logistics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.logistics-card {
+  background: #fff;
+  border: 1px solid var(--sep);
+  border-radius: 16px;
+  padding: 12px;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.logistics-card:active {
+  cursor: grabbing;
+}
+.logistics-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.logistics-card-qty {
+  font-size: 12px;
+  color: var(--g1);
+  font-weight: 600;
+}
+.logistics-card-qty span {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--blue);
+}
+.logistics-card-qty.out-of-stock span {
+  color: var(--red);
+}
+.logistics-drop-zone {
+  border: 2px dashed var(--g3);
+  border-radius: 20px;
+  min-height: 180px;
+  padding: 16px;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.2s ease;
+  position: relative;
+}
+.logistics-drop-zone.dragover {
+  border-color: var(--blue);
+  background: rgba(0, 122, 255, 0.05);
+  transform: scale(1.02);
+}
+.logistics-drop-title {
+  text-align: center;
+  color: var(--g1);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.logistics-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.logistics-record-card {
+  background: #fff;
+  border: 1px solid var(--sep);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  touch-action: none;
+  cursor: grab;
+}
+.logistics-record-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.logistics-record-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.logistics-record-meta {
+  font-size: 11px;
+  color: var(--g1);
+  font-weight: 500;
+}
+.logistics-record-meta span {
+  background: var(--g5);
+  color: var(--g1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-right: 4px;
+  font-weight: 700;
+}
+.logistics-record-qty {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange);
+  background: #FF950010;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+.drag-clone {
+  position: fixed !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+  opacity: 0.85;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+  transform: scale(1.05);
+  transition: none !important;
+  background: #fff;
+}
+.item-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.item-block-btn {
+  background: var(--g5);
+  border: 1px solid transparent;
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.item-block-btn.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
 </style>
 </head>
 <body>
@@ -336,6 +487,44 @@ window.onerror = function(msg, url, line, col, error) {
   </div>
 </div>
 
+<!-- PAGE: 後勤 (後勤組器材借還與庫存管理) -->
+<div id="page-logistics" class="page">
+  <div class="nb">
+    <div class="nb-title">後勤物資管理</div>
+    <div class="nb-sub">拖曳卡片進行器材借出與歸還</div>
+    <button class="screenshot-btn" onclick="takeScreenshot('logistics')" title="截圖">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
+  </div>
+  
+  <div class="scroll">
+    <div class="logistics-title-bar">
+      <span class="sec-hd" style="padding:0">庫存倉庫 (可用器材)</span>
+      <button onclick="openLogisticsAdmin()" style="background:none;border:none;color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;">後台庫存管理</button>
+    </div>
+    
+    <div id="logistics-warehouse-zone" class="logistics-drop-zone">
+      <div class="logistics-drop-title">📥 拖曳至此處以歸還器材</div>
+      <div class="logistics-grid" id="logistics-warehouse-list">
+        <!-- Stock items rendered here -->
+      </div>
+    </div>
+    
+    <div style="height: 20px;"></div>
+    
+    <div class="logistics-title-bar">
+      <span class="sec-hd" style="padding:0">已借出器材清單</span>
+    </div>
+    
+    <div id="logistics-borrowed-zone" class="logistics-drop-zone">
+      <div class="logistics-drop-title">📤 拖曳上方器材至此以進行借出</div>
+      <div class="logistics-record-list" id="logistics-borrowed-list">
+        <!-- Borrowed records rendered here -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PAGE: 指南 (做為參考指南與資料管理設定頁) -->
 <div id="page-site" class="page">
   <div class="nb"><div class="nb-title">參考指南</div><div class="nb-sub">標準操作規範與備份</div><button class="screenshot-btn" onclick="takeScreenshot('site')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
@@ -452,6 +641,9 @@ window.onerror = function(msg, url, line, col, error) {
   </button>
   <button class="tab-btn" onclick="switchPage('equip',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>器材
+  </button>
+  <button class="tab-btn" onclick="switchPage('logistics',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 22.08 12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>後勤
   </button>
   <button class="tab-btn" onclick="switchPage('site',this)">
     <div class="tbw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="site-tab-badge">2</span></div>指南
@@ -777,6 +969,95 @@ window.onerror = function(msg, url, line, col, error) {
   </div>
 </div>
 
+<!-- DYNAMIC SHEET: 後勤物資借用表單 -->
+<div class="sheet" id="sheet-logistics-borrow-form">
+  <div class="sh"></div>
+  <div class="shd">
+    <div class="sht">登記器材借出</div>
+    <div class="shs">請確認借出器材資訊與填寫借用人</div>
+  </div>
+  <div class="shb" style="display:flex;flex-direction:column;gap:16px;">
+    <input type="hidden" id="logistics-borrow-equip-id">
+    
+    <div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);" id="logistics-borrow-equip-name">發電機 2kw</div>
+      <div style="font-size:12px;color:var(--g1);margin-top:2px;" id="logistics-borrow-equip-stock">可用庫存剩餘：3 台</div>
+    </div>
+
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:8px;">借出數量</label>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button onclick="adjustLogisticsBorrowQty(-1)" style="width:36px;height:36px;border-radius:18px;border:none;background:var(--g5);font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;">-</button>
+        <span id="logistics-borrow-qty" style="font-size:20px;font-weight:800;min-width:30px;text-align:center;">1</span>
+        <button onclick="adjustLogisticsBorrowQty(1)" style="width:36px;height:36px;border-radius:18px;border:none;background:var(--g5);font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">借用單位 (點擊選擇)</label>
+      <div class="item-blocks" id="logistics-borrow-unit-picker">
+        <!-- Clickable unit blocks -->
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">借用人 (點擊選擇)</label>
+      <div class="item-blocks" id="logistics-borrower-picker">
+        <!-- Clickable borrower blocks -->
+      </div>
+    </div>
+
+    <button onclick="saveLogisticsBorrowForm()" style="width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;">確認借出</button>
+  </div>
+</div>
+
+<!-- DYNAMIC SHEET: 後勤物資後台管理 -->
+<div class="sheet" id="sheet-logistics-admin">
+  <div class="sh"></div>
+  <div class="shd" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;">
+    <div>
+      <div class="sht">後台物資庫存管理</div>
+      <div class="shs">新增、編輯器材品項與庫存總數</div>
+    </div>
+    <button onclick="toggleLogisticsAdminAddForm()" id="logistics-admin-toggle-btn" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">＋ 新增品項</button>
+  </div>
+  
+  <div class="shb" style="display:flex;flex-direction:column;gap:16px;">
+    <div id="logistics-admin-form" style="display:none;background:var(--g6);padding:14px;border-radius:14px;flex-direction:column;gap:12px;">
+      <div style="font-weight:700;font-size:14px;" id="logistics-admin-form-title">新增器材品項</div>
+      <input type="hidden" id="logistics-admin-item-id">
+      
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">器材名稱</label>
+        <input type="text" id="logistics-admin-item-name" placeholder="例如：氣壓式支撐棒" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;">
+      </div>
+      
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">總數量</label>
+        <input type="number" id="logistics-admin-item-total" value="1" min="1" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;">
+      </div>
+      
+      <div style="display:flex;gap:8px;">
+        <button onclick="saveLogisticsAdminForm()" style="flex:1;padding:10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">儲存</button>
+        <button onclick="toggleLogisticsAdminAddForm(false)" style="flex:1;padding:10px;background:var(--g5);color:var(--text);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
+      </div>
+    </div>
+
+    <div style="font-weight:700;font-size:14px;margin-bottom:-6px;">在庫器材規格清單</div>
+    <div id="logistics-admin-inventory-list" style="display:flex;flex-direction:column;gap:10px;max-height:250px;overflow-y:auto;padding-right:4px;">
+      <!-- Managed items dynamically rendered -->
+    </div>
+    
+    <hr style="border:none;border-top:1px solid var(--sep);margin:4px 0;">
+    
+    <div style="font-weight:700;font-size:14px;margin-bottom:-6px;">所有借還歷程記錄</div>
+    <div id="logistics-admin-history-list" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;padding-right:4px;">
+      <!-- Borrow logs dynamically rendered -->
+    </div>
+  </div>
+</div>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- 🚀 主要程式碼 block ── -->
@@ -925,6 +1206,23 @@ var defaultNotes = [
   { id: 'note-2', time: '14:15:00', category: '狀況回報', text: '抵達工作場地 A-1，搭設前進指揮所，安全官開始劃分冷熱區與宣布避難訊號。' }
 ];
 
+var defaultLogisticsInventory = [
+  { id: 'logi-1', name: '發電機 2kw', total: 3, available: 3 },
+  { id: 'logi-2', name: '紅外線熱顯像儀', total: 2, available: 2 },
+  { id: 'logi-3', name: '防爆照明燈', total: 10, available: 10 },
+  { id: 'logi-4', name: '氣壓支撐棒', total: 6, available: 6 },
+  { id: 'logi-5', name: '瓦斯汽笛', total: 5, available: 5 },
+  { id: 'logi-6', name: '背負式細水霧', total: 4, available: 4 }
+];
+
+var defaultBorrowRecords = [
+  { id: 'rec-1', equipId: 'logi-1', equipName: '發電機 2kw', qty: 1, unit: '搜索1組', borrower: '張有德', time: '15:30:10', returned: false, returnTime: null },
+  { id: 'rec-2', equipId: 'logi-3', equipName: '防爆照明燈', qty: 2, unit: '醫療組', borrower: '林美惠', time: '16:05:00', returned: true, returnTime: '17:30:00' }
+];
+
+var logisticsUnits = ['搜索1組', '搜索2組', '搜索3組', '管理組', '醫療組', 'UCC支援隊'];
+var logisticsPeople = ['張有德', '林美惠', '陳國強', '王小明', '李安全', '吳後勤'];
+
 /* ── 狀態安全初始化 (使用 safeStorage) ── */
 var roles = defaultRoles;
 try {
@@ -973,6 +1271,24 @@ try {
 
 var currentWorkingSiteId = safeStorage.getItem('asr2_current_site_id') || (sites[0] ? sites[0].id : null);
 
+var logisticsInventory = defaultLogisticsInventory;
+try {
+  var stored = safeStorage.getItem('asr2_logistics_inventory');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) logisticsInventory = parsed;
+  }
+} catch(e) { console.error('Error loading logistics inventory:', e); }
+
+var borrowRecords = defaultBorrowRecords;
+try {
+  var stored = safeStorage.getItem('asr2_borrow_records');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) borrowRecords = parsed;
+  }
+} catch(e) { console.error('Error loading borrow records:', e); }
+
 var currentEditingRoleId = null;
 var equipEditMode = false;
 var noteSelectedCategory = '出勤';
@@ -986,6 +1302,8 @@ function saveState(){
   safeStorage.setItem('asr2_notes', JSON.stringify(notes));
   safeStorage.setItem('asr2_checklist', JSON.stringify(checklistDone));
   safeStorage.setItem('asr2_current_site_id', currentWorkingSiteId);
+  safeStorage.setItem('asr2_logistics_inventory', JSON.stringify(logisticsInventory));
+  safeStorage.setItem('asr2_borrow_records', JSON.stringify(borrowRecords));
 }
 
 /* ── 1. 人員與角色動態渲染與邏輯 ── */
@@ -1619,7 +1937,9 @@ function exportData(){
     notes: notes,
     checklistDone: checklistDone,
     startTimer: t0,
-    currentWorkingSiteId: currentWorkingSiteId
+    currentWorkingSiteId: currentWorkingSiteId,
+    logisticsInventory: logisticsInventory,
+    borrowRecords: borrowRecords
   };
   
   var now = new Date();
@@ -1673,12 +1993,23 @@ function importData(event){
         checklistDone = data.checklistDone || [];
         if(data.startTimer){
           t0 = data.startTimer;
-          localStorage.setItem('asr2_mission_start', t0);
+          safeStorage.setItem('asr2_mission_start', t0);
         }
         if(data.currentWorkingSiteId){
           currentWorkingSiteId = data.currentWorkingSiteId;
         } else {
           currentWorkingSiteId = sites[0] ? sites[0].id : null;
+        }
+        
+        if (data.logisticsInventory) {
+          logisticsInventory = data.logisticsInventory;
+        } else {
+          logisticsInventory = defaultLogisticsInventory;
+        }
+        if (data.borrowRecords) {
+          borrowRecords = data.borrowRecords;
+        } else {
+          borrowRecords = defaultBorrowRecords;
         }
         
         saveState();
@@ -1736,11 +2067,514 @@ function takeScreenshot(pageId){
   }
 })();
 
+/* ── 9. 後勤物資借用與管理 ── */
+var selectedLogisticsEquipId = null;
+var logisticsBorrowSelectedUnit = '';
+var logisticsBorrowSelectedBorrower = '';
+var logisticsBorrowQty = 1;
+
+function renderItemBlocks(containerId, itemsList, onSelectCallback) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  
+  itemsList.forEach(function(item) {
+    var btn = document.createElement('button');
+    btn.className = 'item-block-btn';
+    btn.textContent = item;
+    btn.type = 'button';
+    btn.onclick = function() {
+      container.querySelectorAll('.item-block-btn').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      onSelectCallback(item);
+    };
+    container.appendChild(btn);
+  });
+  
+  var customBtn = document.createElement('button');
+  customBtn.className = 'item-block-btn';
+  customBtn.style.borderStyle = 'dashed';
+  customBtn.style.background = 'transparent';
+  customBtn.style.color = 'var(--blue)';
+  customBtn.textContent = '＋ 自訂';
+  customBtn.type = 'button';
+  customBtn.onclick = function() {
+    var custom = prompt('請輸入自訂項目名稱：');
+    if (custom && custom.trim()) {
+      var name = custom.trim();
+      var index = itemsList.indexOf(name);
+      if (index === -1) {
+        itemsList.push(name);
+      }
+      renderItemBlocks(containerId, itemsList, onSelectCallback);
+      var newBtn = findInArray(Array.prototype.slice.call(container.querySelectorAll('.item-block-btn')), function(b) {
+        return b.textContent === name;
+      });
+      if (newBtn) newBtn.click();
+    }
+  };
+  container.appendChild(customBtn);
+}
+
+function attachLogisticsDragListener(element, isRecord, dataId) {
+  var startX, startY, origX, origY;
+  var isDragging = false;
+  var clone = null;
+  
+  element.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    e.stopPropagation();
+    
+    var rect = element.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    origX = rect.left;
+    origY = rect.top;
+    
+    isDragging = true;
+    element.setPointerCapture(e.pointerId);
+  });
+  
+  element.addEventListener('pointermove', function(e) {
+    if (!isDragging) return;
+    e.stopPropagation();
+    
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    
+    if (!clone && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      clone = element.cloneNode(true);
+      clone.classList.add('drag-clone');
+      clone.style.width = element.offsetWidth + 'px';
+      clone.style.height = element.offsetHeight + 'px';
+      clone.style.left = origX + 'px';
+      clone.style.top = origY + 'px';
+      document.body.appendChild(clone);
+      
+      if (isRecord) {
+        var targetZone = document.getElementById('logistics-warehouse-zone');
+        if (targetZone) targetZone.classList.add('dragover');
+      } else {
+        var targetZone = document.getElementById('logistics-borrowed-zone');
+        if (targetZone) targetZone.classList.add('dragover');
+      }
+    }
+    
+    if (clone) {
+      clone.style.left = (origX + dx) + 'px';
+      clone.style.top = (origY + dy) + 'px';
+    }
+  });
+  
+  element.addEventListener('pointerup', function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    element.releasePointerCapture(e.pointerId);
+    
+    var targetZone1 = document.getElementById('logistics-warehouse-zone');
+    var targetZone2 = document.getElementById('logistics-borrowed-zone');
+    if (targetZone1) targetZone1.classList.remove('dragover');
+    if (targetZone2) targetZone2.classList.remove('dragover');
+    
+    if (clone) {
+      clone.parentNode.removeChild(clone);
+      clone = null;
+      
+      var dropX = e.clientX;
+      var dropY = e.clientY;
+      
+      if (isRecord) {
+        var targetRect = targetZone1.getBoundingClientRect();
+        if (dropX >= targetRect.left && dropX <= targetRect.right &&
+            dropY >= targetRect.top && dropY <= targetRect.bottom) {
+          returnLogisticsItem(dataId);
+        }
+      } else {
+        var targetRect = targetZone2.getBoundingClientRect();
+        if (dropX >= targetRect.left && dropX <= targetRect.right &&
+            dropY >= targetRect.top && dropY <= targetRect.bottom) {
+          openLogisticsBorrowForm(dataId);
+        }
+      }
+    }
+  });
+  
+  element.addEventListener('pointercancel', function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    if (clone) {
+      clone.parentNode.removeChild(clone);
+      clone = null;
+    }
+    var targetZone1 = document.getElementById('logistics-warehouse-zone');
+    var targetZone2 = document.getElementById('logistics-borrowed-zone');
+    if (targetZone1) targetZone1.classList.remove('dragover');
+    if (targetZone2) targetZone2.classList.remove('dragover');
+  });
+}
+
+function renderLogistics() {
+  var warehouseContainer = document.getElementById('logistics-warehouse-list');
+  if (warehouseContainer) {
+    warehouseContainer.innerHTML = '';
+    logisticsInventory.forEach(function(item) {
+      var card = document.createElement('div');
+      card.className = 'logistics-card';
+      var isOutOfStock = item.available <= 0;
+      var outOfStockClass = isOutOfStock ? ' out-of-stock' : '';
+      card.innerHTML = '<div class="logistics-card-name">' + item.name + '</div>' +
+                       '<div class="logistics-card-qty' + outOfStockClass + '">可用 <span>' + item.available + '</span> / ' + item.total + '</div>';
+      
+      if (isOutOfStock) {
+        card.style.opacity = '0.6';
+        card.style.background = 'var(--g6)';
+      } else {
+        attachLogisticsDragListener(card, false, item.id);
+      }
+      warehouseContainer.appendChild(card);
+    });
+  }
+  
+  var borrowedContainer = document.getElementById('logistics-borrowed-list');
+  if (borrowedContainer) {
+    borrowedContainer.innerHTML = '';
+    var activeRecords = borrowRecords.filter(function(rec) { return !rec.returned; });
+    
+    if (activeRecords.length === 0) {
+      borrowedContainer.innerHTML = '<div style="text-align:center;color:var(--g1);font-size:13px;padding:24px 0;">目前無借出物資</div>';
+    } else {
+      activeRecords.forEach(function(rec) {
+        var card = document.createElement('div');
+        card.className = 'logistics-record-card';
+        card.innerHTML = '<div class="logistics-record-info">' +
+                           '<div class="logistics-record-name">' + rec.equipName + '</div>' +
+                           '<div class="logistics-record-meta"><span>' + rec.unit + '</span>' + rec.borrower + ' ｜ ' + rec.time + ' 借出</div>' +
+                         '</div>' +
+                         '<div class="logistics-record-qty">借出 ' + rec.qty + '</div>';
+        attachLogisticsDragListener(card, true, rec.id);
+        borrowedContainer.appendChild(card);
+      });
+    }
+  }
+}
+
+function openLogisticsBorrowForm(equipId) {
+  closeSheet();
+  var equip = findInArray(logisticsInventory, function(e){ return e.id === equipId; });
+  if (!equip) return;
+  
+  if (equip.available <= 0) {
+    alert('該物資可用庫存不足！');
+    return;
+  }
+  
+  selectedLogisticsEquipId = equipId;
+  logisticsBorrowQty = 1;
+  logisticsBorrowSelectedUnit = '';
+  logisticsBorrowSelectedBorrower = '';
+  
+  document.getElementById('logistics-borrow-equip-id').value = equipId;
+  document.getElementById('logistics-borrow-equip-name').textContent = equip.name;
+  document.getElementById('logistics-borrow-equip-stock').textContent = '可用庫存剩餘：' + equip.available + ' 件';
+  document.getElementById('logistics-borrow-qty').textContent = '1';
+  
+  renderItemBlocks('logistics-borrow-unit-picker', logisticsUnits, function(val) {
+    logisticsBorrowSelectedUnit = val;
+  });
+  renderItemBlocks('logistics-borrower-picker', logisticsPeople, function(val) {
+    logisticsBorrowSelectedBorrower = val;
+  });
+  
+  setTimeout(function() { openSheet('sheet-logistics-borrow-form'); }, 200);
+}
+
+function adjustLogisticsBorrowQty(amount) {
+  var equip = findInArray(logisticsInventory, function(e){ return e.id === selectedLogisticsEquipId; });
+  if (!equip) return;
+  
+  var newQty = logisticsBorrowQty + amount;
+  if (newQty < 1) newQty = 1;
+  if (newQty > equip.available) {
+    alert('借出數量不可大於可用庫存量 (' + equip.available + ')！');
+    return;
+  }
+  
+  logisticsBorrowQty = newQty;
+  document.getElementById('logistics-borrow-qty').textContent = newQty;
+}
+
+function saveLogisticsBorrowForm() {
+  if (!selectedLogisticsEquipId) return;
+  var equip = findInArray(logisticsInventory, function(e){ return e.id === selectedLogisticsEquipId; });
+  if (!equip) return;
+  
+  if (!logisticsBorrowSelectedUnit) {
+    alert('請選擇借用單位！');
+    return;
+  }
+  if (!logisticsBorrowSelectedBorrower) {
+    alert('請選擇借用人！');
+    return;
+  }
+  
+  if (logisticsBorrowQty > equip.available) {
+    alert('可用庫存量不足，請重新輸入！');
+    return;
+  }
+  
+  equip.available -= logisticsBorrowQty;
+  var now = new Date();
+  var timeStr = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  
+  var newRecord = {
+    id: 'rec-' + Date.now(),
+    equipId: selectedLogisticsEquipId,
+    equipName: equip.name,
+    qty: logisticsBorrowQty,
+    unit: logisticsBorrowSelectedUnit,
+    borrower: logisticsBorrowSelectedBorrower,
+    time: timeStr,
+    returned: false,
+    returnTime: null
+  };
+  borrowRecords.push(newRecord);
+  
+  var noteText = '後勤出庫：【' + equip.name + '】數量：' + logisticsBorrowQty + ' ｜ 借用人：' + logisticsBorrowSelectedBorrower + ' (' + logisticsBorrowSelectedUnit + ')';
+  var newNote = {
+    id: 'note-' + Date.now(),
+    time: timeStr,
+    category: '狀況回報',
+    text: noteText
+  };
+  notes.push(newNote);
+  
+  saveState();
+  renderLogistics();
+  renderNotes();
+  closeSheet();
+}
+
+function returnLogisticsItem(recordId) {
+  var rec = findInArray(borrowRecords, function(r){ return r.id === recordId; });
+  if (!rec) return;
+  if (rec.returned) return;
+  
+  var equip = findInArray(logisticsInventory, function(e){ return e.id === rec.equipId; });
+  if (equip) {
+    equip.available += rec.qty;
+    if (equip.available > equip.total) {
+      equip.available = equip.total;
+    }
+  }
+  
+  var now = new Date();
+  var timeStr = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  rec.returned = true;
+  rec.returnTime = timeStr;
+  
+  var noteText = '後勤歸還：【' + rec.equipName + '】數量：' + rec.qty + ' ｜ 歸還人：' + rec.borrower + ' (' + rec.unit + ')';
+  var newNote = {
+    id: 'note-' + Date.now(),
+    time: timeStr,
+    category: '狀況回報',
+    text: noteText
+  };
+  notes.push(newNote);
+  
+  saveState();
+  renderLogistics();
+  renderNotes();
+}
+
+var selectedLogisticsAdminId = null;
+function openLogisticsAdmin() {
+  closeSheet();
+  toggleLogisticsAdminAddForm(false);
+  renderLogisticsAdminList();
+  openSheet('sheet-logistics-admin');
+}
+
+function toggleLogisticsAdminAddForm(show) {
+  var form = document.getElementById('logistics-admin-form');
+  var btn = document.getElementById('logistics-admin-toggle-btn');
+  if (show === undefined) {
+    show = form.style.display === 'none';
+  }
+  
+  if (show) {
+    form.style.display = 'flex';
+    btn.textContent = '關閉面板';
+    document.getElementById('logistics-admin-item-id').value = '';
+    document.getElementById('logistics-admin-item-name').value = '';
+    document.getElementById('logistics-admin-item-total').value = '1';
+    document.getElementById('logistics-admin-form-title').textContent = '新增器材品項';
+  } else {
+    form.style.display = 'none';
+    btn.textContent = '＋ 新增品項';
+    selectedLogisticsAdminId = null;
+  }
+}
+
+function renderLogisticsAdminList() {
+  var container = document.getElementById('logistics-admin-inventory-list');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  logisticsInventory.forEach(function(item) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sep);';
+    row.innerHTML = '<div style="flex:1;">' +
+                      '<div style="font-size:14px;font-weight:700;">' + item.name + '</div>' +
+                      '<div style="font-size:12px;color:var(--g1);">在庫可用：' + item.available + ' / 總數：' + item.total + '</div>' +
+                    '</div>';
+    
+    var actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:6px;';
+    
+    var editBtn = document.createElement('button');
+    editBtn.textContent = '編輯';
+    editBtn.style.cssText = 'background:var(--blue);color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;';
+    editBtn.onclick = function() { editLogisticsAdminItem(item.id); };
+    
+    var delBtn = document.createElement('button');
+    delBtn.textContent = '刪除';
+    delBtn.style.cssText = 'background:var(--red);color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;';
+    delBtn.onclick = function() { deleteLogisticsAdminItem(item.id); };
+    
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    row.appendChild(actions);
+    container.appendChild(row);
+  });
+  
+  var historyContainer = document.getElementById('logistics-admin-history-list');
+  if (historyContainer) {
+    historyContainer.innerHTML = '';
+    var revRecords = borrowRecords.slice().reverse();
+    if (revRecords.length === 0) {
+      historyContainer.innerHTML = '<div style="text-align:center;color:var(--g1);font-size:12px;padding:12px 0;">尚無借還紀錄</div>';
+    } else {
+      revRecords.forEach(function(rec) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sep);font-size:12px;';
+        var timeInfo = rec.time + (rec.returned ? ' (已歸還 ' + rec.returnTime + ')' : ' (借出中)');
+        row.innerHTML = '<div style="flex:1;">' +
+                          '<div style="font-weight:700;">' + rec.equipName + ' x' + rec.qty + '</div>' +
+                          '<div style="color:var(--g1);">' + rec.borrower + ' (' + rec.unit + ') ｜ ' + timeInfo + '</div>' +
+                        '</div>';
+        
+        var actions = document.createElement('div');
+        if (!rec.returned) {
+          var retBtn = document.createElement('button');
+          retBtn.textContent = '強制歸還';
+          retBtn.style.cssText = 'background:var(--green);color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;cursor:pointer;';
+          retBtn.onclick = function() {
+            returnLogisticsItem(rec.id);
+            renderLogisticsAdminList();
+          };
+          actions.appendChild(retBtn);
+        } else {
+          var delRecBtn = document.createElement('button');
+          delRecBtn.textContent = '刪除記錄';
+          delRecBtn.style.cssText = 'background:var(--g5);color:var(--g1);border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;cursor:pointer;';
+          delRecBtn.onclick = function() {
+            if (confirm('確定刪除這筆歷史記錄？')) {
+              borrowRecords = borrowRecords.filter(function(r){ return r.id !== rec.id; });
+              saveState();
+              renderLogisticsAdminList();
+              renderLogistics();
+            }
+          };
+          actions.appendChild(delRecBtn);
+        }
+        row.appendChild(actions);
+        historyContainer.appendChild(row);
+      });
+    }
+  }
+}
+
+function editLogisticsAdminItem(itemId) {
+  var item = findInArray(logisticsInventory, function(i){ return i.id === itemId; });
+  if (!item) return;
+  toggleLogisticsAdminAddForm(true);
+  document.getElementById('logistics-admin-item-id').value = item.id;
+  document.getElementById('logistics-admin-item-name').value = item.name;
+  document.getElementById('logistics-admin-item-total').value = item.total;
+  document.getElementById('logistics-admin-form-title').textContent = '編輯器材品項';
+  selectedLogisticsAdminId = itemId;
+}
+
+function saveLogisticsAdminForm() {
+  var id = document.getElementById('logistics-admin-item-id').value;
+  var name = document.getElementById('logistics-admin-item-name').value.trim();
+  var totalStr = document.getElementById('logistics-admin-item-total').value;
+  var total = parseInt(totalStr);
+  
+  if (!name) {
+    alert('請輸入器材名稱！');
+    return;
+  }
+  if (isNaN(total) || total < 1) {
+    alert('總數量必須大於等於 1！');
+    return;
+  }
+  
+  if (id) {
+    var item = findInArray(logisticsInventory, function(i){ return i.id === id; });
+    if (item) {
+      var borrowed = item.total - item.available;
+      if (total < borrowed) {
+        alert('修改後的總數不可小於已借出的數量 (' + borrowed + ')！');
+        return;
+      }
+      item.name = name;
+      item.total = total;
+      item.available = total - borrowed;
+    }
+  } else {
+    var newItem = {
+      id: 'logi-' + Date.now(),
+      name: name,
+      total: total,
+      available: total
+    };
+    logisticsInventory.push(newItem);
+  }
+  
+  saveState();
+  renderLogistics();
+  renderLogisticsAdminList();
+  toggleLogisticsAdminAddForm(false);
+}
+
+function deleteLogisticsAdminItem(itemId) {
+  var item = findInArray(logisticsInventory, function(i){ return i.id === itemId; });
+  if (!item) return;
+  
+  var borrowed = item.total - item.available;
+  if (borrowed > 0) {
+    alert('該器材尚有 ' + borrowed + ' 件未歸還，無法刪除！');
+    return;
+  }
+  
+  if (confirm('確定刪除器材品項「' + item.name + '」？')) {
+    logisticsInventory = logisticsInventory.filter(function(i){ return i.id !== itemId; });
+    saveState();
+    renderLogistics();
+    renderLogisticsAdminList();
+  }
+}
+
 /* ── 初始化執行 ── */
 renderRoles();
 renderEquipments();
 renderSites();
 renderNotes();
+renderLogistics();
 </script>
 </body>
 </html>
+
