@@ -1102,6 +1102,35 @@ window.onerror = function(msg, url, line, col, error) {
       </div>
       
       <div style="display:flex;gap:8px;">
+        <div style="flex:1;">
+          <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">單位</label>
+          <input type="text" id="logistics-admin-item-unit" value="件" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;">
+        </div>
+        <div style="flex:2;">
+          <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">類別分頁</label>
+          <select id="logistics-admin-item-category" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;background:#fff;height:41px;box-sizing:border-box;">
+            <option value="ICT設備">ICT設備</option>
+            <option value="UCC設備">UCC設備</option>
+            <option value="第一櫃">第一櫃</option>
+            <option value="第二櫃">第二櫃</option>
+            <option value="第三櫃(車禍)">第三櫃(車禍)</option>
+            <option value="第一櫃耗材">第一櫃耗材</option>
+            <option value="第二櫃耗材">第二櫃耗材</option>
+          </select>
+        </div>
+      </div>
+      
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">放置位置</label>
+        <input type="text" id="logistics-admin-item-loc" placeholder="例如：精密室" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;">
+      </div>
+      
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--g1);display:block;margin-bottom:4px;">器材說明 (品牌、型號、續航等細節)</label>
+        <input type="text" id="logistics-admin-item-desc" placeholder="例如：品牌: KENWOOD | 型號: NX-200" style="width:100%;padding:10px 12px;border:1px solid var(--sep);border-radius:8px;font-size:14px;outline:none;">
+      </div>
+      
+      <div style="display:flex;gap:8px;">
         <button onclick="saveLogisticsAdminForm()" style="flex:1;padding:10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">儲存</button>
         <button onclick="toggleLogisticsAdminAddForm(false)" style="flex:1;padding:10px;background:var(--g5);color:var(--text);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">取消</button>
       </div>
@@ -3414,6 +3443,10 @@ function toggleLogisticsAdminAddForm(show) {
     document.getElementById('logistics-admin-item-id').value = '';
     document.getElementById('logistics-admin-item-name').value = '';
     document.getElementById('logistics-admin-item-total').value = '1';
+    document.getElementById('logistics-admin-item-unit').value = '件';
+    document.getElementById('logistics-admin-item-category').value = currentLogisticsCategory;
+    document.getElementById('logistics-admin-item-loc').value = '';
+    document.getElementById('logistics-admin-item-desc').value = '';
     document.getElementById('logistics-admin-form-title').textContent = '新增器材品項';
   } else {
     form.style.display = 'none';
@@ -3427,16 +3460,33 @@ function renderLogisticsAdminList() {
   if (!container) return;
   container.innerHTML = '';
   
-  logisticsInventory.forEach(function(item) {
+  var filtered = [];
+  for (var i = 0; i < logisticsInventory.length; i++) {
+    var item = logisticsInventory[i];
+    if (item.category === currentLogisticsCategory) {
+      filtered.push(item);
+    }
+  }
+  
+  var headerInfo = document.createElement('div');
+  headerInfo.style.cssText = 'font-size:12px;color:var(--g1);font-weight:600;margin-bottom:4px;';
+  headerInfo.textContent = '目前顯示類別【' + currentLogisticsCategory + '】共 ' + filtered.length + ' 件器材：';
+  container.appendChild(headerInfo);
+  
+  filtered.forEach(function(item) {
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sep);';
-    row.innerHTML = '<div style="flex:1;">' +
-                      '<div style="font-size:14px;font-weight:700;">' + item.name + '</div>' +
-                      '<div style="font-size:12px;color:var(--g1);">在庫可用：' + item.available + ' / 總數：' + item.total + '</div>' +
+    
+    var descPart = item.desc ? '<div style="font-size:11px;color:var(--g2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px;" title="' + item.desc + '">' + item.desc + '</div>' : '';
+    
+    row.innerHTML = '<div style="flex:1;padding-right:8px;min-width:0;">' +
+                      '<div style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.name + '</div>' +
+                      '<div style="font-size:11px;color:var(--g1);margin-top:2px;">可用：' + item.available + ' / 總數：' + item.total + ' ' + (item.unit || '件') + (item.loc ? ' ｜ 📍 ' + item.loc : '') + '</div>' +
+                      descPart +
                     '</div>';
     
     var actions = document.createElement('div');
-    actions.style.cssText = 'display:flex;gap:6px;';
+    actions.style.cssText = 'display:flex;gap:6px;flex-shrink:0;';
     
     var editBtn = document.createElement('button');
     editBtn.textContent = '編輯';
@@ -3508,6 +3558,10 @@ function editLogisticsAdminItem(itemId) {
   document.getElementById('logistics-admin-item-id').value = item.id;
   document.getElementById('logistics-admin-item-name').value = item.name;
   document.getElementById('logistics-admin-item-total').value = item.total;
+  document.getElementById('logistics-admin-item-unit').value = item.unit || '件';
+  document.getElementById('logistics-admin-item-category').value = item.category || 'ICT設備';
+  document.getElementById('logistics-admin-item-loc').value = item.loc || '';
+  document.getElementById('logistics-admin-item-desc').value = item.desc || '';
   document.getElementById('logistics-admin-form-title').textContent = '編輯器材品項';
   selectedLogisticsAdminId = itemId;
 }
@@ -3517,6 +3571,10 @@ function saveLogisticsAdminForm() {
   var name = document.getElementById('logistics-admin-item-name').value.trim();
   var totalStr = document.getElementById('logistics-admin-item-total').value;
   var total = parseInt(totalStr);
+  var unit = document.getElementById('logistics-admin-item-unit').value.trim();
+  var category = document.getElementById('logistics-admin-item-category').value;
+  var loc = document.getElementById('logistics-admin-item-loc').value.trim();
+  var desc = document.getElementById('logistics-admin-item-desc').value.trim();
   
   if (!name) {
     alert('請輸入器材名稱！');
@@ -3538,13 +3596,21 @@ function saveLogisticsAdminForm() {
       item.name = name;
       item.total = total;
       item.available = total - borrowed;
+      item.unit = unit;
+      item.category = category;
+      item.loc = loc;
+      item.desc = desc;
     }
   } else {
     var newItem = {
       id: 'logi-' + Date.now(),
       name: name,
       total: total,
-      available: total
+      available: total,
+      unit: unit,
+      category: category,
+      loc: loc,
+      desc: desc
     };
     logisticsInventory.push(newItem);
   }
