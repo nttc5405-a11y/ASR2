@@ -196,6 +196,21 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </head>
 <body>
 
+<!-- 🚀 獨立的錯誤監聽與視覺化回報標記 (最先解析，保證即使下方腳本語法出錯，此錯誤捕獲器依然能順利執行並列印錯誤) ── -->
+<script>
+window.onerror = function(msg, url, line, col, error) {
+  var errDiv = document.getElementById('debug-err-div');
+  if (!errDiv) {
+    errDiv = document.createElement('div');
+    errDiv.id = 'debug-err-div';
+    errDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:#FF3B30;color:#fff;padding:15px;border-radius:10px;z-index:99999;font-size:12px;font-family:monospace;white-space:pre-wrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+    document.body.appendChild(errDiv);
+  }
+  errDiv.innerHTML = '<strong>JS ERROR:</strong><br>' + msg + '<br>Line: ' + line + ' Col: ' + col + '<br>Stack: ' + (error ? error.stack : 'N/A');
+  return false;
+};
+</script>
+
 <div class="sb">
   <span class="sb-time" id="clock">09:41</span>
   <div style="display:flex;gap:6px;align-items:center;">
@@ -762,17 +777,47 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- 🚀 主要程式碼 block ── -->
 <script>
-/* ── 在頁面最頂端新增錯誤攔截器，將報錯直接以紅底白字蓋在畫面最上方 ── */
-window.onerror = function(msg, url, line, col, error) {
-  var errDiv = document.createElement('div');
-  errDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:#FF3B30;color:#fff;padding:15px;border-radius:10px;z-index:99999;font-size:12px;font-family:monospace;white-space:pre-wrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
-  errDiv.innerHTML = '<strong>JS ERROR:</strong><br>' + msg + '<br>Line: ' + line + ' Col: ' + col + '<br>Stack: ' + (error ? error.stack : 'N/A');
-  document.body.appendChild(errDiv);
-  return false;
+/* ── 安全 LocalStorage 封裝器 (防止隱私/無痕模式中，存取 localStorage 直接導致程式碼崩潰) ── */
+var safeStorage = {
+  getItem: function(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch(e) {
+      console.warn('localStorage.getItem blocked:', e);
+      return null;
+    }
+  },
+  setItem: function(key, val) {
+    try {
+      localStorage.setItem(key, val);
+    } catch(e) {
+      console.warn('localStorage.setItem blocked:', e);
+    }
+  },
+  clear: function() {
+    try {
+      localStorage.clear();
+    } catch(e) {
+      console.warn('localStorage.clear blocked:', e);
+    }
+  }
 };
 
-/* ── PWA Service Worker 註銷與快取清除 (加強安全保護，防止瀏覽器隱私模式崩潰) ── */
+/* ── 陣列搜尋相容性 Helper (替代 ES6 Array.prototype.find) ── */
+function findInArray(arr, callback) {
+  if (!arr) return undefined;
+  for (var i = 0; i < arr.length; i++) {
+    if (callback(arr[i], i)) {
+      return arr[i];
+    }
+  }
+  return undefined;
+}
+
+/* ── PWA Service Worker 註銷與快取清除 (防崩潰保護) ── */
 try {
   if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -797,13 +842,13 @@ try {
   console.warn('Cache storage clearing blocked or not supported:', e);
 }
 
-/* ── 時鐘（每30秒更新一次即可）── */
+/* ── 時鐘 ── */
 function updateClock(){var n=new Date();document.getElementById('clock').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);}
 updateClock();setInterval(updateClock,30000);
 
 /* ── 任務計時器（持久化）── */
-var t0=parseInt(localStorage.getItem('asr2_mission_start'))||Date.now();
-localStorage.setItem('asr2_mission_start',t0);
+var t0 = parseInt(safeStorage.getItem('asr2_mission_start')) || Date.now();
+safeStorage.setItem('asr2_mission_start', t0);
 setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById('timer').textContent=('0'+Math.floor(s/60)).slice(-2)+':'+('0'+(s%60)).slice(-2);},1000);
 
 /* ── 頁面切換 ── */
@@ -879,10 +924,10 @@ var defaultNotes = [
   { id: 'note-2', time: '14:15:00', category: '狀況回報', text: '抵達工作場地 A-1，搭設前進指揮所，安全官開始劃分冷熱區與宣布避難訊號。' }
 ];
 
-/* ── 狀態安全初始化 (防 corrupted local storage) ── */
+/* ── 狀態安全初始化 (使用 safeStorage) ── */
 var roles = defaultRoles;
 try {
-  var stored = localStorage.getItem('asr2_roles');
+  var stored = safeStorage.getItem('asr2_roles');
   if (stored) {
     var parsed = JSON.parse(stored);
     if (Array.isArray(parsed) && parsed.length > 0) roles = parsed;
@@ -891,7 +936,7 @@ try {
 
 var equipments = defaultEquipments;
 try {
-  var stored = localStorage.getItem('asr2_equipments');
+  var stored = safeStorage.getItem('asr2_equipments');
   if (stored) {
     var parsed = JSON.parse(stored);
     if (Array.isArray(parsed) && parsed.length > 0) equipments = parsed;
@@ -900,7 +945,7 @@ try {
 
 var sites = defaultSites;
 try {
-  var stored = localStorage.getItem('asr2_sites');
+  var stored = safeStorage.getItem('asr2_sites');
   if (stored) {
     var parsed = JSON.parse(stored);
     if (Array.isArray(parsed) && parsed.length > 0) sites = parsed;
@@ -909,7 +954,7 @@ try {
 
 var notes = defaultNotes;
 try {
-  var stored = localStorage.getItem('asr2_notes');
+  var stored = safeStorage.getItem('asr2_notes');
   if (stored) {
     var parsed = JSON.parse(stored);
     if (Array.isArray(parsed)) notes = parsed;
@@ -918,14 +963,14 @@ try {
 
 var checklistDone = [];
 try {
-  var stored = localStorage.getItem('asr2_checklist');
+  var stored = safeStorage.getItem('asr2_checklist');
   if (stored) {
     var parsed = JSON.parse(stored);
     if (Array.isArray(parsed)) checklistDone = parsed;
   }
 } catch(e) { console.error('Error loading checklist:', e); }
 
-var currentWorkingSiteId = localStorage.getItem('asr2_current_site_id') || (sites[0] ? sites[0].id : null);
+var currentWorkingSiteId = safeStorage.getItem('asr2_current_site_id') || (sites[0] ? sites[0].id : null);
 
 var currentEditingRoleId = null;
 var equipEditMode = false;
@@ -934,12 +979,12 @@ var noteVictimCount = 1;
 
 /* ── 核心保存函數 ── */
 function saveState(){
-  localStorage.setItem('asr2_roles', JSON.stringify(roles));
-  localStorage.setItem('asr2_equipments', JSON.stringify(equipments));
-  localStorage.setItem('asr2_sites', JSON.stringify(sites));
-  localStorage.setItem('asr2_notes', JSON.stringify(notes));
-  localStorage.setItem('asr2_checklist', JSON.stringify(checklistDone));
-  localStorage.setItem('asr2_current_site_id', currentWorkingSiteId);
+  safeStorage.setItem('asr2_roles', JSON.stringify(roles));
+  safeStorage.setItem('asr2_equipments', JSON.stringify(equipments));
+  safeStorage.setItem('asr2_sites', JSON.stringify(sites));
+  safeStorage.setItem('asr2_notes', JSON.stringify(notes));
+  safeStorage.setItem('asr2_checklist', JSON.stringify(checklistDone));
+  safeStorage.setItem('asr2_current_site_id', currentWorkingSiteId);
 }
 
 /* ── 1. 人員與角色動態渲染與邏輯 ── */
@@ -956,15 +1001,13 @@ function renderRoles(){
     var btn = document.createElement('button');
     btn.className = 'role-row';
     btn.onclick = function(){ openRoleDetail(role.id); };
-    btn.innerHTML = `
-      <div class="role-icon" style="background:${role.iconBg}">${role.icon}</div>
-      <div class="role-info">
-        <div class="role-name">${role.name}</div>
-        <div class="role-sub">${role.group} · ${role.count}名</div>
-      </div>
-      <span class="role-badge" style="${badgeStyle}">${role.badge}</span>
-      <span class="role-chev">›</span>
-    `;
+    btn.innerHTML = '<div class="role-icon" style="background:' + role.iconBg + '">' + role.icon + '</div>' +
+      '<div class="role-info">' +
+        '<div class="role-name">' + role.name + '</div>' +
+        '<div class="role-sub">' + role.group + ' · ' + role.count + '名</div>' +
+      '</div>' +
+      '<span class="role-badge" style="' + badgeStyle + '">' + role.badge + '</span>' +
+      '<span class="role-chev">›</span>';
     container.appendChild(btn);
   });
   
@@ -974,7 +1017,7 @@ function renderRoles(){
 
 function openRoleDetail(roleId){
   currentEditingRoleId = roleId;
-  var role = roles.find(function(r){ return r.id === roleId; });
+  var role = findInArray(roles, function(r){ return r.id === roleId; });
   if(!role) return;
   
   document.getElementById('role-detail-icon').textContent = role.icon;
@@ -987,10 +1030,8 @@ function openRoleDetail(roleId){
   role.duties.forEach(function(duty, index){
     var dr = document.createElement('div');
     dr.className = 'dr';
-    dr.innerHTML = `
-      <div class="dn" style="background:${role.badgeColor}; ${role.badgeTextColor?'color:'+role.badgeTextColor:''}">${index+1}</div>
-      <div class="dt">${duty}</div>
-    `;
+    dr.innerHTML = '<div class="dn" style="background:' + role.badgeColor + '; ' + (role.badgeTextColor ? 'color:' + role.badgeTextColor : '') + '">' + (index + 1) + '</div>' +
+      '<div class="dt">' + duty + '</div>';
     dutiesContainer.appendChild(dr);
   });
   
@@ -1007,7 +1048,7 @@ function openRoleDetail(roleId){
 
 function adjustRoleCount(amount){
   if(!currentEditingRoleId) return;
-  var role = roles.find(function(r){ return r.id === currentEditingRoleId; });
+  var role = findInArray(roles, function(r){ return r.id === currentEditingRoleId; });
   if(!role) return;
   
   var newCount = role.count + amount;
@@ -1035,10 +1076,8 @@ function renderEquipments(){
     var rowBtn = document.createElement('button');
     rowBtn.className = 'ck-row' + (isDone ? ' done' : '');
     rowBtn.onclick = function(){ toggleCk(index); };
-    rowBtn.innerHTML = `
-      <div class="ck-circle">${isDone ? '✓' : ''}</div>
-      <span class="ck-label">${index + 1}. ${equip}</span>
-    `;
+    rowBtn.innerHTML = '<div class="ck-circle">' + (isDone ? '✓' : '') + '</div>' +
+      '<span class="ck-label">' + (index + 1) + '. ' + equip + '</span>';
     
     var delBtn = document.createElement('button');
     delBtn.className = 'ck-delete-btn';
@@ -1215,21 +1254,19 @@ function renderSites(){
     };
     
     var color = getStatusColor(site.status);
-    card.innerHTML = `
-      <div class="site-head">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="site-code">${site.code}</div>
-          ${site.id === currentWorkingSiteId ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--blue);color:#fff;">目前工作</span>' : ''}
-        </div>
-        <div class="site-st" style="background:${color}">${site.status}</div>
-      </div>
-      <div class="site-addr">${site.addr || '無地址資訊'}</div>
-      <div class="site-m">
-        <div><div class="mv" style="color:${getGradeColor(site.victimGrade)}">${site.victimGrade}</div><div class="ml">受困等級</div></div>
-        <div><div class="mv">${site.buildingType || '—'}</div><div class="ml">建築類型</div></div>
-        <div><div class="mv">${site.timeSpent || '—'}</div><div class="ml">已用時間</div></div>
-      </div>
-    `;
+    card.innerHTML = '<div class="site-head">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<div class="site-code">' + site.code + '</div>' +
+          (site.id === currentWorkingSiteId ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--blue);color:#fff;">目前工作</span>' : '') +
+        '</div>' +
+        '<div class="site-st" style="background:' + color + '">' + site.status + '</div>' +
+      '</div>' +
+      '<div class="site-addr">' + (site.addr || '無地址資訊') + '</div>' +
+      '<div class="site-m">' +
+        '<div><div class="mv" style="color:' + getGradeColor(site.victimGrade) + '">' + site.victimGrade + '</div><div class="ml">受困等級</div></div>' +
+        '<div><div class="mv">' + (site.buildingType || '—') + '</div><div class="ml">建築類型</div></div>' +
+        '<div><div class="mv">' + (site.timeSpent || '—') + '</div><div class="ml">已用時間</div></div>' +
+      '</div>';
     
     var delBtn = document.createElement('button');
     delBtn.className = 'site-swipe-delete-btn';
@@ -1247,7 +1284,7 @@ function renderSites(){
   var tabBadgeEl = document.getElementById('site-tab-badge');
   if (tabBadgeEl) tabBadgeEl.textContent = sites.length;
   
-  var currentSite = sites.find(function(s){ return s.id === currentWorkingSiteId; });
+  var currentSite = findInArray(sites, function(s){ return s.id === currentWorkingSiteId; });
   var curSiteEl = document.getElementById('mission-current-site');
   if (curSiteEl) curSiteEl.textContent = currentSite ? currentSite.code : '—';
 }
@@ -1269,7 +1306,7 @@ function getGradeColor(grade){
 
 function openSiteDetail(siteId){
   selectedSiteFormId = siteId;
-  var site = sites.find(function(s){ return s.id === siteId; });
+  var site = findInArray(sites, function(s){ return s.id === siteId; });
   if(!site) return;
   
   var color = getStatusColor(site.status);
@@ -1302,7 +1339,7 @@ function openSiteDetail(siteId){
 
 function setAsCurrentSiteClick(){
   if(!selectedSiteFormId) return;
-  var site = sites.find(function(s){ return s.id === selectedSiteFormId; });
+  var site = findInArray(sites, function(s){ return s.id === selectedSiteFormId; });
   if(!site) return;
   
   currentWorkingSiteId = site.id;
@@ -1315,7 +1352,7 @@ function setAsCurrentSiteClick(){
     id: 'note-' + Date.now(),
     time: timeStr,
     category: '狀況回報',
-    text: `切換目前工作場地為：${site.code}`
+    text: '切換目前工作場地為：' + site.code
   };
   notes.push(newNote);
   saveState();
@@ -1338,7 +1375,7 @@ function openSiteForm(siteId){
   var desc = document.getElementById('site-form-desc');
   
   if(siteId){
-    var site = sites.find(function(s){ return s.id === siteId; });
+    var site = findInArray(sites, function(s){ return s.id === siteId; });
     if(!site) return;
     
     title.textContent = '編輯工作場地';
@@ -1378,7 +1415,7 @@ function deleteSiteClick(){
 }
 
 function deleteSiteDirect(siteId){
-  var site = sites.find(function(s){ return s.id === siteId; });
+  var site = findInArray(sites, function(s){ return s.id === siteId; });
   if(!site) return;
   if(!confirm('確定刪除場地「' + site.code + '」？所有該場地的記錄將被移除。')) {
     renderSites();
@@ -1411,7 +1448,7 @@ function saveSiteForm(){
   }
   
   if(formId){
-    var site = sites.find(function(s){ return s.id === formId; });
+    var site = findInArray(sites, function(s){ return s.id === formId; });
     if(site){
       site.code = code;
       site.addr = addr;
@@ -1465,13 +1502,11 @@ function renderNotes(){
     
     var catColor = getNoteCategoryColor(note.category);
     
-    item.innerHTML = `
-      <div class="timeline-header">
-        <span class="timeline-cat" style="background:${catColor}">${note.category}</span>
-        <span class="timeline-time">${note.time}</span>
-      </div>
-      <div class="timeline-body">${note.text}</div>
-    `;
+    item.innerHTML = '<div class="timeline-header">' +
+        '<span class="timeline-cat" style="background:' + catColor + '">' + note.category + '</span>' +
+        '<span class="timeline-time">' + note.time + '</span>' +
+      '</div>' +
+      '<div class="timeline-body">' + note.text + '</div>';
     container.appendChild(item);
   });
 }
@@ -1541,7 +1576,7 @@ function saveNoteForm(){
   
   if(noteSelectedCategory === '發現患者'){
     var status = document.getElementById('note-victim-status').value;
-    finalStr = `發現患者 ${noteVictimCount} 名 (${status})` + (text ? ` ｜ ${text}` : '');
+    finalStr = '發現患者 ' + noteVictimCount + ' 名 (' + status + ')' + (text ? ' ｜ ' + text : '');
   } else {
     if(!text){
       alert('請輸入記事內容！');
@@ -1564,10 +1599,10 @@ function saveNoteForm(){
 }
 
 function editOrDeleteNote(noteId){
-  var note = notes.find(function(n){ return n.id === noteId; });
+  var note = findInArray(notes, function(n){ return n.id === noteId; });
   if(!note) return;
   
-  if(confirm(`【現場記事管理】\n時間：${note.time}\n類別：${note.category}\n內容：${note.text}\n\n是否刪除這筆記事？`)){
+  if(confirm('【現場記事管理】\n時間：' + note.time + '\n類別：' + note.category + '\n內容：' + note.text + '\n\n是否刪除這筆記事？')){
     notes = notes.filter(function(n){ return n.id !== noteId; });
     saveState();
     renderNotes();
@@ -1588,7 +1623,7 @@ function exportData(){
   
   var now = new Date();
   var dateStr = now.getFullYear() + ('0'+(now.getMonth()+1)).slice(-2) + ('0'+now.getDate()).slice(-2);
-  var filename = `ASR2_Backup_${dateStr}.json`;
+  var filename = 'ASR2_Backup_' + dateStr + '.json';
   
   var jsonStr = JSON.stringify(backupData, null, 2);
   var blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1659,7 +1694,7 @@ function resetSystem(){
   if(!confirm('⚠️ 警告：確定重設任務系統？\n這將清除所有自訂場地、記事、修改過的人員與器材清單，並還原至系統預設值！')) return;
   if(!confirm('請再次確認是否重設？此操作無法取消。')) return;
   
-  localStorage.clear();
+  safeStorage.clear();
   location.reload();
 }
 
