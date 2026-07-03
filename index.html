@@ -1220,18 +1220,35 @@ var defaultNotes = [
 ];
 
 var defaultLogisticsInventory = [
-  { id: 'logi-1', name: '發電機 2kw', total: 3, available: 3 },
-  { id: 'logi-2', name: '紅外線熱顯像儀', total: 2, available: 2 },
-  { id: 'logi-3', name: '防爆照明燈', total: 10, available: 10 },
-  { id: 'logi-4', name: '氣壓支撐棒', total: 6, available: 6 },
-  { id: 'logi-5', name: '瓦斯汽笛', total: 5, available: 5 },
-  { id: 'logi-6', name: '背負式細水霧', total: 4, available: 4 }
+  { id: 'logi-1', name: 'ELEMAX發電機(綠色)', total: 2, available: 2, unit: '台' },
+  { id: 'logi-2', name: '犀牛雙人帳', total: 20, available: 20, unit: '頂' },
+  { id: 'logi-3', name: 'msr濾水器', total: 6, available: 6, unit: '支' },
+  { id: 'logi-4', name: '蛋捲桌', total: 4, available: 4, unit: '組' },
+  { id: 'logi-5', name: '折疊式桌椅', total: 32, available: 32, unit: '張' },
+  { id: 'logi-6', name: 'Milwaukee探照燈', total: 5, available: 5, unit: '支' },
+  { id: 'logi-7', name: '維修工具箱(含耗材)', total: 2, available: 2, unit: '套' },
+  { id: 'logi-8', name: '充氣幫浦', total: 2, available: 2, unit: '組' },
+  { id: 'logi-9', name: '捲筒式延長線', total: 1, available: 1, unit: '條' },
+  { id: 'logi-10', name: '備用燈泡', total: 10, available: 10, unit: '組' },
+  { id: 'logi-11', name: '延長線(20米藍色)', total: 2, available: 2, unit: '條' },
+  { id: 'logi-12', name: '瓦斯罐', total: 40, available: 40, unit: '罐' },
+  { id: 'logi-13', name: '延長線(3.5m*16M)', total: 2, available: 2, unit: '條' },
+  { id: 'logi-14', name: '盥洗組', total: 2, available: 2, unit: '組' },
+  { id: 'logi-15', name: '戶外投光燈', total: 4, available: 4, unit: '組' },
+  { id: 'logi-16', name: '戶外洗澡神器', total: 2, available: 2, unit: '台' },
+  { id: 'logi-17', name: '主食', total: 250, available: 250, unit: '份' },
+  { id: 'logi-18', name: '行動糧', total: 60, available: 60, unit: '份' },
+  { id: 'logi-19', name: '廁帳', total: 2, available: 2, unit: '頂' },
+  { id: 'logi-20', name: '水管', total: 4, available: 4, unit: '組' },
+  { id: 'logi-21', name: '油桶', total: 2, available: 2, unit: '桶' },
+  { id: 'logi-22', name: 'Milwaukee衝擊起子機', total: 2, available: 2, unit: '支' }
 ];
 
 var defaultBorrowRecords = [
-  { id: 'rec-1', equipId: 'logi-1', equipName: '發電機 2kw', qty: 1, unit: '搜索1組', borrower: '張有德', time: '15:30:10', returned: false, returnTime: null },
-  { id: 'rec-2', equipId: 'logi-3', equipName: '防爆照明燈', qty: 2, unit: '醫療組', borrower: '林美惠', time: '16:05:00', returned: true, returnTime: '17:30:00' }
+  { id: 'rec-1', equipId: 'logi-1', equipName: 'ELEMAX發電機(綠色)', qty: 1, unit: '搜索1組', borrower: '張有德', time: '15:30:10', returned: false, returnTime: null },
+  { id: 'rec-2', equipId: 'logi-10', equipName: '備用燈泡', qty: 2, unit: '醫療組', borrower: '林美惠', time: '16:05:00', returned: true, returnTime: '17:30:00' }
 ];
+
 
 var logisticsUnits = ['搜索1組', '搜索2組', '搜索3組', '管理組', '醫療組', 'UCC支援隊'];
 var logisticsPeople = ['張有德', '林美惠', '陳國強', '王小明', '李安全', '吳後勤'];
@@ -1289,7 +1306,22 @@ try {
   var stored = safeStorage.getItem('asr2_logistics_inventory');
   if (stored) {
     var parsed = JSON.parse(stored);
-    if (Array.isArray(parsed) && parsed.length > 0) logisticsInventory = parsed;
+    var hasOldDummy = false;
+    if (Array.isArray(parsed)) {
+      for (var i = 0; i < parsed.length; i++) {
+        if (parsed[i].name === '發電機 2kw' || parsed[i].name === '紅外線熱顯像儀') {
+          hasOldDummy = true;
+          break;
+        }
+      }
+    }
+    if (Array.isArray(parsed) && parsed.length > 0 && !hasOldDummy) {
+      logisticsInventory = parsed;
+    } else {
+      safeStorage.setItem('asr2_logistics_inventory', JSON.stringify(defaultLogisticsInventory));
+    }
+  } else {
+    safeStorage.setItem('asr2_logistics_inventory', JSON.stringify(defaultLogisticsInventory));
   }
 } catch(e) { console.error('Error loading logistics inventory:', e); }
 
@@ -1298,7 +1330,22 @@ try {
   var stored = safeStorage.getItem('asr2_borrow_records');
   if (stored) {
     var parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) borrowRecords = parsed;
+    var hasOldDummy = false;
+    if (Array.isArray(parsed)) {
+      for (var i = 0; i < parsed.length; i++) {
+        if (parsed[i].equipName === '發電機 2kw') {
+          hasOldDummy = true;
+          break;
+        }
+      }
+    }
+    if (Array.isArray(parsed) && !hasOldDummy) {
+      borrowRecords = parsed;
+    } else {
+      safeStorage.setItem('asr2_borrow_records', JSON.stringify(defaultBorrowRecords));
+    }
+  } else {
+    safeStorage.setItem('asr2_borrow_records', JSON.stringify(defaultBorrowRecords));
   }
 } catch(e) { console.error('Error loading borrow records:', e); }
 
