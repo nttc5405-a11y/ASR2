@@ -579,6 +579,7 @@ window.onerror = function(msg, url, line, col, error) {
     <!-- 借還歷史日誌 -->
     <div class="logistics-title-bar">
       <span class="sec-hd" style="padding:0">借還日誌記錄</span>
+      <button onclick="clearLogisticsHistory()" style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">清空日誌</button>
     </div>
     
     <div style="background:#fff;border-radius:20px;padding:12px 16px;border:1px solid var(--sep);">
@@ -3426,6 +3427,15 @@ function returnLogisticsItem(recordId) {
   
   saveState();
   renderLogistics();
+}
+
+function clearLogisticsHistory() {
+  if (confirm('確定清空所有借還日誌與借出中清單？這將會清除所有歷史記錄（包含已借出與歸還的項目），但在庫器材數量將維持現狀。')) {
+    borrowRecords = [];
+    saveState();
+    renderLogistics();
+    renderLogisticsAdminList();
+  }
 }
 
 var selectedLogisticsAdminId = null;
