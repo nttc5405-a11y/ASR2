@@ -451,7 +451,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   <div class="shb"><div class="shsec"><div class="shst">INSARAG 撤離訊號</div>
     <div class="dr"><div class="dn" style="background:var(--red)">!</div><div class="dt">由<strong>安全官</strong>負責瓦斯汽笛使用</div></div>
     <div class="dr"><div class="dn" style="background:var(--red)">撤</div><div class="dt"><strong>3短聲（每次1秒）</strong>，重複至現場疏散完畢</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">離</div><div class="dt">依撤離路線前往集結區，撤離完畢<strong>應清點人數</strong></div></div>
+    <div class="dr"><div class="dn" style="background:var(--red)">力</div><div class="dt">依撤離路線前往集結區，撤離完畢<strong>應清點人數</strong></div></div>
     <div class="dr"><div class="dn" style="background:var(--red)">回</div><div class="dt">帶隊官在集結區<strong>清點人員</strong>，向UCC回報</div></div>
   </div><div class="shsec"><div class="shst">集結區規定</div>
     <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">冷熱區由<strong>安全官</strong>於抵達現場後立即劃定</div></div>
@@ -763,12 +763,21 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+/* ── 在頁面最頂端新增錯誤攔截器，將報錯直接以紅底白字蓋在畫面最上方 ── */
+window.onerror = function(msg, url, line, col, error) {
+  var errDiv = document.createElement('div');
+  errDiv.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;background:#FF3B30;color:#fff;padding:15px;border-radius:10px;z-index:99999;font-size:12px;font-family:monospace;white-space:pre-wrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+  errDiv.innerHTML = '<strong>JS ERROR:</strong><br>' + msg + '<br>Line: ' + line + ' Col: ' + col + '<br>Stack: ' + (error ? error.stack : 'N/A');
+  document.body.appendChild(errDiv);
+  return false;
+};
+
 /* ── PWA Service Worker 註銷與快取清除 (加強安全保護，防止瀏覽器隱私模式崩潰) ── */
 try {
   if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (var r of registrations) {
-        r.unregister();
+      for (var i = 0; i < registrations.length; i++) {
+        registrations[i].unregister();
       }
     });
   }
