@@ -200,6 +200,47 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   margin-bottom: 12px;
   padding: 0 4px;
 }
+.category-btn {
+  background: var(--g5);
+  color: var(--g1);
+  border: 1px solid var(--sep);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+.category-btn.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 4px 10px rgba(0, 122, 255, 0.25);
+}
+.logistics-card-desc {
+  font-size: 11px;
+  color: var(--g1);
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+.logistics-card-loc {
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 600;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .logistics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -501,6 +542,16 @@ window.onerror = function(msg, url, line, col, error) {
     <div class="logistics-title-bar">
       <span class="sec-hd" style="padding:0">庫存倉庫 (可用器材)</span>
       <button onclick="openLogisticsAdmin()" style="background:none;border:none;color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;">後台庫存管理</button>
+    </div>
+    
+    <!-- 類別選單 (按鈕方塊) -->
+    <div class="logistics-category-bar" id="logistics-category-bar" style="display:flex;gap:8px;overflow-x:auto;padding:8px 4px;margin-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+      <!-- Category buttons rendered here -->
+    </div>
+    
+    <!-- 搜尋輸入框 -->
+    <div style="padding: 0 4px; margin-bottom: 12px;">
+      <input type="text" id="logistics-search-input" placeholder="🔍 搜尋此類別的裝備名稱..." style="width:100%;border:1px solid var(--sep);border-radius:12px;padding:10px 14px;font-size:14px;box-sizing:border-box;background:#fff;outline:none;transition:border-color 0.2s;" oninput="renderLogistics()">
     </div>
     
     <div id="logistics-warehouse-zone" class="logistics-drop-zone">
@@ -1220,28 +1271,818 @@ var defaultNotes = [
 ];
 
 var defaultLogisticsInventory = [
-  { id: 'logi-1', name: 'ELEMAX發電機(綠色)', total: 2, available: 2, unit: '台' },
-  { id: 'logi-2', name: '犀牛雙人帳', total: 20, available: 20, unit: '頂' },
-  { id: 'logi-3', name: 'msr濾水器', total: 6, available: 6, unit: '支' },
-  { id: 'logi-4', name: '蛋捲桌', total: 4, available: 4, unit: '組' },
-  { id: 'logi-5', name: '折疊式桌椅', total: 32, available: 32, unit: '張' },
-  { id: 'logi-6', name: 'Milwaukee探照燈', total: 5, available: 5, unit: '支' },
-  { id: 'logi-7', name: '維修工具箱(含耗材)', total: 2, available: 2, unit: '套' },
-  { id: 'logi-8', name: '充氣幫浦', total: 2, available: 2, unit: '組' },
-  { id: 'logi-9', name: '捲筒式延長線', total: 1, available: 1, unit: '條' },
-  { id: 'logi-10', name: '備用燈泡', total: 10, available: 10, unit: '組' },
-  { id: 'logi-11', name: '延長線(20米藍色)', total: 2, available: 2, unit: '條' },
-  { id: 'logi-12', name: '瓦斯罐', total: 40, available: 40, unit: '罐' },
-  { id: 'logi-13', name: '延長線(3.5m*16M)', total: 2, available: 2, unit: '條' },
-  { id: 'logi-14', name: '盥洗組', total: 2, available: 2, unit: '組' },
-  { id: 'logi-15', name: '戶外投光燈', total: 4, available: 4, unit: '組' },
-  { id: 'logi-16', name: '戶外洗澡神器', total: 2, available: 2, unit: '台' },
-  { id: 'logi-17', name: '主食', total: 250, available: 250, unit: '份' },
-  { id: 'logi-18', name: '行動糧', total: 60, available: 60, unit: '份' },
-  { id: 'logi-19', name: '廁帳', total: 2, available: 2, unit: '頂' },
-  { id: 'logi-20', name: '水管', total: 4, available: 4, unit: '組' },
-  { id: 'logi-21', name: '油桶', total: 2, available: 2, unit: '桶' },
-  { id: 'logi-22', name: 'Milwaukee衝擊起子機', total: 2, available: 2, unit: '支' }
+  { id: 'logi-1', name: '1', total: 110, available: 110, unit: '件', category: 'ICT設備', loc: '台東大隊', desc: '品牌: 無線電IP轉播機 | 頻率範圍: SPS-4128AC | 備註: 56*53*23CM(25Kg)' },
+  { id: 'logi-2', name: '2', total: 3, available: 3, unit: '件', category: 'ICT設備', loc: '特搜分隊辦公室', desc: '品牌: 衛星電話（含備用電池） | 型號: inmarsat | 序號: IsatPhone 2 | 頻率範圍: 號碼:870776004901 IMEI:353032043774302' },
+  { id: 'logi-3', name: '3', total: 7, available: 7, unit: '件', category: 'ICT設備', loc: '個人', desc: '品牌: 手持無線電 | 型號: KENWOOD | 序號: NX-200 | 頻率範圍: B4901088 | 備註: "無線電頻率 直通一:151.7050 直通二:162.4125"' },
+  { id: 'logi-4', name: '4', total: 19, available: 19, unit: '件', category: 'ICT設備', loc: '台東大隊', desc: '品牌: 筆記型電腦 | 頻率範圍: NXVPKTA00112315D7E7600' },
+  { id: 'logi-5', name: '5', total: 19, available: 19, unit: '件', category: 'ICT設備', loc: '台東大隊', desc: '品牌: 筆記型電腦 | 頻率範圍: NXVPKTA001127047B57600' },
+  { id: 'logi-6', name: '6', total: 19, available: 19, unit: '件', category: 'ICT設備', loc: '台東大隊', desc: '品牌: 筆記型電腦 | 頻率範圍: KBNXCV15N26748D' },
+  { id: 'logi-7', name: '7', total: 1, available: 1, unit: '件', category: 'ICT設備', loc: '特搜分隊辦公室', desc: '品牌: 平板電腦 | 型號: Samsung (三星) | 序號: Galaxy Tab S7(SM-T870) | 頻率範圍: R52R4011LFL' },
+  { id: 'logi-8', name: '8', total: 1, available: 1, unit: '件', category: 'ICT設備', loc: '特搜分隊辦公室', desc: '品牌: 平板電腦 | 型號: ASUS | 序號: ZenPad 3S 10 (P027) | 頻率範圍: J1NPCV002150DV3' },
+  { id: 'logi-9', name: '9', total: 1, available: 1, unit: '件', category: 'ICT設備', loc: '特搜分隊辦公室', desc: '品牌: 行動顯示器 | 型號: LG | 序號: StanbyME Go (27LX5QKNA) | 頻率範圍: 402KCZPK3213' },
+  { id: 'logi-10', name: '10', total: 1, available: 1, unit: '件', category: 'ICT設備', loc: '台東大隊', desc: '品牌: 行動顯示器 | 型號: LG | 序號: StanbyME Go 27LX5QKNA | 頻率範圍: 403KCEAK1116' },
+  { id: 'logi-11', name: '大資料夾', total: 1, available: 1, unit: '本', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-12', name: '資料盒', total: 8, available: 8, unit: '盒', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-13', name: 'A4紙', total: 1, available: 1, unit: '包', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-14', name: '資訊帆布', total: 5, available: 5, unit: '個', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-15', name: 'UCC旗', total: 1, available: 1, unit: '個', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-16', name: '文件板', total: 2, available: 2, unit: '個', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-17', name: '文具袋', total: 1, available: 1, unit: '個', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-18', name: '文具盒', total: 1, available: 1, unit: '個', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-19', name: '筆電', total: 1, available: 1, unit: '台', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-20', name: '印表機', total: 1, available: 1, unit: '台', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-21', name: '衛星電話', total: 1, available: 1, unit: '支', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-22', name: '投影機', total: 1, available: 1, unit: '台', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-23', name: '客廳帳', total: 1, available: 1, unit: '頂', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-24', name: '炊事帳', total: 2, available: 2, unit: '頂', category: 'UCC設備', loc: 'UCC箱', desc: '' },
+  { id: 'logi-25', name: '無線電IP轉播機', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '大隊', desc: '組別: 管 理 組 | 價值: 159915 | 特殊裝備序號: SPS-4128AC | 動力來源: 110V 交流電 | 體積: 56*53*23 | 重量: 25' },
+  { id: 'logi-26', name: '大型無線電中繼台', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '大隊', desc: '價值: 15000 | 動力來源: 內建鋰電池400W | 專用耗材: 不可上機 | 體積: 30*25*70 | 重量: 13.5' },
+  { id: 'logi-27', name: '指揮中心旗(含旗座)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 800 | 箱號: 管理1 | 體積: 95*55*45 | 重量: 45' },
+  { id: 'logi-28', name: '衛星電話', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '特搜分隊', desc: '價值: 45000 | 特殊裝備序號: 號碼:870776004901 IMEI:353032043774302 | 動力來源: 3.7V鋰電池3.18Ah' },
+  { id: 'logi-29', name: '排插延長線', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 550*2' },
+  { id: 'logi-30', name: '筆記型電腦', total: 3, available: 3, unit: '台', category: '第一櫃', loc: '大隊', desc: '價值: 26624*3 | 特殊裝備序號: SN:NXVPKTA00112315D7E7600 SN:NXVPKTA001127047B57600 KBNXCV15N26748D | 動力來源: 19V鋰電池2.37Ah*2 19V鋰電池3.42Ah*1' },
+  { id: 'logi-31', name: '行動顯示器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '大隊', desc: '價值: 29900*2 | 特殊裝備序號: SN:402KCZPK3213 SN:403KCEAK1116 | 動力來源: 14.8V5Ah' },
+  { id: 'logi-32', name: '收納折疊風扇', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 1450*2 | 特殊裝備序號: 型號:MY-P10 | 動力來源: 3.7V10.8Ah' },
+  { id: 'logi-33', name: '無人機', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '大隊', desc: '組別: 搜索組 | 箱號: 搜索1 | 體積: 95*55*45 | 重量: 28' },
+  { id: 'logi-34', name: '五用氣體偵測器(11車新)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '特搜11', desc: '價值: 60000 | 特殊裝備序號: 23-KA2B0-0355X | 動力來源: 內建鋰電池3.7V4Ah' },
+  { id: 'logi-35', name: '交流電電壓感應器', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 50000 | 動力來源: 3號電池*4' },
+  { id: 'logi-36', name: 'Bullard NXT 熱像儀', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '特搜11', desc: '價值: 304500 | 特殊裝備序號: DX11393、DX11394 | 動力來源: 內建鋰電池10.8V2.1Ah' },
+  { id: 'logi-37', name: '蛇管影像探測器 (Mitcorp X1000)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 300000 | 特殊裝備序號: MAICBA0011 | 動力來源: 5V鋰電池3Ah | 體積: 59*37*23 | 重量: 9' },
+  { id: 'logi-38', name: '光纖影音生命探測器 (FIRSTLOOK 360)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 550000 | 特殊裝備序號: R52M60KT3KM | 動力來源: 探測主機3.6V電池3.4Ah*4 平板內建鋰電池7.3Ah | 體積: 113*40*15 | 重量: 16' },
+  { id: 'logi-39', name: '聲納生命探測器(leader-search)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 1100000 | 特殊裝備序號: SN:D11.04.334/0358/26 | 動力來源: 平板:14.8V鋰電池2.5Ah*2 探測器:4號電池*9 | 體積: 66*53*25 | 重量: 20' },
+  { id: 'logi-40', name: '激光測距儀', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 800000 | 特殊裝備序號: SN:D11.06.022F/0111 | 動力來源: 12V鋰電池4.5Ah*2 | 體積: 66*53*25 | 重量: 20' },
+  { id: 'logi-41', name: '位移偵測器(leader wasp)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 300000 | 特殊裝備序號: SN:D11.06.030/21337 | 動力來源: 2號電池*4 | 體積: 55*45*25 | 重量: 12' },
+  { id: 'logi-42', name: '雷達生命探測器 (LifeLocator TRx)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '精密室', desc: '價值: 1500000 | 特殊裝備序號: SN:6LTSA09399 | 動力來源: 探測主機10.8V鋰電池*2<100Wh 平板7.2V鋰電池3.05Ah | 體積: 56*56*54 | 重量: 30' },
+  { id: 'logi-43', name: '客廳帳(迪卡濃)', total: 1, available: 1, unit: '頂', category: '第一櫃', loc: '第1櫃', desc: '組別: 救 援 組 前 進 指 揮 站 裝 備 | 價值: 7000 | 箱號: 救援組攜行袋1 | 體積: 110*65*45 | 重量: 45' },
+  { id: 'logi-44', name: '捲式桌子', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 3000' },
+  { id: 'logi-45', name: '捲式白板', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 1000' },
+  { id: 'logi-46', name: '摺疊椅', total: 5, available: 5, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 150*4' },
+  { id: 'logi-47', name: '文具', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 200' },
+  { id: 'logi-48', name: '全身吊帶(共10件)', total: 6, available: 6, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 15000*10 | 箱號: 救援組攜行袋2 | 體積: 110*65*45 | 重量: 38' },
+  { id: 'logi-49', name: '消防衣褲', total: 2, available: 2, unit: '套', category: '第一櫃', loc: '第1櫃', desc: '價值: 50000*2' },
+  { id: 'logi-50', name: '排煙機(共4台)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 6300*4 | 特殊裝備序號: (二櫃3台) | 箱號: 救援組攜行袋3 | 體積: 110*65*45 | 重量: 22' },
+  { id: 'logi-51', name: 'SAWA頂舉袋(黑長方形)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '組別: 救 援 組 | 價值: 200000 | 動力來源: 高壓儲氣瓶 | 箱號: 救援1 | 體積: 95*55*45 | 重量: 64' },
+  { id: 'logi-52', name: 'Holmatro手動油壓撐開器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 250,000*2 | 專用耗材: R68液壓油' },
+  { id: 'logi-53', name: 'Homatro油壓支撐桿 (銜接手動油壓器)', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 20,000*2 | 箱號: 救援2 | 體積: 95*55*45 | 重量: 58' },
+  { id: 'logi-54', name: 'Homatro手動油壓器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 120,000*2 | 專用耗材: R68液壓油' },
+  { id: 'logi-55', name: 'Homatro 500mm支撐桿', total: 4, available: 4, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 400000 | 箱號: 救援3 | 體積: 95*55*45 | 重量: 70' },
+  { id: 'logi-56', name: 'Homatro 250mm支撐桿', total: 4, available: 4, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-57', name: 'Homatro 125mm 支撐桿', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-58', name: '底盤座', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-59', name: 'L型座', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-60', name: 'ㄇ型座', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-61', name: 'Ｖ型座', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-62', name: '三角型座', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-63', name: '圓型座', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-64', name: '蹄形座', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-65', name: '束緊帶', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-66', name: '360度底座', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-67', name: 'HITACHI小型插電式削岩機', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 13000*2 | 動力來源: 110V 交流電 | 箱號: 救援4 | 體積: 95*55*45 | 重量: 60' },
+  { id: 'logi-68', name: 'Makita小型插電式削岩機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 10000 | 動力來源: 110V 交流電' },
+  { id: 'logi-69', name: '噴漆、氣笛、粉筆', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 400*2' },
+  { id: 'logi-70', name: '延長線(藍3.5mm)', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1200' },
+  { id: 'logi-71', name: 'HILTI插電式905大型削岩機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 50000 | 動力來源: 110V 交流電 | 箱號: 救援5 | 體積: 95*55*45 | 重量: 75' },
+  { id: 'logi-72', name: 'HILTI TE76電動鑽孔機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 80000 | 動力來源: 110V 交流電' },
+  { id: 'logi-73', name: 'Makita軍刀鋸(插電式)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 7000*2' },
+  { id: 'logi-74', name: '延長線(藍3.5mm)', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1200' },
+  { id: 'logi-75', name: 'Makita小型插電式削岩機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 10000 | 動力來源: 110V 交流電 | 箱號: 救援6 | 體積: 95*55*45 | 重量: 85' },
+  { id: 'logi-76', name: 'makita小型砂輪機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 3000 | 動力來源: 110V 交流電' },
+  { id: 'logi-77', name: 'Makita 槌鑽兩用(電池式)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 18000*2 | 動力來源: Makita 18v電池' },
+  { id: 'logi-78', name: 'HILTI兩用插電式削岩機', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 12000*2' },
+  { id: 'logi-79', name: 'BOSCH 鋼筋探測器', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-80', name: '4分(6分)膨脹螺絲組(20組)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-81', name: '起重旋吊環', total: 6, available: 6, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 1500*6' },
+  { id: 'logi-82', name: '延長線(藍3.5mm)', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1200' },
+  { id: 'logi-83', name: 'husqvarna k970引擎式水泥圓盤切割器 (K970 五台，K770 二台，K760 二台)', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 120,000*2 | 特殊裝備序號: (精密儀室K760 二台，K770 二台救助器材室 | 動力來源: 95汽油 二行程機油 | 箱號: 救援7 | 體積: 95*55*45 | 重量: 50' },
+  { id: 'logi-84', name: 'husqvarna水泥鏈鋸切割器 (含5組18吋導板及鏈條)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 180000*2 | 動力來源: 95汽油 二行程機油 | 箱號: 救援8 | 體積: 95*55*45 | 重量: 50' },
+  { id: 'logi-85', name: '水桶(2白)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 配件' },
+  { id: 'logi-86', name: '國勝豐電動鑽孔機(共2台)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 12000 | 箱號: 救援9 | 體積: 95*55*45 | 重量: 52' },
+  { id: 'logi-87', name: 'Milwaukee水泥破碎機(電池式)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 707000 | 動力來源: 米沃奇  M28電池 (220V)' },
+  { id: 'logi-88', name: '延長線(藍3.5mm)', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1200 | 箱號: 救援10 | 體積: 95*55*45 | 重量: 94' },
+  { id: 'logi-89', name: '美國龜拖拉組', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 8000*2' },
+  { id: 'logi-90', name: '拖車帶', total: 6, available: 6, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500*6' },
+  { id: 'logi-91', name: '黃色起重吊勾旋轉吊鉤', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-92', name: '綠色起重滑車', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-93', name: '下古', total: 8, available: 8, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-94', name: '下古3/4"', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-95', name: '美國龜拖拉組', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 8000*1 | 箱號: 救援11 | 體積: 95*55*45 | 重量: 95' },
+  { id: 'logi-96', name: '手動吊車', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000*2' },
+  { id: 'logi-97', name: '黃色起重吊勾旋轉吊鉤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-98', name: '綠色起重滑車', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-99', name: '下古', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-100', name: '拖車吊帶', total: 3, available: 3, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500*6' },
+  { id: 'logi-101', name: 'Milwaukee18V鋰電池背負式水箱(共3組)', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 6800*3 | 箱號: 救援12 | 體積: 95*55*45 | 重量: 30' },
+  { id: 'logi-102', name: '100米繩', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 箱號: 救援13 (繩袋1-1) | 體積: 95*55*45 | 重量: 56' },
+  { id: 'logi-103', name: 'CMC ID', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 9000' },
+  { id: 'logi-104', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000*2' },
+  { id: 'logi-105', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-106', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-107', name: 'CAMP CROLL', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-108', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-109', name: 'KONG鋼環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 720*10' },
+  { id: 'logi-110', name: '100米繩', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 箱號: 救援13 (繩袋1-2) | 體積: 95*55*45' },
+  { id: 'logi-111', name: 'CMC MPD', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 26000' },
+  { id: 'logi-112', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000*2' },
+  { id: 'logi-113', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-114', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-115', name: 'CAMP CROLL', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-116', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-117', name: 'KONG鋼環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 720*10' },
+  { id: 'logi-118', name: '捲楊器', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2750*2 | 箱號: 救援13 (繩袋1-3) | 體積: 95*55*45' },
+  { id: 'logi-119', name: '150CM 扁帶環', total: 4, available: 4, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 500*4' },
+  { id: 'logi-120', name: '6米扁帶', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-121', name: 'AZTEK 阿茲特克', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 18000' },
+  { id: 'logi-122', name: '繩索保護套', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 700*3' },
+  { id: 'logi-123', name: '繩索護橋', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000' },
+  { id: 'logi-124', name: 'CMC半身吊帶', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 12500*2' },
+  { id: 'logi-125', name: 'Milwaukee 軍刀鋸(電池式)(刀片10片)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 15000*2 | 動力來源: 米沃奇  18V電池 | 箱號: 救援14 | 體積: 95*55*45 | 重量: 50' },
+  { id: 'logi-126', name: 'Milwaukee電動圓盤機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 28700 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-127', name: 'Milwaukee電動鏈鋸機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 27000 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-128', name: 'Milwaukee線鋸機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-129', name: 'Makita小型插電鏈鋸機', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 12000*2 | 特殊裝備序號: (精密儀室*1) | 動力來源: 110V 交流電' },
+  { id: 'logi-130', name: '切割工作褲', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3800*2' },
+  { id: 'logi-131', name: '防水捲尺(30M)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000 | 箱號: 救援15 | 體積: 95*55*45 | 重量: 65' },
+  { id: 'logi-132', name: '木工角尺', total: 3, available: 3, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 250*3' },
+  { id: 'logi-133', name: 'BOSCH 測距儀', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 1500*2' },
+  { id: 'logi-134', name: '圓鍬', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 600*2' },
+  { id: 'logi-135', name: '工作袋、米尺、鐵鎚、拔釘撬棒、鋸子、大力膠帶、護目鏡', total: 5, available: 5, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 24000*5' },
+  { id: 'logi-136', name: '水蠟筆', total: 20, available: 20, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '價值: 265*20' },
+  { id: 'logi-137', name: '木工繪筆', total: 10, available: 10, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 25*10' },
+  { id: 'logi-138', name: 'makita 切台鋸片', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 2000*2' },
+  { id: 'logi-139', name: '快速磨鍊器', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 3950' },
+  { id: 'logi-140', name: '工作手套', total: 1, available: 1, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '價值: 600' },
+  { id: 'logi-141', name: '掌中錘', total: 8, available: 8, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 6800*8' },
+  { id: 'logi-142', name: '搜索照明繩', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '箱號: 救援16 | 體積: 95*55*45 | 重量: 46' },
+  { id: 'logi-143', name: 'Milwaukee探照燈', total: 3, available: 3, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 7500*3' },
+  { id: 'logi-144', name: '乙炔氧切割管線組', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 8900' },
+  { id: 'logi-145', name: 'Holmatro破壞剪(電池式)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 460000 | 動力來源: Homatro  28V電池 | 箱號: 救援17 | 體積: 100*75*38 | 重量: 38' },
+  { id: 'logi-146', name: 'Makita 5Ah.18v電池', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3200*4 | 箱號: 救援18 | 體積: 80*60*48 | 重量: 62' },
+  { id: 'logi-147', name: 'Milwaukee 5Ah.18V電池', total: 6, available: 6, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500*6' },
+  { id: 'logi-148', name: 'Milwaukee 6Ah.18V電池', total: 10, available: 10, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 5143*10 | 專用耗材: 須同意後上機' },
+  { id: 'logi-149', name: 'Milwaukee 6Ah.18V電池(新)', total: 12, available: 12, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 7000*12 | 專用耗材: 須同意後上機' },
+  { id: 'logi-150', name: 'Milwaukee 12Ah.18V電池', total: 12, available: 12, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 9286*12 | 專用耗材: 不可上機' },
+  { id: 'logi-151', name: 'Milwaukee M28電池(220V)', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3000 | 專用耗材: 須同意後上機' },
+  { id: 'logi-152', name: 'Homatro 6A.28V電池', total: 3, available: 3, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 20000*3 | 專用耗材: 不可上機' },
+  { id: 'logi-153', name: 'Makita充電器', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 12000 | 動力來源: 110V 交流電' },
+  { id: 'logi-154', name: 'Milwaukee充電器', total: 5, available: 5, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 2000*5 | 動力來源: 110V 交流電' },
+  { id: 'logi-155', name: 'Milwaukee充電器(220v)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500 | 動力來源: 220V 交流電' },
+  { id: 'logi-156', name: 'Homatro 充電器', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 15000 | 動力來源: 110V 交流電' },
+  { id: 'logi-157', name: '三角架(含配件)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 20000 | 體積: 280*25*25 | 重量: 50' },
+  { id: 'logi-158', name: 'AZ腳架', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 470000 | 體積: 120*80*80 | 重量: 62' },
+  { id: 'logi-159', name: 'Homatro 1000mm支撐桿', total: 4, available: 4, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 配件 | 體積: 110*10*10 | 重量: 20' },
+  { id: 'logi-160', name: '多功能工作梯', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '體積: 180*60*30 | 重量: 90' },
+  { id: 'logi-161', name: '2吋鋼管', total: 10, available: 10, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 400*10 | 體積: 120*25*25 | 重量: 65' },
+  { id: 'logi-162', name: '地樁', total: 10, available: 10, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 200*10 | 體積: 95*10*10 | 重量: 46' },
+  { id: 'logi-163', name: '撬棒', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 12000 | 體積: 150*10*10 | 重量: 15' },
+  { id: 'logi-164', name: 'HILTI大型電動削岩機 1500', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 90000 | 動力來源: 110V 交流電 | 體積: 80*20*45 | 重量: 27' },
+  { id: 'logi-165', name: '立式球型照明燈', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 25000 | 動力來源: 110V 交流電 | 體積: 150*35*35 | 重量: 16' },
+  { id: 'logi-166', name: 'Hou-Fu大型紅色發電機(6500w)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 50000 | 動力來源: 95汽油 | 專用耗材: 四行程 機油 | 體積: 70*55*65 | 重量: 93' },
+  { id: 'logi-167', name: '中型紅色發電機(3000w)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 30000 | 專用耗材: 四行程 機油 | 體積: 60*45*45 | 重量: 50' },
+  { id: 'logi-168', name: 'challenge(挑戰)本田台灣代理商  8000W 大型紅色發電機', total: 3, available: 3, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 50000 | 體積: 80*60*60 | 重量: 90' },
+  { id: 'logi-169', name: '工業用吸塵器(含配件)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 10500 | 動力來源: 110V 交流電 | 體積: 40*40*50 | 重量: 10' },
+  { id: 'logi-170', name: '木工切割平台', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 10000*2 | 體積: 120*80*70 | 重量: 30' },
+  { id: 'logi-171', name: '木工鋸台', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 22000*2 | 動力來源: 110V 交流電 | 體積: 90*60*60 | 重量: 60' },
+  { id: 'logi-172', name: '乙炔氧切割設備', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '義消(梁信一)', desc: '價值: 調用 | 動力來源: 乙炔（35L) | 專用耗材: 氧氣（47L) | 體積: 65*50*150 | 重量: 70' },
+  { id: 'logi-173', name: '客廳帳(迪卡濃)', total: 2, available: 2, unit: '頂', category: '第一櫃', loc: '第1櫃', desc: '價值: 7,000*2 | 體積: 100*30*30 | 重量: 20' },
+  { id: 'logi-174', name: '指揮帳(骨架式)', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '組別: 後 勤 組 | 價值: 600000*2 | 體積: 180*80*80 | 重量: 300' },
+  { id: 'logi-175', name: '環場式照明燈', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 300000 | 動力來源: 95汽油 | 專用耗材: 四行程 機油 | 箱號: 推車1 | 體積: 100*90*120 | 重量: 110' },
+  { id: 'logi-176', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-177', name: '客廳帳(迪卡濃)', total: 8, available: 8, unit: '頂', category: '第一櫃', loc: '第4櫃', desc: '價值: 7,000*8 | 箱號: 推車2 | 體積: 100*90*110 | 重量: 240' },
+  { id: 'logi-178', name: '地墊', total: 20, available: 20, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 299*20' },
+  { id: 'logi-179', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-180', name: '大型紅色發電機(7500w)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 40000 | 動力來源: 95汽油 | 專用耗材: 四行程 機油 | 箱號: 推車3 | 體積: 100*80*110 | 重量: 93' },
+  { id: 'logi-181', name: '中型紅色發電機(3000w)', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 30000 | 動力來源: 95汽油 | 專用耗材: 四行程 機油 | 重量: 50' },
+  { id: 'logi-182', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500 | 重量: 30' },
+  { id: 'logi-183', name: '指揮帳(大)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 800000 | 箱號: 推車4 | 體積: 150*120*80 | 重量: 160' },
+  { id: 'logi-184', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-185', name: '指揮帳(小)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 500000 | 箱號: 推車5 | 體積: 150*110*110 | 重量: 140' },
+  { id: 'logi-186', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-187', name: '圍籬', total: 6, available: 6, unit: '件', category: '第一櫃', loc: '第4櫃', desc: '價值: 600*6 | 箱號: 推車6 | 體積: 130*100*110 | 重量: 176' },
+  { id: 'logi-188', name: '鐵條', total: 50, available: 50, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 120*40' },
+  { id: 'logi-189', name: 'SKED', total: 3, available: 3, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 40000*3' },
+  { id: 'logi-190', name: '推車', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 3500' },
+  { id: 'logi-191', name: '蛋捲桌', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 3000*4 | 箱號: 後勤組攜行袋1 | 體積: 110*65*45 | 重量: 28' },
+  { id: 'logi-192', name: '蛋捲桌', total: 3, available: 3, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 3000*3 | 箱號: 後勤組攜行袋2 | 體積: 110*65*45 | 重量: 23' },
+  { id: 'logi-193', name: 'msr濾水器', total: 6, available: 6, unit: '支', category: '第一櫃', loc: '第4櫃', desc: '價值: 3800*6 | 箱號: 後勤組攜行袋3 | 體積: 110*65*45 | 重量: 28' },
+  { id: 'logi-194', name: '垃圾袋(大)', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 399' },
+  { id: 'logi-195', name: '清潔紙巾', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 899' },
+  { id: 'logi-196', name: '衛生紙', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 300' },
+  { id: 'logi-197', name: '不鏽鋼水壺', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 799*2' },
+  { id: 'logi-198', name: '充氣幫浦', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 指揮帳配件 | 動力來源: 110V 交流電 | 箱號: 後勤1 | 體積: 95*55*45 | 重量: 40' },
+  { id: 'logi-199', name: '童軍椅', total: 25, available: 25, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 150*25' },
+  { id: 'logi-200', name: '捲筒式延長線', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第4櫃', desc: '價值: 2000 | 箱號: 後勤2 | 體積: 95*55*45 | 重量: 60' },
+  { id: 'logi-201', name: '延長線(20米黃色)', total: 3, available: 3, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1800*3' },
+  { id: 'logi-202', name: '小發電機(紅色)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 30000*2 | 動力來源: 95汽油 | 專用耗材: 四行程 機油' },
+  { id: 'logi-203', name: '工作手套', total: 2, available: 2, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '價值: 600*2' },
+  { id: 'logi-204', name: '備用燈泡', total: 10, available: 10, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 1500*10 | 動力來源: 110V 交流電 | 箱號: 後勤3 | 體積: 95*55*45 | 重量: 44' },
+  { id: 'logi-205', name: '天井燈100w', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 2599*4 | 動力來源: 110V 交流電' },
+  { id: 'logi-206', name: 'Milwaukee探照燈', total: 5, available: 5, unit: '支', category: '第一櫃', loc: '第4櫃', desc: '價值: 7500*5 | 動力來源: 米沃奇  18V電池 | 箱號: 後勤4 | 體積: 95*55*45 | 重量: 52' },
+  { id: 'logi-207', name: 'Milwaukee廣角照明燈', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 8857*4 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-208', name: 'STREAMLIGHT 攜式場景燈', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 16000*2 | 動力來源: 110V交流電 電池' },
+  { id: 'logi-209', name: '延長線(20米藍色)', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 1350*2 | 動力來源: 110V 交流電 | 箱號: 後勤5 | 體積: 95*55*45 | 重量: 60' },
+  { id: 'logi-210', name: '電腦用延長線', total: 4, available: 4, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 680*4 | 動力來源: 110V 交流電' },
+  { id: 'logi-211', name: '電源穩壓器(插座)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 25000 | 動力來源: 110V 交流電' },
+  { id: 'logi-212', name: '維修工具箱(含耗材)', total: 2, available: 2, unit: '套', category: '第一櫃', loc: '第4櫃', desc: '價值: 17000*2 | 動力來源: 米沃奇  18V電池 | 專用耗材: WD40及化清不可上機 | 箱號: 後勤6 | 體積: 95*55*45 | 重量: 56' },
+  { id: 'logi-213', name: 'Milwaukee衝擊起子機', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-214', name: '混合用機油、引擎機油、WD40、化油器清潔劑、量杯', total: 1, available: 1, unit: '罐', category: '第一櫃', loc: '第1櫃', desc: '價值: 200*8' },
+  { id: 'logi-215', name: '工作手套', total: 1, available: 1, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '價值: 600' },
+  { id: 'logi-216', name: '瓦斯罐', total: 40, available: 40, unit: '罐', category: '第一櫃', loc: '第4櫃', desc: '價值: 130*40 | 專用耗材: 不可上機 | 箱號: 後勤7 | 體積: 95*55*45 | 重量: 45' },
+  { id: 'logi-217', name: '瓦斯頭', total: 25, available: 25, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 1000*25' },
+  { id: 'logi-218', name: '瓦斯燈', total: 6, available: 6, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 3000*6' },
+  { id: 'logi-219', name: '旋風爐(蜘蛛爐)', total: 6, available: 6, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 2600*6' },
+  { id: 'logi-220', name: '湯鍋', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 350*2' },
+  { id: 'logi-221', name: '大湯瓢', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-222', name: '炒鍋', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 600' },
+  { id: 'logi-223', name: '粘板', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 299*2' },
+  { id: 'logi-224', name: '防風板', total: 3, available: 3, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 250*3' },
+  { id: 'logi-225', name: '垃圾袋(特大)', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 159' },
+  { id: 'logi-226', name: '衛生紙', total: 20, available: 20, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '價值: 200' },
+  { id: 'logi-227', name: '折疊床(8個大隊的)', total: 10, available: 10, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 699*10 | 體積: 110*65*45 | 重量: 50' },
+  { id: 'logi-228', name: '塑膠棧板(4小)', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '第4櫃', desc: '價值: 1200*4 | 體積: 120*120*70 | 重量: 50' },
+  { id: 'logi-229', name: '曬衣架', total: 3, available: 3, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 1299*3 | 體積: 140*20*20 | 重量: 15' },
+  { id: 'logi-230', name: '客廳帳(藍綠4/黑5/灰12）', total: 21, available: 21, unit: '頂', category: '第一櫃', loc: '第4櫃', desc: '價值: 19,000*25 | 體積: 130*80*40 | 重量: 80' },
+  { id: 'logi-231', name: '管制板', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 15000 | 體積: 140*95*15 | 重量: 27' },
+  { id: 'logi-232', name: '油桶', total: 3, available: 3, unit: '桶', category: '第一櫃', loc: '第4櫃', desc: '價值: 2000*3 | 體積: 70*55*30 | 重量: 8' },
+  { id: 'logi-233', name: '塑膠桶(含除污桶)', total: 3, available: 3, unit: '桶', category: '第一櫃', loc: '分隊', desc: '價值: 600*3 | 體積: 75*60*60 | 重量: 16' },
+  { id: 'logi-234', name: '衣架', total: 60, available: 60, unit: '個', category: '第一櫃', loc: '分隊', desc: '價值: 7*60' },
+  { id: 'logi-235', name: '臉盆', total: 30, available: 30, unit: '個', category: '第一櫃', loc: '分隊', desc: '價值: 40*30' },
+  { id: 'logi-236', name: '洗潔精', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '分隊', desc: '價值: 199*4' },
+  { id: 'logi-237', name: '電子鍋(40人份)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '分隊', desc: '價值: 5999*2 | 體積: 30*30*70 | 重量: 18' },
+  { id: 'logi-238', name: '洗手台(含6個水桶)', total: 6, available: 6, unit: '組', category: '第一櫃', loc: '分隊', desc: '價值: 6500*6 | 體積: 45*45*60 | 重量: 60' },
+  { id: 'logi-239', name: '塑膠凳', total: 20, available: 20, unit: '個', category: '第一櫃', loc: '分隊', desc: '價值: 199*20 | 體積: 28*28*50 | 重量: 23' },
+  { id: 'logi-240', name: '抽水幫浦', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 38000 | 體積: 120*120*30 | 重量: 13' },
+  { id: 'logi-241', name: '化學品儲桶(黃)', total: 1, available: 1, unit: '桶', category: '第一櫃', loc: '分隊', desc: '價值: 18000 | 體積: 50*50*50 | 重量: 6' },
+  { id: 'logi-242', name: '輕便行馬桶', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '分隊', desc: '價值: 699*4 | 體積: 50*50*50 | 重量: 6' },
+  { id: 'logi-243', name: '靜音型發電機6300w', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '分隊', desc: '價值: 150000 | 動力來源: 汽油 | 專用耗材: 四行程 機油 | 體積: 70*60*60 | 重量: 100' },
+  { id: 'logi-244', name: '靜音型發電機3000w', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第4櫃', desc: '價值: 65000*2 | 動力來源: 汽油 | 專用耗材: 四行程 機油 | 重量: 70' },
+  { id: 'logi-245', name: '1噸水塔', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '分隊', desc: '體積: 150*110*110 | 重量: 20' },
+  { id: 'logi-246', name: '瓦斯桶', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '分隊', desc: '體積: 60*30*70 | 重量: 80' },
+  { id: 'logi-247', name: 'PVP管', total: 40, available: 40, unit: '支', category: '第一櫃', loc: '分隊', desc: '' },
+  { id: 'logi-248', name: '熱水器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '分隊', desc: '' },
+  { id: 'logi-249', name: '木棧板', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '分隊', desc: '' },
+  { id: 'logi-250', name: '立式體溫計', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '分隊', desc: '' },
+  { id: 'logi-251', name: '電線', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '73車', desc: '價值: 2999*2' },
+  { id: 'logi-252', name: '折疊式椅子', total: 50, available: 50, unit: '張', category: '第一櫃', loc: '分隊', desc: '價值: 400*50' },
+  { id: 'logi-253', name: '折疊式桌子', total: 15, available: 15, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 1350*15' },
+  { id: 'logi-254', name: '折疊式桌子', total: 3, available: 3, unit: '組', category: '第一櫃', loc: '分隊', desc: '價值: 2000*3 | 體積: 60*60*45 | 重量: 20' },
+  { id: 'logi-255', name: '油卡(桶裝、出勤車輛)', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '分隊', desc: '價值: 無' },
+  { id: 'logi-256', name: '礦泉水', total: 40, available: 40, unit: '件', category: '第一櫃', loc: '精密室', desc: '價值: 90*40 | 體積: 120*120*120 | 重量: 600' },
+  { id: 'logi-257', name: '離子切割機', total: 1, available: 1, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 35000 | 動力來源: 220V 交流電' },
+  { id: 'logi-258', name: 'makita插電式大型電動錘(220V)', total: 2, available: 2, unit: '台', category: '第一櫃', loc: '第1櫃', desc: '價值: 29000*2 | 動力來源: 220V 交流電' },
+  { id: 'logi-259', name: '攜式折疊式椅子', total: 40, available: 40, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 500*40' },
+  { id: 'logi-260', name: '攜式折疊式桌子', total: 15, available: 15, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 1300*15' },
+  { id: 'logi-261', name: '戶外輕便行馬桶', total: 6, available: 6, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 750*6' },
+  { id: 'logi-262', name: '戶外動垃圾架', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 800*4' },
+  { id: 'logi-263', name: '排泄物固化劑(含垃圾袋)', total: 100, available: 100, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 130*100' },
+  { id: 'logi-264', name: '屍袋', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '箱號: 醫療組1 | 體積: 95*55*45 | 重量: 37' },
+  { id: 'logi-265', name: '防護衣組', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-266', name: '毛毯', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-267', name: '搬運軟墊', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-268', name: 'N95口罩', total: 20, available: 20, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-269', name: '患者小包(整套)', total: 1, available: 1, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-270', name: '酒精噴瓶', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-271', name: '頸圈大人', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-272', name: '頸圈小孩', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-273', name: '無菌手套6.5、7、8', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-274', name: '保暖鋁毯', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-275', name: '針筒(50cc+18號針頭)', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-276', name: '針筒(10cc)', total: 3, available: 3, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-277', name: '針筒(3cc)', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-278', name: '留置針(18)', total: 5, available: 5, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-279', name: '留置針(22)', total: 5, available: 5, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-280', name: '點滴導管', total: 5, available: 5, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-281', name: '彈繃(大)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-282', name: '彈繃(中)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-283', name: '4*4紗布', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-284', name: '3*3紗布', total: 10, available: 10, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-285', name: '外科口罩', total: 50, available: 50, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-286', name: '大紗', total: 1, available: 1, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-287', name: '軟式護木', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-288', name: '軟式護木', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-289', name: '沖洗用N/S', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-290', name: '大量傷患傷票卡', total: 30, available: 30, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-291', name: '文具', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-292', name: '攜帶式血壓機', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-293', name: '血氧機', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-294', name: '耳溫(額溫)槍', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-295', name: '感染物回收袋', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-296', name: '瞳孔筆', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-297', name: '剪刀', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-298', name: '止血帶', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-299', name: '彈繃(大)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-300', name: '彈繃(中)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-301', name: '彈繃(小)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-302', name: '4*4紗布', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-303', name: '3*3紗布', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-304', name: '三角巾', total: 4, available: 4, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-305', name: '保暖鋁毯', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-306', name: 'Airway處治包', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-307', name: '聽診器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-308', name: '插管通條', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-309', name: 'ENDO(7、7.5、8)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-310', name: 'ENDO插管器材', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-311', name: '口咬器', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-312', name: '口咽(6、7、8、9、10)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-313', name: '鼻咽(5.5、6、6.5、7、7.5、8)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-314', name: 'BVM', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-315', name: '手套S、M、L', total: 1, available: 1, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-316', name: '集針盒', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-317', name: '注射用N/S', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-318', name: 'D10', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-319', name: '現場用表格及板夾(治療、後送)', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-320', name: '靜脈輸液包', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-321', name: 'Tonique', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-322', name: '留置針(18、20、22、24)', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-323', name: '針筒(50cc、10cc、3cc、1cc)', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-324', name: '點滴導管', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-325', name: '18號針頭', total: 1, available: 1, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-326', name: '酒棉', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-327', name: 'OP Side', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-328', name: '紙膠組', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-329', name: '軟式護木', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第4櫃', desc: '組別: 醫療組 | 箱號: 醫療組2 | 體積: 95*55*45 | 重量: 37' },
+  { id: 'logi-330', name: '沖洗用N/S', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-331', name: '瞳孔筆', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-332', name: '聽診器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第4櫃', desc: '' },
+  { id: 'logi-333', name: '攜帶式血壓機', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-334', name: '血氧機', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-335', name: '耳溫(額溫)槍', total: 2, available: 2, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-336', name: '感染物回收袋', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-337', name: '剪刀', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-338', name: '止血帶', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-339', name: '酒棉', total: 1, available: 1, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-340', name: '彈繃(大)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-341', name: '彈繃(中)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-342', name: '彈繃(小)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-343', name: '4*4紗布', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-344', name: '3*3紗布', total: 5, available: 5, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-345', name: '三角巾', total: 3, available: 3, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-346', name: '大紗', total: 3, available: 3, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-347', name: 'Tonique', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-348', name: '留置針(18、20、22、24)', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-349', name: '針筒(50cc、10cc、3cc、1cc)', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-350', name: '點滴導管', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-351', name: 'OP Side', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-352', name: '紙膠組', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-353', name: 'BVM', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-354', name: '凡士林', total: 1, available: 1, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-355', name: '注射用N/S', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-356', name: 'D10', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-357', name: '醫療組作業指引', total: 1, available: 1, unit: '本', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-358', name: '表單填寫板', total: 4, available: 4, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-359', name: '特種搜救隊動員人員健康狀況評估表', total: 5, available: 5, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-360', name: '空白每日健康評估表', total: 50, available: 50, unit: '份', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-361', name: '各類空白表格', total: 1, available: 1, unit: '本', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-362', name: '各組別每日健康評估表資料夾', total: 2, available: 2, unit: '本', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-363', name: '管制藥品資料夾', total: 1, available: 1, unit: '本', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-364', name: 'N95口罩', total: 20, available: 20, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-365', name: '外科口罩', total: 150, available: 150, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-366', name: '棄針盒', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-367', name: '手套L、M、S', total: 1, available: 1, unit: '盒', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-368', name: '毛毯', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-369', name: '頸圈大人', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-370', name: '頸圈小孩', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-371', name: '酒精噴罐', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-372', name: '酒精', total: 3, available: 3, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-373', name: '漂白水', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-374', name: '廢棄物垃圾袋(大)', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-375', name: '廢棄物垃圾袋(小)', total: 20, available: 20, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-376', name: '隔離衣', total: 10, available: 10, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-377', name: '注射用N/S', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-378', name: 'D10', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-379', name: '沖洗用N/S', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-380', name: '三角巾', total: 3, available: 3, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-381', name: '3*3紗布', total: 10, available: 10, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-382', name: '4*4紗布', total: 10, available: 10, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-383', name: '大紗', total: 2, available: 2, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-384', name: '紙膠組', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-385', name: '彈繃(大)', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-386', name: '彈繃(中)', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-387', name: '大紗', total: 2, available: 2, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-388', name: 'LT呼吸道4號', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-389', name: '留置針(18、20)', total: 1, available: 1, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-390', name: '針筒(10cc)', total: 3, available: 3, unit: '支', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-391', name: 'OP side', total: 6, available: 6, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-392', name: 'Tonique', total: 3, available: 3, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-393', name: '加熱包', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-394', name: '瞬冷包', total: 6, available: 6, unit: '包', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-395', name: '漂白水', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '' },
+  { id: 'logi-396', name: '折疊床', total: 2, available: 2, unit: '張', category: '第一櫃', loc: '第4櫃', desc: '價值: 699*2 | 箱號: 醫療組攜行袋1 | 體積: 110*65*45 | 重量: 23' },
+  { id: 'logi-397', name: '折疊椅', total: 2, available: 2, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-398', name: '折疊床', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第4櫃', desc: '價值: 699*2 | 箱號: 醫療組攜行袋2 | 體積: 110*65*45 | 重量: 23' },
+  { id: 'logi-399', name: '折疊椅', total: 2, available: 2, unit: '張', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-400', name: '夾板及楔型木組', total: 25, available: 25, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '組別: 備用器材 | 箱號: 救援3 | 體積: 110*70*50' },
+  { id: 'logi-401', name: 'husqvarna混泥土切割鏈鋸', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 180,000*2 | 動力來源: 95汽油 二行程機油 | 箱號: 救援4 | 體積: 110*70*50 | 重量: 83' },
+  { id: 'logi-402', name: 'husqvarna圓盤切割器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 120,000*2 | 動力來源: 95汽油 二行程機油' },
+  { id: 'logi-403', name: '水桶(2紅)', total: 4, available: 4, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 20000*4' },
+  { id: 'logi-404', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '小紅卡', desc: '價值: 11000 | 箱號: 救援5 (繩袋2-1) | 體積: 110*70*50 | 重量: 78' },
+  { id: 'logi-405', name: 'MPD', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 26000' },
+  { id: 'logi-406', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000*2' },
+  { id: 'logi-407', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-408', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-409', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-410', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-411', name: 'KONG鉤環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 720*10' },
+  { id: 'logi-412', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋2-2)' },
+  { id: 'logi-413', name: 'ID下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 9000' },
+  { id: 'logi-414', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000*2' },
+  { id: 'logi-415', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-416', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-417', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-418', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-419', name: 'KONG鉤環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 720*10' },
+  { id: 'logi-420', name: '捲揚器', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2750*2 | 箱號: 救援5 (繩袋2-3)' },
+  { id: 'logi-421', name: '150CM扁帶環', total: 4, available: 4, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 500*4' },
+  { id: 'logi-422', name: '6米扁帶', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-423', name: 'AZTEK', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 18000' },
+  { id: 'logi-424', name: '繩索保護套', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 700*3' },
+  { id: 'logi-425', name: '繩索保護器(紅色滾輪)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000' },
+  { id: 'logi-426', name: 'CMC半身吊帶', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 10500*2' },
+  { id: 'logi-427', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋3-1)' },
+  { id: 'logi-428', name: 'CMC雙滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000' },
+  { id: 'logi-429', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-430', name: 'CMC鉤環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 1000*10 | 重量: 78' },
+  { id: 'logi-431', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-432', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-433', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-434', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋3-2)' },
+  { id: 'logi-435', name: 'CMC雙滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000' },
+  { id: 'logi-436', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 4000' },
+  { id: 'logi-437', name: 'CMC鉤環', total: 10, available: 10, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 1000*10' },
+  { id: 'logi-438', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 7200' },
+  { id: 'logi-439', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-440', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2500' },
+  { id: 'logi-441', name: '捲揚器', total: 2, available: 2, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 2750*2 | 箱號: 救援5 (繩袋3-3)' },
+  { id: 'logi-442', name: '150CM扁帶環', total: 4, available: 4, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 500*4' },
+  { id: 'logi-443', name: '6米扁帶', total: 2, available: 2, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 300*2' },
+  { id: 'logi-444', name: 'AZTEK', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 18000' },
+  { id: 'logi-445', name: '繩索保護套', total: 3, available: 3, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 700*3' },
+  { id: 'logi-446', name: '繩索保護器(紅色滾輪)', total: 1, available: 1, unit: '個', category: '第一櫃', loc: '第1櫃', desc: '價值: 6000' },
+  { id: 'logi-447', name: 'CMC半身吊帶', total: 2, available: 2, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 10500*2' },
+  { id: 'logi-448', name: 'Z3 FIRE電升、下降器', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 29000*2' },
+  { id: 'logi-449', name: 'Milwaukee震動電鑽空機 (鋰電池 M18 5A*4)', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 19000*2' },
+  { id: 'logi-450', name: '盥洗組', total: 2, available: 2, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 999*2 | 箱號: 後8 | 體積: 110*70*50 | 重量: 89' },
+  { id: 'logi-451', name: '除污帳', total: 8, available: 8, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 2099*8' },
+  { id: 'logi-452', name: '除污池(3方/4圓)', total: 7, available: 7, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 1500*7' },
+  { id: 'logi-453', name: '抽水幫浦', total: 1, available: 1, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 5000' },
+  { id: 'logi-454', name: '戶外投光燈', total: 4, available: 4, unit: '組', category: '第一櫃', loc: '小紅卡', desc: '價值: 3999*4 | 箱號: 後9 | 體積: 110*70*50 | 重量: 91' },
+  { id: 'logi-455', name: '工作燈', total: 10, available: 10, unit: '組', category: '第一櫃', loc: '第1櫃', desc: '價值: 1500*10' },
+  { id: 'logi-456', name: '條燈', total: 20, available: 20, unit: '條', category: '第一櫃', loc: '第1櫃', desc: '價值: 899*20' },
+  { id: 'logi-457', name: '折疊式桌椅', total: 4, available: 4, unit: '張', category: '第一櫃', loc: '小紅卡', desc: '價值: 2000*4 | 箱號: 後10 | 體積: 110*70*50 | 重量: 64' },
+  { id: 'logi-458', name: '油桶', total: 2, available: 2, unit: '桶', category: '第一櫃', loc: '第1櫃', desc: '價值: 2000*2' },
+  { id: 'logi-459', name: '主食', total: 250, available: 250, unit: '份', category: '第一櫃', loc: '第1櫃', desc: '價值: 50*250 | 箱號: 後11 | 體積: 110*70*50 | 重量: 140' },
+  { id: 'logi-460', name: '料理食品', total: 250, available: 250, unit: '份', category: '第一櫃', loc: '第1櫃', desc: '價值: 50*250' },
+  { id: 'logi-461', name: '維他命C泡錠', total: 6, available: 6, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '價值: 150*6' },
+  { id: 'logi-462', name: '主食', total: 250, available: 250, unit: '份', category: '第一櫃', loc: '第1櫃', desc: '價值: 50*250 | 箱號: 後12 | 體積: 110*70*50 | 重量: 130' },
+  { id: 'logi-463', name: '料理食品', total: 250, available: 250, unit: '份', category: '第一櫃', loc: '第1櫃', desc: '價值: 50*250' },
+  { id: 'logi-464', name: '物品', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 序號 | 特殊裝備序號: 數量 | 動力來源: 總計： 122件 5962.5公斤' },
+  { id: 'logi-465', name: '灰色行李箱', total: 95, available: 95, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 1 | 特殊裝備序號: 20' },
+  { id: 'logi-466', name: '紅色行李箱', total: 95, available: 95, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 2 | 特殊裝備序號: 7' },
+  { id: 'logi-467', name: '黑色行李箱', total: 100, available: 100, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 3 | 特殊裝備序號: 1' },
+  { id: 'logi-468', name: '黑色行李箱', total: 80, available: 80, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 4 | 特殊裝備序號: 1' },
+  { id: 'logi-469', name: '黑色行李箱', total: 110, available: 110, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 5 | 特殊裝備序號: 8' },
+  { id: 'logi-470', name: '攜行袋', total: 110, available: 110, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 6 | 特殊裝備序號: 8' },
+  { id: 'logi-471', name: '無線電IP轉播機', total: 56, available: 56, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 7 | 特殊裝備序號: 1' },
+  { id: 'logi-472', name: '大型無線電中繼台', total: 30, available: 30, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 8 | 特殊裝備序號: 1' },
+  { id: 'logi-473', name: '投影布幕', total: 182, available: 182, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 9 | 特殊裝備序號: 1' },
+  { id: 'logi-474', name: '蛇管影像探測器 (Mitcorp X1000)', total: 59, available: 59, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 10 | 特殊裝備序號: 1' },
+  { id: 'logi-475', name: '光纖影音生命探測器 (FIRSTLOOK 360)', total: 113, available: 113, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 11 | 特殊裝備序號: 1' },
+  { id: 'logi-476', name: '聲納生命探測器(leader-search)', total: 66, available: 66, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 12 | 特殊裝備序號: 1' },
+  { id: 'logi-477', name: '激光測距儀', total: 66, available: 66, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 13 | 特殊裝備序號: 1' },
+  { id: 'logi-478', name: '位移偵測器(leader wasp)', total: 55, available: 55, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 14 | 特殊裝備序號: 1' },
+  { id: 'logi-479', name: '雷達生命探測器 (LifeLocator TRx)', total: 56, available: 56, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 15 | 特殊裝備序號: 1' },
+  { id: 'logi-480', name: 'Homatro 1000mm支撐桿', total: 110, available: 110, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 16 | 特殊裝備序號: 4' },
+  { id: 'logi-481', name: 'HILTI大型電動削岩機 1500', total: 80, available: 80, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 17 | 特殊裝備序號: 1' },
+  { id: 'logi-482', name: 'AZ角架(含配件)', total: 120, available: 120, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 18 | 特殊裝備序號: 1' },
+  { id: 'logi-483', name: '三角架(含配件)', total: 280, available: 280, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 19 | 特殊裝備序號: 1' },
+  { id: 'logi-484', name: '2吋鋼管', total: 120, available: 120, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 20 | 特殊裝備序號: 10' },
+  { id: 'logi-485', name: '地樁', total: 95, available: 95, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 21 | 特殊裝備序號: 10' },
+  { id: 'logi-486', name: '撬棒', total: 150, available: 150, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 22 | 特殊裝備序號: 2' },
+  { id: 'logi-487', name: '立式球型照明燈', total: 150, available: 150, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 23 | 特殊裝備序號: 1' },
+  { id: 'logi-488', name: '大型紅色發電機(6500w)', total: 70, available: 70, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 24 | 特殊裝備序號: 1' },
+  { id: 'logi-489', name: '工業用吸塵器(含配件)', total: 40, available: 40, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 25 | 特殊裝備序號: 1' },
+  { id: 'logi-490', name: '木工鋸台', total: 90, available: 90, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 26 | 特殊裝備序號: 1' },
+  { id: 'logi-491', name: '乙炔氧切割設備', total: 50, available: 50, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 27 | 特殊裝備序號: 1' },
+  { id: 'logi-492', name: '客廳帳(藍綠)', total: 130, available: 130, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 28 | 特殊裝備序號: 4' },
+  { id: 'logi-493', name: '管制板', total: 140, available: 140, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 29 | 特殊裝備序號: 1' },
+  { id: 'logi-494', name: '曬衣架', total: 140, available: 140, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 30 | 特殊裝備序號: 2' },
+  { id: 'logi-495', name: '抽水幫浦', total: 120, available: 120, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 31 | 特殊裝備序號: 1' },
+  { id: 'logi-496', name: '化學品儲桶(黃)', total: 50, available: 50, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 32 | 特殊裝備序號: 1' },
+  { id: 'logi-497', name: '塑膠桶', total: 75, available: 75, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 33 | 特殊裝備序號: 3' },
+  { id: 'logi-498', name: '靜音型發電機', total: 70, available: 70, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 34 | 特殊裝備序號: 1' },
+  { id: 'logi-499', name: '塑膠棧板(2大、4小)', total: 120, available: 120, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 35 | 特殊裝備序號: 6' },
+  { id: 'logi-500', name: '電源穩壓器', total: 40, available: 40, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 36 | 特殊裝備序號: 1' },
+  { id: 'logi-501', name: '油桶', total: 70, available: 70, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 37 | 特殊裝備序號: 3' },
+  { id: 'logi-502', name: '油卡(桶裝、出勤車輛)', total: 1, available: 1, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 38 | 特殊裝備序號: 1' },
+  { id: 'logi-503', name: '推車1', total: 105, available: 105, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 39 | 特殊裝備序號: 1' },
+  { id: 'logi-504', name: '推車2', total: 105, available: 105, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 40 | 特殊裝備序號: 1' },
+  { id: 'logi-505', name: '推車3', total: 105, available: 105, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 41 | 特殊裝備序號: 1' },
+  { id: 'logi-506', name: '推車4', total: 105, available: 105, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 42 | 特殊裝備序號: 1' },
+  { id: 'logi-507', name: '推車5', total: 105, available: 105, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 43 | 特殊裝備序號: 1' },
+  { id: 'logi-508', name: '推車6', total: 140, available: 140, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 44 | 特殊裝備序號: 1' },
+  { id: 'logi-509', name: '指揮帳(骨架式)', total: 180, available: 180, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 45 | 特殊裝備序號: 2' },
+  { id: 'logi-510', name: '多功能工作梯', total: 180, available: 180, unit: '件', category: '第一櫃', loc: '第1櫃', desc: '組別: 46 | 特殊裝備序號: 2' },
+  { id: 'logi-511', name: '指揮中心旗(含旗座)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 管理組 | 價值: 800 | 箱號: 管搜1 | 體積: 95*55*45 | 重量: 40' },
+  { id: 'logi-512', name: '衛星電話(含備用電池)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '特搜分隊', desc: '價值: 45000 | 特殊裝備序號: 號碼: 870776004901 IMEI: 353032043774302 | 動力來源: 3.7V鋰電池3.18Ah*2' },
+  { id: 'logi-513', name: '排插延長線(USB)', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 550*2' },
+  { id: 'logi-514', name: '手提電腦', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '大隊', desc: '價值: 26624 | 動力來源: 10.8V鋰電池6.7Ah' },
+  { id: 'logi-515', name: '平板', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '大隊', desc: '價值: 10290 | 特殊裝備序號: J1NPCV002241SS2 | 動力來源: 內建鋰電池5.9Ah' },
+  { id: 'logi-516', name: '無人機', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '大隊', desc: '價值: 150000 | 特殊裝備序號: OAXDE1GOA31172 | 動力來源: 飛行器15.2V鋰電池5.87Ah*6 遙控器內建鋰電池6Ah' },
+  { id: 'logi-517', name: '五用氣體偵測器(11車)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '特搜51', desc: '組別: 搜索組 | 價值: 83350 | 特殊裝備序號: SK319-000219 | 動力來源: 3.7V鋰電池3.6Ah' },
+  { id: 'logi-518', name: '熱影像偵測器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '特搜72', desc: '價值: 300000 | 特殊裝備序號: SN:UK01192 | 動力來源: 6.6V鋰電池1.1Ah' },
+  { id: 'logi-519', name: '蛇管影像探測器 (GL-C10-5530)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '精密室', desc: '價值: 200155 | 特殊裝備序號: MBJAHAR411 | 動力來源: 內建3.7V鋰電池2Ah' },
+  { id: 'logi-520', name: '光纖影音生命探測器 (Searchcam3000)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '精密室', desc: '價值: 440624 | 特殊裝備序號: SN:SC-3669 | 動力來源: 7.2V鋰電池3.35Ah*27.4V鋰電池2.3Ah*2 | 體積: 136*45*15 | 重量: 18' },
+  { id: 'logi-521', name: '聲納生命探測器(leader-search)簡版', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '精密室', desc: '價值: 1100000 | 特殊裝備序號: D11-01-19-A/0127/30 | 動力來源: 平板:14.8V鋰電池2.5Ah*2 探測器:4號電池*9 | 體積: 66*51*37 | 重量: 18' },
+  { id: 'logi-522', name: '雷達生命探測器 (RESCUE RADAR)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '精密室', desc: '價值: 1500000 | 特殊裝備序號: SN:1W1670001582 | 動力來源: 探測主機12V電池9Ah*3 平板11.1V鋰電池5.2Ah*2 | 專用耗材: 須同意後上機 | 體積: 85*65*50 | 重量: 37' },
+  { id: 'logi-523', name: '犀牛雙人帳', total: 20, available: 20, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 5,000*20 | 箱號: 後勤2 | 體積: 50*70*110 | 重量: 78' },
+  { id: 'logi-524', name: '防潮地墊', total: 20, available: 20, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 600*20' },
+  { id: 'logi-525', name: 'ELEMAX發電機(綠色)', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 25,000*2 | 動力來源: 95汽油 | 專用耗材: 四行程機油 | 箱號: 後勤3 | 體積: 50*70*110 | 重量: 75' },
+  { id: 'logi-526', name: '摺疊椅', total: 10, available: 10, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 200*15' },
+  { id: 'logi-527', name: '折疊式桌椅', total: 3, available: 3, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 2,000*3 | 箱號: 後勤4 | 體積: 50*70*110 | 重量: 57' },
+  { id: 'logi-528', name: 'Milwaukee廣角照明燈', total: 4, available: 4, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 8,857*4 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-529', name: '折疊式桌椅', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 2,000*2 | 箱號: 後勤5 | 體積: 50*70*110 | 重量: 66' },
+  { id: 'logi-530', name: 'Milwaukee工作燈', total: 5, available: 5, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 6,430*5 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-531', name: 'Milwaukee線鋸機', total: 1, available: 1, unit: '支', category: '第二櫃', loc: '第2櫃', desc: '價值: 11000 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-532', name: 'Milwaukee充電器', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 3,000*2 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-533', name: '延長線', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 1,000*2' },
+  { id: 'logi-534', name: '維修工具箱(含耗材)', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 17000 | 動力來源: 米沃奇  18V電池 | 專用耗材: WD40及化清不可上機 | 箱號: 後勤6 | 體積: 42*25*35' },
+  { id: 'logi-535', name: 'Milwaukee衝擊起子機', total: 1, available: 1, unit: '支', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-536', name: '維修工具箱(含耗材)', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 17000 | 動力來源: 米沃奇  18V電池 | 專用耗材: WD40及化清不可上機 | 箱號: 後勤7 | 體積: 42*25*35' },
+  { id: 'logi-537', name: 'Milwaukee衝擊起子機', total: 1, available: 1, unit: '支', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-538', name: '指揮帳(含2充氣幫補)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 500000 | 動力來源: 110V交流電 | 體積: 140*130*130 | 重量: 100' },
+  { id: 'logi-539', name: '手推車', total: 3, available: 3, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 3,500*3 | 體積: 105*70*30 | 重量: 111' },
+  { id: 'logi-540', name: '環場式照明燈', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 300000 | 動力來源: 95汽油 | 專用耗材: 四行程機油 | 體積: 70*65*60 | 重量: 60' },
+  { id: 'logi-541', name: '空油桶', total: 2, available: 2, unit: '桶', category: '第二櫃', loc: '第2櫃', desc: '價值: 2000*3' },
+  { id: 'logi-542', name: '油卡(桶裝、出勤車輛)', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '台東分隊', desc: '價值: 無' },
+  { id: 'logi-543', name: 'HILTI插電式大型削岩機', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '組別: 救援組 | 價值: 50000 | 動力來源: 110V交流電 | 箱號: 救援1 | 體積: 50*70*110 | 重量: 103' },
+  { id: 'logi-544', name: 'HILTI插電式中型削岩機', total: 3, available: 3, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 70,000*3 | 動力來源: 110V交流電' },
+  { id: 'logi-545', name: 'HILTI電池式小型削岩機', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 60,000*2 | 動力來源: HILTI  21V電池' },
+  { id: 'logi-546', name: 'HITACHI小型插電式削岩機', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 13000 | 動力來源: 110V交流電' },
+  { id: 'logi-547', name: 'Holmatro電動破壞剪', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 460000 | 特殊裝備序號: 1353585HH | 動力來源: Homatro  28V電池 | 箱號: 救援2 | 體積: 50*70*110 | 重量: 85' },
+  { id: 'logi-548', name: 'Holmatro手動油壓撐開器', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 140,000*2 | 特殊裝備序號: 700961610   1165051HC | 專用耗材: R68液壓油' },
+  { id: 'logi-549', name: 'Holmatro楔型撐開器', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 320000 | 特殊裝備序號: 1354202HH | 專用耗材: R68液壓油' },
+  { id: 'logi-550', name: 'Holmatro充電座', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 15000 | 動力來源: 110V交流電' },
+  { id: 'logi-551', name: 'Holmatro充電座(含電池)', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 80000 | 動力來源: 110V交流電' },
+  { id: 'logi-552', name: '混泥土切割鏈鋸', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 180,000*2 | 動力來源: 95汽油 二行程機油 | 箱號: 救援3 | 體積: 50*70*110 | 重量: 83' },
+  { id: 'logi-553', name: '圓盤切割器', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 120,000*2 | 動力來源: 95汽油 二行程機油' },
+  { id: 'logi-554', name: '鑽石鋸片(備用)', total: 4, available: 4, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 20000*4' },
+  { id: 'logi-555', name: '金屬鋸片(備用)', total: 6, available: 6, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 200*6' },
+  { id: 'logi-556', name: 'HILTI插電式洗孔機', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 80000 | 動力來源: 110V交流電 | 箱號: 救援4 | 體積: 50*70*110 | 重量: 72' },
+  { id: 'logi-557', name: 'BOSCH金屬探測器', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 3500 | 動力來源: 3號電池' },
+  { id: 'logi-558', name: 'Makita手鋸機(含充電座)', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 8000 | 動力來源: Makita  18V電池' },
+  { id: 'logi-559', name: 'Milwaukee電池式軍刀鋸', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 15,000*2 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-560', name: 'Milwaukee多角度燈', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 14,286*2 | 動力來源: 米沃奇  18V電池' },
+  { id: 'logi-561', name: '延長線(粗)', total: 2, available: 2, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 1,000*2' },
+  { id: 'logi-562', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋2-1) | 體積: 50*70*110 | 重量: 78' },
+  { id: 'logi-563', name: 'MPD', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 26000' },
+  { id: 'logi-564', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000*2' },
+  { id: 'logi-565', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 4000' },
+  { id: 'logi-566', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 7200' },
+  { id: 'logi-567', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-568', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-569', name: 'KONG鉤環', total: 10, available: 10, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 720*10' },
+  { id: 'logi-570', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋2-2)' },
+  { id: 'logi-571', name: 'ID下降器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 9000' },
+  { id: 'logi-572', name: 'CMC雙滑輪', total: 2, available: 2, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000*2' },
+  { id: 'logi-573', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 4000' },
+  { id: 'logi-574', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 7200' },
+  { id: 'logi-575', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-576', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-577', name: 'KONG鉤環', total: 10, available: 10, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 720*10' },
+  { id: 'logi-578', name: '捲揚器', total: 2, available: 2, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '組別: 救援組 | 價值: 2750*2 | 箱號: 救援5 (繩袋2-3)' },
+  { id: 'logi-579', name: '150CM扁帶環', total: 4, available: 4, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 500*4' },
+  { id: 'logi-580', name: '6米扁帶', total: 2, available: 2, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 300*2' },
+  { id: 'logi-581', name: 'AZTEK', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 18000' },
+  { id: 'logi-582', name: '繩索保護套', total: 3, available: 3, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 700*3' },
+  { id: 'logi-583', name: '繩索保護器(紅色滾輪)', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000' },
+  { id: 'logi-584', name: 'CMC半身吊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 10500*2' },
+  { id: 'logi-585', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋3-1)' },
+  { id: 'logi-586', name: 'CMC雙滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000' },
+  { id: 'logi-587', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 4000' },
+  { id: 'logi-588', name: 'CMC鉤環', total: 10, available: 10, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 1000*10 | 重量: 78' },
+  { id: 'logi-589', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 7200' },
+  { id: 'logi-590', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500 | 動力來源: --' },
+  { id: 'logi-591', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-592', name: '100米繩—11mm', total: 1, available: 1, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 11000 | 箱號: 救援5 (繩袋3-2)' },
+  { id: 'logi-593', name: 'CMC雙滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000' },
+  { id: 'logi-594', name: 'CMC單滑輪', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 4000' },
+  { id: 'logi-595', name: 'CMC鉤環', total: 10, available: 10, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 1000*10' },
+  { id: 'logi-596', name: 'CAMP下降器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 7200' },
+  { id: 'logi-597', name: 'CAMP 咬繩器', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-598', name: 'CMC分力盤', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2500' },
+  { id: 'logi-599', name: '捲揚器', total: 2, available: 2, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 2750*2 | 箱號: 救援5 (繩袋3-3)' },
+  { id: 'logi-600', name: '150CM扁帶環', total: 4, available: 4, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 500*4' },
+  { id: 'logi-601', name: '6米扁帶', total: 2, available: 2, unit: '條', category: '第二櫃', loc: '第2櫃', desc: '價值: 300*2' },
+  { id: 'logi-602', name: 'AZTEK', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 18000' },
+  { id: 'logi-603', name: '繩索保護套', total: 3, available: 3, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 700*3' },
+  { id: 'logi-604', name: '繩索保護器(紅色滾輪)', total: 1, available: 1, unit: '個', category: '第二櫃', loc: '第2櫃', desc: '價值: 6000' },
+  { id: 'logi-605', name: 'CMC半身吊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 10500*2' },
+  { id: 'logi-606', name: '500mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 救援組 | 價值: 600000 | 箱號: 救援6 | 體積: 110*65*45 | 重量: 55' },
+  { id: 'logi-607', name: '250mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-608', name: '125mm 支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-609', name: '雙通接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-610', name: '手動旋緊接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-611', name: '油壓支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-612', name: '手動油壓器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '專用耗材: R68液壓油' },
+  { id: 'logi-613', name: '底盤座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-614', name: 'L型座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-615', name: 'ㄇ型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-616', name: '三角型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-617', name: '圓型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-618', name: '束緊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-619', name: '500mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '箱號: 救援7 | 體積: 110*65*45 | 重量: 53' },
+  { id: 'logi-620', name: '250mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-621', name: '125mm 支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-622', name: '雙通接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-623', name: '手動旋緊接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-624', name: '油壓支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-625', name: '手動油壓器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '專用耗材: R68液壓油' },
+  { id: 'logi-626', name: '底盤座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-627', name: 'L型座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-628', name: 'ㄇ型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-629', name: '三角型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-630', name: '圓型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-631', name: '束緊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-632', name: '500mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '箱號: 救援8 | 體積: 110*65*45 | 重量: 52' },
+  { id: 'logi-633', name: '250mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-634', name: '125mm 支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-635', name: '雙通接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-636', name: '手動旋緊接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-637', name: '油壓支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-638', name: '手動油壓器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '專用耗材: R68液壓油' },
+  { id: 'logi-639', name: 'L型座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-640', name: 'ㄇ型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-641', name: '三角型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-642', name: '圓型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-643', name: '束緊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-644', name: '500mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 救援組 | 箱號: 救援9 | 體積: 110*65*45 | 重量: 54' },
+  { id: 'logi-645', name: '250mm支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-646', name: '125mm 支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-647', name: '雙通接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-648', name: '手動旋緊接頭', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-649', name: '油壓支撐桿', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-650', name: '手動油壓器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '專用耗材: R68液壓油' },
+  { id: 'logi-651', name: 'L型座', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-652', name: 'ㄇ型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-653', name: '三角型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-654', name: '圓型座', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-655', name: '束緊帶', total: 2, available: 2, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '' },
+  { id: 'logi-656', name: '鏈鋸及圓盤切割器水冷泵', total: 5, available: 5, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 10,000*5 | 箱號: 救援10 | 體積: 110*65*45 | 重量: 13' },
+  { id: 'logi-657', name: 'HILTI 5Ah.21V電池', total: 4, available: 4, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 5,000*4 | 專用耗材: 須同意後上機 | 箱號: 救援11 | 體積: 80*60*48 | 重量: 51' },
+  { id: 'logi-658', name: 'Milwaukee 12Ah.18V電池', total: 11, available: 11, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 9,286*11 | 專用耗材: 不可上機' },
+  { id: 'logi-659', name: 'Milwaukee 8Ah.18V電池', total: 3, available: 3, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 8,572*3 | 專用耗材: 須同意後上機' },
+  { id: 'logi-660', name: 'Milwaukee 5Ah.18V電池', total: 4, available: 4, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 3500*4' },
+  { id: 'logi-661', name: 'Milwaukee 6Ah.18V電池', total: 4, available: 4, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 3,500*6' },
+  { id: 'logi-662', name: 'Homatro 6A.28V電池', total: 3, available: 3, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 20,000*3 | 專用耗材: 須同意後上機' },
+  { id: 'logi-663', name: 'Makita 3A.18V電池', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 3000' },
+  { id: 'logi-664', name: 'HILTI 充電器', total: 1, available: 1, unit: '台', category: '第二櫃', loc: '第2櫃', desc: '價值: 5000 | 動力來源: 110V交流電' },
+  { id: 'logi-665', name: 'hilife手搖式千斤頂', total: 4, available: 4, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 40,000*4 | 體積: 20*20*140 | 重量: 68' },
+  { id: 'logi-666', name: 'hilife配件組', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '價值: 20000 | 體積: 50*67*29 | 重量: 40' },
+  { id: 'logi-667', name: '大型紅色發電機(6500w)', total: 1, available: 1, unit: '台', category: '第二櫃', loc: '第2櫃', desc: '價值: 50000 | 動力來源: 95汽油 | 專用耗材: 四行程機油 | 體積: 70*130*105 | 重量: 90' },
+  { id: 'logi-668', name: '中型紅色發電機(3000w)', total: 1, available: 1, unit: '組', category: '第二櫃', loc: '第2櫃', desc: '價值: 50000 | 動力來源: 95汽油 | 專用耗材: 四行程機油 | 體積: 70*110*90 | 重量: 45' },
+  { id: 'logi-669', name: '物品', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 序號 | 重量: 數量' },
+  { id: 'logi-670', name: '黑色行李箱', total: 50, available: 50, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 1 | 重量: 10' },
+  { id: 'logi-671', name: '灰色行李箱', total: 95, available: 95, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 2 | 重量: 1' },
+  { id: 'logi-672', name: '黑色行李箱', total: 80, available: 80, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 3 | 重量: 1' },
+  { id: 'logi-673', name: '攜行袋', total: 110, available: 110, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 4 | 重量: 4' },
+  { id: 'logi-674', name: '光纖影音生命探測器', total: 136, available: 136, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 5 | 重量: 1' },
+  { id: 'logi-675', name: '雷達生命探測器', total: 85, available: 85, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 6 | 重量: 1' },
+  { id: 'logi-676', name: '聲納生命探測器', total: 1, available: 1, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 7 | 重量: 1' },
+  { id: 'logi-677', name: '手推車', total: 105, available: 105, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 8 | 重量: 4' },
+  { id: 'logi-678', name: '環場式照明燈', total: 40, available: 40, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 9 | 重量: 1' },
+  { id: 'logi-679', name: '指揮帳', total: 140, available: 140, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 10 | 重量: 1' },
+  { id: 'logi-680', name: '客廳帳(綠色)', total: 40, available: 40, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 11 | 重量: 5' },
+  { id: 'logi-681', name: '大型紅色發電機(6500w)', total: 70, available: 70, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 12 | 重量: 1' },
+  { id: 'logi-682', name: '中型紅色發電機(3000w)', total: 70, available: 70, unit: '件', category: '第二櫃', loc: '第2櫃', desc: '組別: 13 | 重量: 1' },
+  { id: 'logi-683', name: '電動二段式油壓推頂桿組', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 770000 | 特殊裝備序號: 1346774HH 1345125HH | 動力來源: 25.2V鋰電池6Ah*4 | 重量: 82.8' },
+  { id: 'logi-684', name: '充電器', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '備註: 電池區' },
+  { id: 'logi-685', name: '25公分加長桿', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-686', name: '45公分加長桿', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-687', name: '新型推頂桿支撐架', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-688', name: '電動撐剪二用油壓剪', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 370000 | 特殊裝備序號: 1348426HH | 動力來源: 25.2V鋰電池6Ah*2 | 重量: 24' },
+  { id: 'logi-689', name: '充電器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '備註: 電池區' },
+  { id: 'logi-690', name: '攜行背袋', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-691', name: '肩背帶', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-692', name: '油壓混凝土粉碎鉗', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 707000 | 特殊裝備序號: 1348447HH | 動力來源: 40V鋰電池16.2Ah*2 | 重量: 53.2' },
+  { id: 'logi-693', name: '電動油壓幫浦', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '特殊裝備序號: 1345383HH | 專用耗材: ISO VG 15 R68液壓油' },
+  { id: 'logi-694', name: '幫浦電池充電器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '備註: 電池區' },
+  { id: 'logi-695', name: '油壓管', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-696', name: '電動撐開器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 460000 | 特殊裝備序號: 1348392HH | 動力來源: 25.2V鋰電池6Ah*2 | 重量: 34.4' },
+  { id: 'logi-697', name: '充電器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '備註: 電池區' },
+  { id: 'logi-698', name: '拉力鍊條組', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-699', name: '切割頭組', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-700', name: '肩背帶', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-701', name: '電動油壓剪', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 370000 | 特殊裝備序號: 1347626HH | 動力來源: 25.2V鋰電池6Ah*2 | 重量: 31.1' },
+  { id: 'logi-702', name: '充電器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '備註: 電池區' },
+  { id: 'logi-703', name: '肩背帶', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-704', name: '傷患保護板', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 10000 | 重量: 3' },
+  { id: 'logi-705', name: '電源電纜', total: 5, available: 5, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 25000 | 體積: 67*50*29 | 重量: 20.5' },
+  { id: 'logi-706', name: '高壓方型平面氣袋', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 940000 | 體積: 64*43*37 | 重量: 132.4' },
+  { id: 'logi-707', name: '減壓閥', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-708', name: '箱型控制箱', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-709', name: '空氣管', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-710', name: '安全切斷開關', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-711', name: '收納儲存裝置', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-712', name: '連接帶', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-713', name: 'NT4高壓頂舉氣袋', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 860000 | 體積: 67*50*29 | 重量: 150.8' },
+  { id: 'logi-714', name: '減壓閥', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-715', name: '控制器', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-716', name: '空氣管', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-717', name: '安全切斷開關', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-718', name: '承重板', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-719', name: '地墊', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-720', name: '墊塊組', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 225000 | 體積: 67*50*29 | 重量: 222.7' },
+  { id: 'logi-721', name: '薄正方形墊塊', total: 15, available: 15, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-722', name: '厚正方形墊塊', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-723', name: '楔型墊塊', total: 11, available: 11, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-724', name: '鞍型墊塊', total: 6, available: 6, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-725', name: '滑梯型墊塊', total: 6, available: 6, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-726', name: '長方形墊塊', total: 6, available: 6, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-727', name: '插銷式墊塊', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-728', name: '止滑墊', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-729', name: '連接板', total: 24, available: 24, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-730', name: '收納儲存裝置', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-731', name: 'MC低壓頂舉氣袋', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 180000 | 重量: 48' },
+  { id: 'logi-732', name: '減壓閥', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-733', name: '搖桿型箱型充洩氣控制器', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-734', name: '空氣管', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-735', name: '支撐柱組', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 900000 | 體積: 67*50*29 | 重量: 205.8' },
+  { id: 'logi-736', name: 'PXM 1400 支撐柱', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-737', name: 'PXM 880 支撐柱', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-738', name: 'PXM 600 支撐柱', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-739', name: '30 cm 延伸柱', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-740', name: '60 cm 延伸柱', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-741', name: '90 cm 延伸柱', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-742', name: '減壓閥', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-743', name: '控制器', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-744', name: '空氣管組', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-745', name: '承重板組', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-746', name: '旋轉接頭', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-747', name: '弧形接頭', total: 6, available: 6, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-748', name: '犀牛角接頭', total: 6, available: 6, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-749', name: 'L型接頭', total: 12, available: 12, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-750', name: '地釘', total: 8, available: 8, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-751', name: '多用途工具', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-752', name: '棘齒輪束帶', total: 8, available: 8, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-753', name: '防割保護罩', total: 1, available: 1, unit: '組', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 3300 | 重量: 5.4 | 備註: 內有4件' },
+  { id: 'logi-754', name: '防割保護毯', total: 1, available: 1, unit: '組', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 4000 | 重量: 5.4 | 備註: 內有4件' },
+  { id: 'logi-755', name: '手搖式千斤頂組Hi Lift', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 78000 | 重量: 47.6' },
+  { id: 'logi-756', name: '原廠固定器', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-757', name: '原廠輪胎頂昇輔助器', total: 2, available: 2, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-758', name: '原廠絞拉作用套件', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '' },
+  { id: 'logi-759', name: '玻璃安全膠膜', total: 8, available: 8, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 8000 | 重量: 8.7' },
+  { id: 'logi-760', name: '尖銳保護貼', total: 7, available: 7, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 4200 | 重量: 2.2' },
+  { id: 'logi-761', name: '快速脫困長短板', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 50000 | 重量: 8.1 | 備註: 1長1短' },
+  { id: 'logi-762', name: '多功能重力救援系統-輔助器材組', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 268000 | 重量: 49 | 備註: 3櫃頂部' },
+  { id: 'logi-763', name: 'LX-STRUT', total: 4, available: 4, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 120000 | 重量: 20.4' },
+  { id: 'logi-764', name: '方向盤保護套', total: 1, available: 1, unit: '件', category: '第三櫃(車禍)', loc: '第3櫃(車禍)', desc: '價值: 7300 | 重量: 1.6' },
+  { id: 'logi-765', name: 'Milwaukee線鋸機 - 鋸片', total: 4, available: 4, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-766', name: 'Milwaukee 軍刀鋸(2台) - 金屬鋸片', total: 10, available: 10, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-767', name: 'Milwaukee 軍刀鋸(2台) - 金屬/木頭二用型鋸片', total: 10, available: 10, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-768', name: 'Milwaukee 軍刀鋸(2台) - 木頭', total: 2, available: 2, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-769', name: 'Makita軍刀鋸(2台) - 金屬鋸片', total: 10, available: 10, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-770', name: 'Makita軍刀鋸(2台) - 金屬/木頭二用型鋸片', total: 10, available: 10, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-771', name: 'Makita軍刀鋸(2台) - 木頭', total: 2, available: 2, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-772', name: 'HILTI電動削岩機 1500 - 平頭鑽', total: 1, available: 1, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-773', name: 'HILTI電動削岩機 1500 - 尖頭鑽', total: 1, available: 1, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-774', name: 'HILTI插電式大型削岩機 (905) - 平頭鑽', total: 2, available: 2, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 1.0' },
+  { id: 'logi-775', name: 'HILTI插電式大型削岩機 (905) - 尖頭鑽', total: 2, available: 2, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 1.0' },
+  { id: 'logi-776', name: 'HILTI TE76電動鑽孔機 - 平頭鑽', total: 6, available: 6, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-777', name: 'HILTI TE76電動鑽孔機 - 尖頭鑽', total: 5, available: 5, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-778', name: 'HILTI TE76電動鑽孔機 - 螺旋鑽', total: 9, available: 9, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-779', name: 'HILTI兩用插電式削岩機(2台) - 平頭鑽', total: 1, available: 1, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-780', name: 'HILTI兩用插電式削岩機(2台) - 尖頭鑽', total: 1, available: 1, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 3.0' },
+  { id: 'logi-781', name: 'HILTI兩用插電式削岩機(2台) - 螺旋鑽', total: 8, available: 8, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-782', name: 'HITACHI小型插電式削岩機 - 平頭鑽', total: 3, available: 3, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-783', name: 'HITACHI小型插電式削岩機 - 尖頭鑽', total: 2, available: 2, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-784', name: 'Makita小型插電式削岩機(2台) - 平頭鑽', total: 4, available: 4, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-785', name: 'Makita小型插電式削岩機(2台) - 尖頭鑽', total: 6, available: 6, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-786', name: 'makita小型砂輪機 - 砂輪片', total: 20, available: 20, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-787', name: 'Makita 槌鑽兩用(電池式) - 平頭鑽', total: 1, available: 1, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '需求: 1.0' },
+  { id: 'logi-788', name: 'Makita 槌鑽兩用(電池式) - 尖頭鑽', total: 4, available: 4, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-789', name: 'Makita 槌鑽兩用(電池式) - 螺旋鑽', total: 3, available: 3, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-790', name: '引擎式水泥圓盤切割器(2台) - 水泥鋸片', total: 6, available: 6, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-791', name: '引擎式水泥鏈鋸切割器(2台) - 水泥鋸片', total: 3, available: 3, unit: '件', category: '第一櫃耗材', loc: '第1櫃耗材箱', desc: '' },
+  { id: 'logi-792', name: 'Milwaukee線鋸機 - 鋸片', total: 4, available: 4, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-793', name: 'Milwaukee 軍刀鋸(2台) - 金屬鋸片', total: 8, available: 8, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-794', name: 'Milwaukee 軍刀鋸(2台) - Recause鋸片', total: 3, available: 3, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 3.0' },
+  { id: 'logi-795', name: 'Milwaukee 軍刀鋸(2台) - 水泥鋸片', total: 2, available: 2, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-796', name: 'HILTI插電式大型削岩機 (TE905) - 平頭鑽', total: 1, available: 1, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-797', name: 'HILTI插電式大型削岩機 (TE905) - 尖頭鑽', total: 2, available: 2, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-798', name: 'HILTI TE76電動鑽孔機 - 平頭鑽', total: 0, available: 0, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 1.0' },
+  { id: 'logi-799', name: 'HILTI TE76電動鑽孔機 - 尖頭鑽', total: 0, available: 0, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-800', name: 'HILTI TE76電動鑽孔機 - 螺旋鑽', total: 0, available: 0, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 1.0' },
+  { id: 'logi-801', name: 'HILTI TE70電動鑽孔機(2台) - 平頭鑽', total: 2, available: 2, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-802', name: 'HILTI TE70電動鑽孔機(2台) - 尖頭鑽', total: 2, available: 2, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-803', name: 'HILTI TE70電動鑽孔機(2台) - 螺旋鑽', total: 4, available: 4, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-804', name: 'HILTI TE6電池式鑽孔機(2台) - 平頭鑽', total: 0, available: 0, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '需求: 2.0' },
+  { id: 'logi-805', name: 'HILTI TE6電池式鑽孔機(2台) - 尖頭鑽', total: 4, available: 4, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-806', name: 'HILTI TE6電池式鑽孔機(2台) - 螺旋鑽', total: 6, available: 6, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-807', name: 'HITACHI小型插電式削岩機 - 平頭鑽', total: 1, available: 1, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-808', name: 'HITACHI小型插電式削岩機 - 尖頭鑽', total: 3, available: 3, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-809', name: '引擎式水泥圓盤切割器K970(2台) - 鑽石鋸片', total: 2, available: 2, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '備品: 4.0' },
+  { id: 'logi-810', name: '引擎式水泥圓盤切割器K970(2台) - 一般鋸片', total: 1, available: 1, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '備品: 6.0' },
+  { id: 'logi-811', name: 'HILTI插電式洗孔機D120 - 72mm', total: 1, available: 1, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' },
+  { id: 'logi-812', name: 'HILTI插電式洗孔機D120 - 62mm', total: 1, available: 1, unit: '件', category: '第二櫃耗材', loc: '第2櫃耗材箱', desc: '' }
 ];
 
 var defaultBorrowRecords = [
@@ -1306,16 +2147,22 @@ try {
   var stored = safeStorage.getItem('asr2_logistics_inventory');
   if (stored) {
     var parsed = JSON.parse(stored);
-    var hasOldDummy = false;
+    var isOldVersion = false;
     if (Array.isArray(parsed)) {
-      for (var i = 0; i < parsed.length; i++) {
-        if (parsed[i].name === '發電機 2kw' || parsed[i].name === '紅外線熱顯像儀') {
-          hasOldDummy = true;
-          break;
+      if (parsed.length < 100) {
+        isOldVersion = true;
+      } else {
+        for (var i = 0; i < parsed.length; i++) {
+          if (!parsed[i].category || parsed[i].name === '發電機 2kw') {
+            isOldVersion = true;
+            break;
+          }
         }
       }
+    } else {
+      isOldVersion = true;
     }
-    if (Array.isArray(parsed) && parsed.length > 0 && !hasOldDummy) {
+    if (Array.isArray(parsed) && parsed.length > 0 && !isOldVersion) {
       logisticsInventory = parsed;
     } else {
       safeStorage.setItem('asr2_logistics_inventory', JSON.stringify(defaultLogisticsInventory));
@@ -1330,16 +2177,18 @@ try {
   var stored = safeStorage.getItem('asr2_borrow_records');
   if (stored) {
     var parsed = JSON.parse(stored);
-    var hasOldDummy = false;
+    var isOldVersion = false;
     if (Array.isArray(parsed)) {
       for (var i = 0; i < parsed.length; i++) {
         if (parsed[i].equipName === '發電機 2kw') {
-          hasOldDummy = true;
+          isOldVersion = true;
           break;
         }
       }
+    } else {
+      isOldVersion = true;
     }
-    if (Array.isArray(parsed) && !hasOldDummy) {
+    if (Array.isArray(parsed) && !isOldVersion) {
       borrowRecords = parsed;
     } else {
       safeStorage.setItem('asr2_borrow_records', JSON.stringify(defaultBorrowRecords));
@@ -2132,6 +2981,48 @@ var selectedLogisticsEquipId = null;
 var logisticsBorrowSelectedUnit = '';
 var logisticsBorrowSelectedBorrower = '';
 var logisticsBorrowQty = 1;
+var currentLogisticsCategory = 'ICT設備';
+
+function getLogisticsCategories() {
+  var cats = [];
+  for (var i = 0; i < logisticsInventory.length; i++) {
+    var cat = logisticsInventory[i].category;
+    if (cat && cats.indexOf(cat) === -1) {
+      cats.push(cat);
+    }
+  }
+  return cats;
+}
+
+function renderLogisticsCategories() {
+  var container = document.getElementById('logistics-category-bar');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  var cats = getLogisticsCategories();
+  if (cats.indexOf(currentLogisticsCategory) === -1 && cats.length > 0) {
+    currentLogisticsCategory = cats[0];
+  }
+  
+  cats.forEach(function(cat) {
+    var btn = document.createElement('button');
+    btn.className = 'category-btn';
+    if (cat === currentLogisticsCategory) {
+      btn.classList.add('active');
+    }
+    btn.textContent = cat;
+    btn.type = 'button';
+    btn.onclick = function() {
+      currentLogisticsCategory = cat;
+      renderLogisticsCategories();
+      var searchInput = document.getElementById('logistics-search-input');
+      if (searchInput) searchInput.value = '';
+      renderLogistics();
+    };
+    container.appendChild(btn);
+  });
+}
+
 
 function renderItemBlocks(containerId, itemsList, onSelectCallback) {
   var container = document.getElementById(containerId);
@@ -2279,22 +3170,46 @@ function renderLogistics() {
   var warehouseContainer = document.getElementById('logistics-warehouse-list');
   if (warehouseContainer) {
     warehouseContainer.innerHTML = '';
-    logisticsInventory.forEach(function(item) {
-      var card = document.createElement('div');
-      card.className = 'logistics-card';
-      var isOutOfStock = item.available <= 0;
-      var outOfStockClass = isOutOfStock ? ' out-of-stock' : '';
-      card.innerHTML = '<div class="logistics-card-name">' + item.name + '</div>' +
-                       '<div class="logistics-card-qty' + outOfStockClass + '">可用 <span>' + item.available + '</span> / ' + item.total + '</div>';
-      
-      if (isOutOfStock) {
-        card.style.opacity = '0.6';
-        card.style.background = 'var(--g6)';
-      } else {
-        attachLogisticsDragListener(card, false, item.id);
+    
+    var searchInput = document.getElementById('logistics-search-input');
+    var query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    
+    var filtered = [];
+    for (var i = 0; i < logisticsInventory.length; i++) {
+      var item = logisticsInventory[i];
+      var matchesCategory = item.category === currentLogisticsCategory;
+      var matchesQuery = !query || item.name.toLowerCase().indexOf(query) !== -1;
+      if (matchesCategory && matchesQuery) {
+        filtered.push(item);
       }
-      warehouseContainer.appendChild(card);
-    });
+    }
+    
+    if (filtered.length === 0) {
+      warehouseContainer.innerHTML = '<div style="grid-column: span 2; text-align:center; color:var(--g1); padding:32px 0; font-size:14px;">無符合篩選條件的裝備</div>';
+    } else {
+      filtered.forEach(function(item) {
+        var card = document.createElement('div');
+        card.className = 'logistics-card';
+        var isOutOfStock = item.available <= 0;
+        var outOfStockClass = isOutOfStock ? ' out-of-stock' : '';
+        
+        var descHtml = item.desc ? '<div class="logistics-card-desc" title="' + item.desc + '">' + item.desc + '</div>' : '';
+        var locHtml = item.loc ? '<div class="logistics-card-loc" title="' + item.loc + '">📍 ' + item.loc + '</div>' : '';
+        
+        card.innerHTML = '<div class="logistics-card-name">' + item.name + '</div>' +
+                         descHtml +
+                         locHtml +
+                         '<div class="logistics-card-qty' + outOfStockClass + '" style="margin-top:8px;">可用 <span>' + item.available + '</span> / ' + item.total + ' ' + (item.unit || '件') + '</div>';
+        
+        if (isOutOfStock) {
+          card.style.opacity = '0.6';
+          card.style.background = 'var(--g6)';
+        } else {
+          attachLogisticsDragListener(card, false, item.id);
+        }
+        warehouseContainer.appendChild(card);
+      });
+    }
   }
   
   var borrowedContainer = document.getElementById('logistics-borrowed-list');
@@ -2378,7 +3293,16 @@ function openLogisticsBorrowForm(equipId) {
   
   document.getElementById('logistics-borrow-equip-id').value = equipId;
   document.getElementById('logistics-borrow-equip-name').textContent = equip.name;
-  document.getElementById('logistics-borrow-equip-stock').textContent = '可用庫存剩餘：' + equip.available + ' 件';
+  
+  var stockText = '可用庫存剩餘：' + equip.available + ' ' + (equip.unit || '件');
+  if (equip.loc) {
+    stockText += ' ｜ 📍 位置：' + equip.loc;
+  }
+  if (equip.desc) {
+    stockText += ' ｜ 📝 說明：' + equip.desc;
+  }
+  
+  document.getElementById('logistics-borrow-equip-stock').textContent = stockText;
   document.getElementById('logistics-borrow-qty').textContent = '1';
   
   renderItemBlocks('logistics-borrow-unit-picker', logisticsUnits, function(val) {
@@ -2674,6 +3598,7 @@ renderRoles();
 renderEquipments();
 renderSites();
 renderNotes();
+renderLogisticsCategories();
 renderLogistics();
 </script>
 </body>
