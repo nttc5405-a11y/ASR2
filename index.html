@@ -3366,18 +3366,8 @@ function saveLogisticsBorrowForm() {
   };
   borrowRecords.push(newRecord);
   
-  var noteText = '後勤出庫：【' + equip.name + '】數量：' + logisticsBorrowQty + ' ｜ 借用人：' + logisticsBorrowSelectedBorrower + ' (' + logisticsBorrowSelectedUnit + ')';
-  var newNote = {
-    id: 'note-' + Date.now(),
-    time: timeStr,
-    category: '狀況回報',
-    text: noteText
-  };
-  notes.push(newNote);
-  
   saveState();
   renderLogistics();
-  renderNotes();
   closeSheet();
 }
 
@@ -3399,18 +3389,8 @@ function returnLogisticsItem(recordId) {
   rec.returned = true;
   rec.returnTime = timeStr;
   
-  var noteText = '後勤歸還：【' + rec.equipName + '】數量：' + rec.qty + ' ｜ 歸還人：' + rec.borrower + ' (' + rec.unit + ')';
-  var newNote = {
-    id: 'note-' + Date.now(),
-    time: timeStr,
-    category: '狀況回報',
-    text: noteText
-  };
-  notes.push(newNote);
-  
   saveState();
   renderLogistics();
-  renderNotes();
 }
 
 var selectedLogisticsAdminId = null;
