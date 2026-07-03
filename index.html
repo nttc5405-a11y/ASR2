@@ -47,7 +47,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .mc-mv{font-size:16px;font-weight:600;}
 .mc-pr{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.55);margin:14px 0 6px;}
 .mc-pt{background:rgba(255,255,255,.15);border-radius:4px;height:6px;}
-.mc-pf{width:35%;height:6px;border-radius:4px;background:var(--blue);}
+.mc-pf{width:35%;height:6px;border-radius:4px;background:var(--blue);transition:width 0.3s ease;}
 /* NOTIF */
 .notif{background:#2C2C2E;border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:center;margin-bottom:14px;color:#fff;}
 .notif-icon{font-size:24px;flex-shrink:0;}
@@ -87,8 +87,13 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;}
 /* CHECKLIST */
 .cklist{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--sep);}
-.ck-row{padding:13px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--sep);cursor:pointer;background:#fff;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;}
-.ck-row:last-child{border-bottom:none;}
+.ck-row-wrapper{display:flex;align-items:center;width:100%;border-bottom:1px solid var(--sep);background:#fff;}
+.ck-row-wrapper:last-child{border-bottom:none;}
+.ck-row-wrapper .ck-row{border-bottom:none;flex:1;}
+.ck-delete-btn{padding:13px 16px;background:none;border:none;color:var(--red);font-size:16px;font-weight:bold;cursor:pointer;display:none;}
+.ck-row-wrapper.edit-mode .ck-delete-btn{display:block;}
+.ck-row-wrapper.edit-mode .ck-row{pointer-events:none;opacity:0.7;}
+.ck-row{padding:13px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;background:#fff;width:100%;text-align:left;border-left:none;border-right:none;border-top:none;}
 .ck-row:active{background:var(--g6);}
 .ck-circle{width:24px;height:24px;border-radius:12px;border:2px solid var(--g3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
 .ck-row.done .ck-circle{background:var(--green);border-color:var(--green);}
@@ -104,7 +109,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .vname{font-size:13px;font-weight:700;margin-top:4px;}
 .vdesc{font-size:11px;color:var(--g1);margin-top:3px;line-height:1.4;}
 /* SITE */
-.site-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;border:1px solid var(--sep);cursor:pointer;}
+.site-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;border:1px solid var(--sep);cursor:pointer;transition:border-color 0.2s ease, border-width 0.1s ease;}
 .site-card:active{background:var(--g6);}
 .site-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
 .site-code{font-size:18px;font-weight:800;}
@@ -120,6 +125,14 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .ii{font-size:22px;flex-shrink:0;}
 .it{font-size:15px;font-weight:700;}
 .is{font-size:13px;color:var(--g1);margin-top:2px;}
+/* TIMELINE FOR LOGS */
+.timeline{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.timeline-item{background:#fff;border-radius:14px;padding:12px 16px;border:1px solid var(--sep);display:flex;flex-direction:column;gap:6px;position:relative;cursor:pointer;}
+.timeline-item:active{background:var(--g6);}
+.timeline-header{display:flex;justify-content:space-between;align-items:center;}
+.timeline-time{font-size:11px;color:var(--g1);font-weight:600;}
+.timeline-cat{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;color:#fff;}
+.timeline-body{font-size:14px;line-height:1.5;color:#1c1c1e;}
 /* TAB BAR */
 .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--sep);display:flex;padding:8px 0 28px;z-index:300;}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 2px;background:none;border:none;color:var(--g2);font-size:10px;font-weight:500;cursor:pointer;font-family:inherit;}
@@ -144,6 +157,40 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 .dr:last-child{border-bottom:none;}
 .dn{width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
 .dt{font-size:14px;line-height:1.55;color:#3C3C43;}
+
+/* SWIPE TO DELETE FOR SITE CARDS */
+.site-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  background: var(--red);
+}
+.site-card {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0 !important;
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}
+.site-swipe-delete-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  z-index: 1;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
 </style>
 </head>
 <body>
@@ -173,31 +220,43 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       <div class="mc-badge"><span class="mc-dot"></span>進行中</div>
       <div class="mc-name">ASR2 — 快速評估任務</div>
       <div class="mc-meta">
-        <div class="mc-mi"><span class="mc-ml">人員</span><span class="mc-mv">17人</span></div>
-        <div class="mc-mi"><span class="mc-ml">場地</span><span class="mc-mv">A-1</span></div>
+        <div class="mc-mi"><span class="mc-ml">人員</span><span class="mc-mv" id="mission-people-count">17人</span></div>
+        <div class="mc-mi"><span class="mc-ml">場地</span><span class="mc-mv" id="mission-current-site">A-1</span></div>
         <div class="mc-mi"><span class="mc-ml">時間</span><span class="mc-mv" id="timer">00:00</span></div>
       </div>
-      <div class="mc-pr"><span>整體任務進度</span><span>35%</span></div>
-      <div class="mc-pt"><div class="mc-pf"></div></div>
+      <div class="mc-pr"><span id="progress-label">整體任務進度</span><span id="progress-percent">35%</span></div>
+      <div class="mc-pt"><div class="mc-pf" id="progress-bar" style="width: 35%"></div></div>
     </div>
+
+    <!-- 任務場地（調整至最上方，緊跟在 Mission Card 下方） -->
+    <div class="sec-hd" style="display:flex;justify-content:space-between;align-items:center;padding: 4px 4px 8px 4px;">
+      <span>任務場地</span>
+      <button onclick="openSiteForm()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">＋ 新增場地</button>
+    </div>
+    <div id="site-list" style="margin-bottom: 16px;">
+      <!-- Site cards will be dynamically rendered here -->
+    </div>
+
     <div class="notif">
       <div class="notif-icon">📡</div>
-      <div><div class="notif-t">UCC 指令</div><div class="notif-b">工作場地 A-1 已分配，請帶隊官確認人員集合後出發</div></div>
+      <div><div class="notif-t">UCC 指令</div><div class="notif-b">工作場地已分配，請各小組帶齊裝備，抵達現場後先行回報。</div></div>
     </div>
     <button class="mayday" onclick="openSheet('sheet-mayday')">
       <span class="mayday-icon">🚨</span>
       <div><div class="mayday-t">MAYDAY</div><div class="mayday-s">長按 3 秒啟動緊急呼叫</div></div>
     </button>
+    
     <div class="sec-hd">人員分工</div>
-    <div class="role-list">
-      <button class="role-row" onclick="openSheet('sheet-commander')"><div class="role-icon" style="background:#FF3B3020">🎖️</div><div class="role-info"><div class="role-name">帶隊官</div><div class="role-sub">管理組 · 1名</div></div><span class="role-badge" style="background:var(--red)">指揮</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-staff')"><div class="role-icon" style="background:#FF950020">📋</div><div class="role-info"><div class="role-name">管理幕僚</div><div class="role-sub">救援組 · 1名</div></div><span class="role-badge" style="background:var(--orange)">文管</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-safety')"><div class="role-icon" style="background:#FFCC0020">🦺</div><div class="role-info"><div class="role-name">安全官</div><div class="role-sub">救援組 · 1名</div></div><span class="role-badge" style="background:var(--yellow);color:#000">安全</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-s1')"><div class="role-icon" style="background:#007AFF20">🔍</div><div class="role-info"><div class="role-name">搜索1組</div><div class="role-sub">搜索組2名 + 結構技師</div></div><span class="role-badge" style="background:var(--blue)">搜索</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-s2')"><div class="role-icon" style="background:#007AFF20">🔎</div><div class="role-info"><div class="role-name">搜索2組</div><div class="role-sub">搜索組 · 2名</div></div><span class="role-badge" style="background:var(--blue)">搜索</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-s3')"><div class="role-icon" style="background:#5AC8FA20">🚧</div><div class="role-info"><div class="role-name">搜索3組</div><div class="role-sub">救援組 · 2名</div></div><span class="role-badge" style="background:var(--teal)">管制</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-med')"><div class="role-icon" style="background:#34C75920">🏥</div><div class="role-info"><div class="role-name">醫療組</div><div class="role-sub">2名</div></div><span class="role-badge" style="background:var(--green)">醫療</span><span class="role-chev">›</span></button>
-      <button class="role-row" onclick="openSheet('sheet-rescue')"><div class="role-icon" style="background:#AF52DE20">⛏️</div><div class="role-info"><div class="role-name">救援組</div><div class="role-sub">5名</div></div><span class="role-badge" style="background:var(--purple)">救援</span><span class="role-chev">›</span></button>
+    <div class="role-list" id="role-list">
+      <!-- Roles will be dynamically rendered here -->
+    </div>
+
+    <div class="sec-hd" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding: 4px 4px 8px 4px;">
+      <span>現場記事</span>
+      <button onclick="openNoteForm()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">＋ 新增記事</button>
+    </div>
+    <div class="timeline" id="notes-timeline">
+      <!-- Notes timeline will be dynamically rendered here -->
     </div>
   </div>
 </div>
@@ -224,8 +283,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
         <div class="phase-card" onclick="openSheet('sheet-p4')"><div class="phase-card-t">快速搜索</div><div class="phase-card-d">三組同步展開：環境風險評估、位移偵測、封鎖線管制，精密儀器輔助</div><div class="tags"><span class="tag" style="background:#007AFF20;color:var(--blue)">搜索1組</span><span class="tag" style="background:#007AFF20;color:var(--blue)">搜索2組</span><span class="tag" style="background:#5AC8FA20;color:#0080A0">搜索3組</span></div></div>
       </div>
       <div class="phase-item">
-        <div class="phase-col"><div class="phase-dot" style="background:var(--red)">5</div><div class="phase-line"></div></div>
-        <div class="phase-card" onclick="openSheet('sheet-p5')"><div class="phase-card-t">評估回報</div><div class="phase-card-d">繪製受困者標記與工作場地標記，醫療組評估生命徵象，決定ABCD等級</div><div class="tags"><span class="tag" style="background:#34C75920;color:var(--green)">醫療</span><span class="tag" style="background:#FF3B3020;color:var(--red)">A/B/C/D</span></div></div>
+        <div class="phase-col"><div class="phase-dot" style="background:var(--red)">5</div><div class="phase-card" onclick="openSheet('sheet-p5')"><div class="phase-card-t">評估回報</div><div class="phase-card-d">繪製受困者標記與工作場地標記，醫療組評估生命徵象，決定ABCD等級</div><div class="tags"><span class="tag" style="background:#34C75920;color:var(--green)">醫療</span><span class="tag" style="background:#FF3B3020;color:var(--red)">A/B/C/D</span></div></div>
       </div>
       <div class="phase-item">
         <div class="phase-col"><div class="phase-dot" style="background:var(--purple)">6</div><div class="phase-line"></div></div>
@@ -233,7 +291,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       </div>
       <div class="phase-item">
         <div class="phase-col"><div class="phase-dot" style="background:var(--g1)">7</div><div class="phase-line"></div></div>
-        <div class="phase-card" onclick="openSheet('sheet-p7')"><div class="phase-card-t">返隊</div><div class="phase-card-d">清消通道→更換衣物→入口管制報到→清點人員→救護站健康檢查→資料回報</div><div class="tags"><span class="tag" style="background:#8E8E9320;color:var(--g1)">收隊</span><span class="tag" style="background:#34C75920;color:var(--green)">健康檢查</span></div></div>
+        <div class="phase-card" onclick="openSheet('sheet-p7')"><div class="phase-card-t">返隊</div><div class="phase-card-d">清消通道→更換衣物→入口管制站報到→清點人員→救護站健康檢查→資料回報</div><div class="tags"><span class="tag" style="background:#8E8E9320;color:var(--g1)">收隊</span><span class="tag" style="background:#34C75920;color:var(--green)">健康檢查</span></div></div>
       </div>
     </div>
   </div>
@@ -243,33 +301,27 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
 <div id="page-equip" class="page">
   <div class="nb"><div class="nb-title">器材清單</div><div class="nb-sub">點擊勾選確認攜帶</div><button class="screenshot-btn" onclick="takeScreenshot('equip')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
   <div class="scroll">
-    <div class="cklist" id="cklist">
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">① 驗電棒</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">② 五用氣體偵測器</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">③ 雷射位移監測儀</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">④ 聲納搜索儀</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑤ 蛇管鏡</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑥ 地音探測器</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑦ 無線電</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑧ 平板電腦</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑨ 紙本工作表 &amp; 平面圖</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑩ 消毒罐</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑪ 瓦斯汽笛</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑫ 指揮帳</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑬ 人員管制板</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑭ 封鎖線</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑮ 急救包</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑯ 水 &amp; 乾糧</span></button>
-      <button class="ck-row" onclick="toggleCk(this)"><div class="ck-circle"></div><span class="ck-label">⑰ 個人防護裝備（全套）</span></button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px;">
+      <span class="sec-hd" style="padding:0">裝備清點</span>
+      <button onclick="toggleEquipEditMode()" id="equip-edit-btn" style="background:none;border:none;color:var(--blue);font-size:14px;font-weight:600;cursor:pointer;">進入編輯模式</button>
     </div>
-    <div class="ck-count" id="ck-count">已確認：0 / 17 項</div>
+    
+    <div id="equip-add-form" style="display:none;margin-bottom:16px;gap:8px;">
+      <input type="text" id="new-equip-input" placeholder="輸入新器材名稱..." style="flex:1;padding:12px 16px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;">
+      <button onclick="addNewEquip()" style="padding:0 20px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">新增</button>
+    </div>
+
+    <div class="cklist" id="cklist">
+      <!-- Equipments checklist dynamically rendered here -->
+    </div>
+    <div class="ck-count" id="ck-count">已確認：0 / 0 項</div>
     <button onclick="resetChecklist()" style="display:block;margin:0 auto 16px;padding:10px 28px;background:var(--g5);border:none;border-radius:12px;font-size:14px;font-weight:600;color:var(--g1);cursor:pointer;">清除全部勾選</button>
   </div>
 </div>
 
-<!-- PAGE: 場地 -->
+<!-- PAGE: 指南 (做為參考指南與資料管理設定頁) -->
 <div id="page-site" class="page">
-  <div class="nb"><div class="nb-title">場地評估</div><div class="nb-sub">工作場地狀態總覽</div><button class="screenshot-btn" onclick="takeScreenshot('site')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
+  <div class="nb"><div class="nb-title">參考指南</div><div class="nb-sub">標準操作規範與備份</div><button class="screenshot-btn" onclick="takeScreenshot('site')" title="截圖"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
   <div class="scroll">
     <div class="sec-hd">受困者等級</div>
     <div class="vgrid">
@@ -278,18 +330,8 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--yellow)">C</div><div class="vname">可能有人</div><div class="vdesc">無法確認，關係人指稱有人</div></div>
       <div class="vcard" onclick="selectV(this)"><div class="vgrade" style="color:var(--g1)">D</div><div class="vname">僅罹難者</div><div class="vdesc">無存活者跡象</div></div>
     </div>
-    <div class="sec-hd">任務場地</div>
-    <div class="site-card" onclick="openSheet('sheet-site1')">
-      <div class="site-head"><div class="site-code">場地 A-1</div><div class="site-st" style="background:var(--orange)">評估中</div></div>
-      <div class="site-addr">台東市中正路 xxx 號</div>
-      <div class="site-m"><div><div class="mv" style="color:var(--orange)">C</div><div class="ml">受困等級</div></div><div><div class="mv">RC造</div><div class="ml">建築類型</div></div><div><div class="mv">30分</div><div class="ml">已用時間</div></div></div>
-    </div>
-    <div class="site-card" onclick="openSheet('sheet-site2')">
-      <div class="site-head"><div class="site-code">場地 A-2</div><div class="site-st" style="background:var(--g1)">待命</div></div>
-      <div class="site-addr">台東市更生路 xxx 號</div>
-      <div class="site-m"><div><div class="mv" style="color:var(--g1)">—</div><div class="ml">受困等級</div></div><div><div class="mv">待評估</div><div class="ml">建築類型</div></div><div><div class="mv">—</div><div class="ml">已用時間</div></div></div>
-    </div>
-    <div class="sec-hd">INSARAG 訊號</div>
+
+    <div class="sec-hd" style="margin-top:16px;">INSARAG 訊號</div>
     <div class="ilist">
       <div class="irow" onclick="openSheet('sheet-insarag')">
         <div style="font-size:22px;flex-shrink:0">🚨</div>
@@ -366,6 +408,20 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
       <div class="irow"><div class="ii">🇹🇼</div><div><div class="it">國內代碼 TW-V-10</div></div></div>
       <div class="irow"><div class="ii">✈️</div><div><div class="it">出國代碼 TPE-10</div></div></div>
     </div>
+
+    <div class="sec-hd" style="margin-top:16px;">系統與資料備份</div>
+    <div class="ilist" style="padding:16px;display:flex;flex-direction:column;gap:12px;background:#fff;">
+      <button onclick="exportData()" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        📥 導出任務資料 (JSON 備份)
+      </button>
+      <button onclick="document.getElementById('import-file-input').click()" style="width:100%;padding:12px;background:var(--g5);color:var(--text);border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        📤 導入任務資料
+      </button>
+      <input type="file" id="import-file-input" onchange="importData(event)" style="display:none;" accept=".json">
+      <button onclick="resetSystem()" style="width:100%;padding:12px;background:#FF3B3015;color:var(--red);border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        ⚠️ 重設任務系統 (還原預設)
+      </button>
+    </div>
   </div>
 </div>
 
@@ -381,7 +437,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>器材
   </button>
   <button class="tab-btn" onclick="switchPage('site',this)">
-    <div class="tbw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>3</span></div>場地
+    <div class="tbw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="site-tab-badge">2</span></div>指南
   </button>
 </div>
 
@@ -399,91 +455,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   </div><div class="shsec"><div class="shst">集結區規定</div>
     <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">冷熱區由<strong>安全官</strong>於抵達現場後立即劃定</div></div>
     <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">集結區位於<strong>冷區</strong>，所有非作業人員於此待命</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-commander">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🎖️</div><div class="sht">帶隊官</div><div class="shs">管理組 · 1名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--red)">1</div><div class="dt">任務說明與分工安排</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">2</div><div class="dt">蒐集現場情資，進行現場決斷</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">3</div><div class="dt">每個工作場地結束後向管理組回報</div></div>
-    <div class="dr"><div class="dn" style="background:var(--red)">4</div><div class="dt">轉報 UCC 判斷是否立即派隊前往</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-staff">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">📋</div><div class="sht">管理幕僚</div><div class="shs">救援組 · 1名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">1</div><div class="dt">出發前確認所攜器材數量</div></div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">2</div><div class="dt">協助蒐集現場情資</div></div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">3</div><div class="dt">繪製<strong>平面圖</strong>、填寫「工作場地評估表」</div></div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">4</div><div class="dt">與現場民眾、關係人接洽，判斷特殊狀況（金庫、倒塌、建築結構、倉庫內容物）</div></div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">5</div><div class="dt">負責現場拍照或錄影</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-safety">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🦺</div><div class="sht">安全官</div><div class="shs">救援組 · 1名 · 專注於安全</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">1</div><div class="dt"><strong>集結區冷熱區劃定</strong>，說明撤離、集結、哨音規定</div></div>
-    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">2</div><div class="dt">負責現場任務安全監控</div></div>
-    <div class="dr"><div class="dn" style="background:var(--yellow);color:#000">3</div><div class="dt">負責<strong>緊急狀況瓦斯汽笛</strong>使用</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-s1">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🔍</div><div class="sht">搜索1組</div><div class="shs">搜索組2名 + 結構技師</div></div>
-  <div class="shb">
-    <div class="shsec"><div class="shst">職責</div>
-      <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">使用<strong>五用氣體偵測器</strong>、<strong>驗電棒</strong>進行環境風險評估</div></div>
-      <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">執行<strong>快速搜索</strong></div></div>
-      <div class="dr"><div class="dn" style="background:var(--blue)">3</div><div class="dt">協助<strong>結構技師</strong>判定建築物安全性</div></div>
-      <div class="dr"><div class="dn" style="background:var(--blue)">4</div><div class="dt">描繪「受困者標記」及「工作場地標記」（攜帶筆）</div></div>
-    </div>
-    <div class="shsec"><div class="shst">結構技師</div>
-      <div class="dr"><div class="dn" style="background:var(--teal)">!</div><div class="dt">就現場建築物是否能執行救援進行安全認定</div></div>
-      <div class="dr"><div class="dn" style="background:var(--teal)">!</div><div class="dt">提供有關結構安全諮詢</div></div>
-    </div>
-  </div>
-</div>
-
-<div class="sheet" id="sheet-s2">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🔎</div><div class="sht">搜索2組</div><div class="shs">搜索組 · 2名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--blue)">1</div><div class="dt">架設<strong>位移偵測儀</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--blue)">2</div><div class="dt">架設完畢後隨第一組進行快速搜索</div></div>
-    <div class="dr"><div class="dn" style="background:var(--blue)">3</div><div class="dt">攜帶<strong>精密儀器</strong>，視情況進行儀器搜索</div></div>
-    <div class="dr"><div class="dn" style="background:var(--blue)">4</div><div class="dt">研判是否可立即處理，或需後續救援組（ASR3）</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-s3">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🚧</div><div class="sht">搜索3組</div><div class="shs">救援組 · 2名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--teal)">1</div><div class="dt">架設<strong>集結區帳篷</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--teal)">2</div><div class="dt">拉<strong>封鎖線</strong>，協助劃設冷熱區</div></div>
-    <div class="dr"><div class="dn" style="background:var(--teal)">3</div><div class="dt">管制現場人員進出</div></div>
-    <div class="dr"><div class="dn" style="background:var(--teal)">4</div><div class="dt">如有需要，結合1、2組進行搜索</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-med">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">🏥</div><div class="sht">醫療組</div><div class="shs">2名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--green)">1</div><div class="dt">攜帶基本救護器材，於現場<strong>隨時待命</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--green)">2</div><div class="dt"><strong>救難人員受傷醫療</strong>為優先</div></div>
-    <div class="dr"><div class="dn" style="background:var(--green)">3</div><div class="dt">如可接觸受困者，評估其<strong>生命徵象</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--green)">4</div><div class="dt">協助決定搶救優先順序（A/B/C/D）</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-rescue">
-  <div class="sh"></div><div class="shd"><div style="font-size:28px;margin-bottom:6px">⛏️</div><div class="sht">救援組</div><div class="shs">5名</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">職責</div>
-    <div class="dr"><div class="dn" style="background:var(--purple)">1</div><div class="dt">執行現場「<strong>快速搜索</strong>」任務</div></div>
-    <div class="dr"><div class="dn" style="background:var(--purple)">2</div><div class="dt">架設<strong>集結區帳篷</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--purple)">3</div><div class="dt">BoO 領取任務 + 器材整理</div></div>
   </div></div>
 </div>
 
@@ -524,7 +495,7 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   <div class="shb"><div class="shsec"><div class="shst">各組任務</div>
     <div class="dr"><div class="dn" style="background:var(--blue);font-size:10px">1組</div><div class="dt">驗電棒 + 五用偵測器進行<strong>環境風險評估</strong>，判定建築物安全性</div></div>
     <div class="dr"><div class="dn" style="background:var(--blue);font-size:10px">2組</div><div class="dt">架設<strong>位移偵測儀</strong>，攜帶精密儀器輔助搜索</div></div>
-    <div class="dr"><div class="dn" style="background:var(--teal);font-size:10px">3組</div><div class="dt">拉<strong>封鎖線</strong>、劃分冷熱區、管制人員進出</div></div>
+    <div class="dr"><div class="dn" style="background:var(--teal);font-size:10px">3組</div><div class="dt">拉<strong>封鎖線</strong>、劃分冷熱區、管制現場人員進出</div></div>
   </div></div>
 </div>
 
@@ -562,22 +533,6 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
     <div class="dr"><div class="dn" style="background:var(--g1)">4</div><div class="dt">前往<strong>救護站</strong>檢查健康情形（2小時內可分別前往）</div></div>
     <div class="dr"><div class="dn" style="background:var(--g1)">5</div><div class="dt">將現場相關資料<strong>回報管理組</strong>（並轉交 UCC）</div></div>
     <div class="dr"><div class="dn" style="background:var(--g1)">6</div><div class="dt">由 UCC 下達下一任務指派（ASR3）</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-site1">
-  <div class="sh"></div><div class="shd"><div class="sht">場地 A-1</div><div class="shs">台東市中正路 xxx 號 · 評估中</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">現況</div>
-    <div class="dr"><div class="dn" style="background:var(--orange)">!</div><div class="dt">關係人描述有人受困，現場尚未確認，暫評 <strong>C 級</strong></div></div>
-    <div class="dr"><div class="dn" style="background:var(--blue)">i</div><div class="dt">RC造 5層樓，1~2樓部分倒塌，結構技師評估中</div></div>
-    <div class="dr"><div class="dn" style="background:var(--green)">✓</div><div class="dt">瓦斯已關閉，電力已斷路</div></div>
-  </div></div>
-</div>
-
-<div class="sheet" id="sheet-site2">
-  <div class="sh"></div><div class="shd"><div class="sht">場地 A-2</div><div class="shs">台東市更生路 xxx 號 · 待命</div></div>
-  <div class="shb"><div class="shsec"><div class="shst">現況</div>
-    <div class="dr"><div class="dn" style="background:var(--g1)">—</div><div class="dt">尚未派隊評估，等待 UCC 指派</div></div>
   </div></div>
 </div>
 
@@ -640,10 +595,188 @@ html,body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--b
   </div>
 </div>
 
+<!-- DYNAMIC SHEET: 人員詳情與計數 -->
+<div class="sheet" id="sheet-role-detail">
+  <div class="sh"></div>
+  <div class="shd">
+    <div style="font-size:28px;margin-bottom:6px" id="role-detail-icon">🎖️</div>
+    <div class="sht" id="role-detail-name">帶隊官</div>
+    <div class="shs" id="role-detail-group">管理組</div>
+  </div>
+  <div class="shb">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--g6);padding:12px 16px;border-radius:14px;margin-bottom:20px;">
+      <span style="font-size:15px;font-weight:600;">編制人數</span>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button onclick="adjustRoleCount(-1)" style="width:32px;height:32px;border-radius:16px;border:none;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;">-</button>
+        <span id="role-detail-count" style="font-size:18px;font-weight:700;min-width:20px;text-align:center;">1</span>
+        <button onclick="adjustRoleCount(1)" style="width:32px;height:32px;border-radius:16px;border:none;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+      </div>
+    </div>
+    <div class="shsec">
+      <div class="shst">工作職責</div>
+      <div id="role-detail-duties"></div>
+    </div>
+    <div id="role-detail-extra-sec" class="shsec" style="display:none;">
+      <div class="shst">補充說明</div>
+      <div class="dr">
+        <div class="dn" style="background:var(--teal)">!</div>
+        <div class="dt" id="role-detail-extra"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DYNAMIC SHEET: 場地詳情 -->
+<div class="sheet" id="sheet-site-detail">
+  <div class="sh"></div>
+  <div class="shd">
+    <div class="sht" id="site-detail-code">場地 A-1</div>
+    <div class="shs" id="site-detail-addr">地址</div>
+  </div>
+  <div class="shb">
+    <div class="shsec">
+      <div class="shst">場地資訊</div>
+      <div class="dr"><div class="dn" id="site-detail-status-color" style="background:var(--orange)">!</div><div class="dt">目前狀態：<strong id="site-detail-status">評估中</strong></div></div>
+      <div class="dr"><div class="dn" style="background:var(--blue)">i</div><div class="dt">結構類型：<span id="site-detail-building">RC造</span></div></div>
+      <div class="dr"><div class="dn" style="background:var(--red)">V</div><div class="dt">受困等級：<strong id="site-detail-grade">C</strong></div></div>
+      <div class="dr"><div class="dn" style="background:var(--green)">T</div><div class="dt">已用時間：<span id="site-detail-time">30分</span></div></div>
+    </div>
+    <div class="shsec">
+      <div class="shst">詳細現況 / 備註</div>
+      <div style="background:var(--g6);padding:14px;border-radius:12px;font-size:14px;line-height:1.6;color:#3C3C43;white-space:pre-wrap;" id="site-detail-desc">
+        無備註資訊。
+      </div>
+    </div>
+    <!-- 設為目前工作場地按鈕 -->
+    <button id="site-detail-set-active-btn" onclick="setAsCurrentSiteClick()" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;margin-bottom:8px;display:block;">設為目前工作場地</button>
+    
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button onclick="editSiteClick()" style="flex:1;padding:12px;background:var(--g5);color:var(--text);border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">編輯場地</button>
+      <button onclick="deleteSiteClick()" style="flex:1;padding:12px;background:#FF3B3015;color:var(--red);border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">刪除場地</button>
+    </div>
+  </div>
+</div>
+
+<!-- DYNAMIC SHEET: 新增/編輯場地表單 -->
+<div class="sheet" id="sheet-site-form">
+  <div class="sh"></div>
+  <div class="shd">
+    <div class="sht" id="site-form-title">新增工作場地</div>
+    <div class="shs">請填寫場地評估情資</div>
+  </div>
+  <div class="shb" style="display:flex;flex-direction:column;gap:14px;">
+    <input type="hidden" id="site-form-id">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">場地代碼 (必填)</label>
+      <input type="text" id="site-form-code" placeholder="例如: 場地 A-3" style="width:100%;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">地址</label>
+      <input type="text" id="site-form-addr" placeholder="例如: 台東市中正路 xxx 號" style="width:100%;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;">
+    </div>
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;">
+        <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">狀態</label>
+        <select id="site-form-status" style="width:100%;padding:12px;border:1px solid var(--sep);border-radius:12px;font-size:15px;background:#fff;outline:none;">
+          <option value="評估中">評估中</option>
+          <option value="待命">待命</option>
+          <option value="已完成">已完成</option>
+          <option value="撤離中">撤離中</option>
+        </select>
+      </div>
+      <div style="flex:1;">
+        <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">受困等級</label>
+        <select id="site-form-grade" style="width:100%;padding:12px;border:1px solid var(--sep);border-radius:12px;font-size:15px;background:#fff;outline:none;">
+          <option value="—">—</option>
+          <option value="A">A級 (12h內接觸)</option>
+          <option value="B">B級 (12h以上接觸)</option>
+          <option value="C">C級 (可能有人)</option>
+          <option value="D">D級 (僅罹難者)</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;">
+        <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">建築類型</label>
+        <input type="text" id="site-form-building" placeholder="例如: RC造" style="width:100%;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;">
+      </div>
+      <div style="flex:1;">
+        <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">已用時間</label>
+        <input type="text" id="site-form-time" placeholder="例如: 30分" style="width:100%;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;">
+      </div>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">詳細現況 / 備註</label>
+      <textarea id="site-form-desc" placeholder="輸入現場詳細狀況，例如：瓦斯已關閉，電力已斷路..." style="width:100%;height:80px;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;resize:none;font-family:inherit;"></textarea>
+    </div>
+    <button onclick="saveSiteForm()" style="width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;">儲存</button>
+  </div>
+</div>
+
+<!-- DYNAMIC SHEET: 新增現場記事 -->
+<div class="sheet" id="sheet-note-form">
+  <div class="sh"></div>
+  <div class="shd">
+    <div class="sht">新增現場記事</div>
+    <div class="shs">請選擇類別並輸入記事內容</div>
+  </div>
+  <div class="shb" style="display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:8px;">記事類別</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;" id="note-category-picker">
+        <button onclick="selectNoteCategory('出勤', this)" class="tag" style="background:#34C75920;color:var(--green);border:1px solid var(--green);padding:8px 12px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:600;">🟢 出勤 / 抵達</button>
+        <button onclick="selectNoteCategory('發現患者', this)" class="tag" style="background:#FF950010;color:var(--orange);border:1px solid transparent;padding:8px 12px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:600;">🔍 發現患者</button>
+        <button onclick="selectNoteCategory('狀況回報', this)" class="tag" style="background:#007AFF10;color:var(--blue);border:1px solid transparent;padding:8px 12px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:600;">📝 狀況回報</button>
+        <button onclick="selectNoteCategory('返回', this)" class="tag" style="background:#FF3B3010;color:var(--red);border:1px solid transparent;padding:8px 12px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:600;">🔴 返回 / 收隊</button>
+      </div>
+    </div>
+    
+    <!-- Victim details section -->
+    <div id="note-victim-sec" style="display:none;background:var(--g6);padding:14px;border-radius:12px;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:14px;font-weight:600;">患者數量</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button onclick="adjustNoteVictimCount(-1)" style="width:28px;height:28px;border-radius:14px;border:none;background:#fff;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,0.1)">-</button>
+          <span id="note-victim-count" style="font-size:16px;font-weight:700;min-width:20px;text-align:center;">1</span>
+          <button onclick="adjustNoteVictimCount(1)" style="width:28px;height:28px;border-radius:14px;border:none;background:#fff;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,0.1)">+</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:14px;font-weight:600;">傷處 / 傷勢</span>
+        <select id="note-victim-status" style="padding:6px 12px;border:1px solid var(--sep);border-radius:8px;font-size:13px;background:#fff;outline:none;">
+          <option value="輕傷 (可自行行走)">輕傷 (可自行行走)</option>
+          <option value="中度傷患 (骨折/無法行走)">中度傷患 (骨折/無法行走)</option>
+          <option value="重度傷患 (需立即施救)">重度傷患 (需立即施救)</option>
+          <option value="無生命徵象 (OHCA)">無生命徵象 (OHCA)</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--g1);display:block;margin-bottom:6px;">記事內容</label>
+      <textarea id="note-form-text" placeholder="請輸入詳細備註或回報狀況..." style="width:100%;height:100px;padding:12px 14px;border:1px solid var(--sep);border-radius:12px;font-size:15px;outline:none;resize:none;font-family:inherit;"></textarea>
+    </div>
+    <button onclick="saveNoteForm()" style="width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;">新增記事</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-/* ── PWA Service Worker 註冊 ── */
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}
+/* ── PWA Service Worker 註銷與快取清除 (防止開發與本地預覽快取舊版本) ── */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (var r of registrations) {
+      r.unregister();
+    }
+  });
+}
+if ('caches' in window) {
+  caches.keys().then(function(keys) {
+    keys.forEach(function(key) {
+      caches.delete(key);
+    });
+  });
+}
 
 /* ── 時鐘（每30秒更新一次即可）── */
 function updateClock(){var n=new Date();document.getElementById('clock').textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);}
@@ -694,57 +827,833 @@ function closeSheet(){document.getElementById('overlay').classList.remove('open'
   });
 })();
 
-/* ── 器材清單（持久化）── */
-function saveCk(){
-  var done=[];
-  document.querySelectorAll('.ck-row').forEach(function(r,i){if(r.classList.contains('done'))done.push(i);});
-  localStorage.setItem('asr2_checklist',JSON.stringify(done));
+/* ── 預設資料宣告 ── */
+var defaultRoles = [
+  { id: 'commander', name: '帶隊官', group: '管理組', count: 1, badge: '指揮', badgeColor: 'var(--red)', icon: '🎖️', iconBg: '#FF3B3020', duties: ['任務說明與分工安排', '蒐集現場情資，進行現場決斷', '每個工作場地結束後向管理組回報', '轉報 UCC 判斷是否立即派隊前往'] },
+  { id: 'staff', name: '管理幕僚', group: '救援組', count: 1, badge: '文管', badgeColor: 'var(--orange)', icon: '📋', iconBg: '#FF950020', duties: ['出發前確認所攜器材數量', '協助蒐集現場情資', '繪製平面圖、填寫「工作場地評估表」', '與現場民眾、關係人接洽，判斷特殊狀況（金庫、倒塌、建築結構、倉庫內容物）', '負責現場拍照或錄影'] },
+  { id: 'safety', name: '安全官', group: '救援組', count: 1, badge: '安全', badgeColor: 'var(--yellow)', badgeTextColor: '#000', icon: '🦺', iconBg: '#FFCC0020', duties: ['集結區冷熱區劃定，說明撤離、集結、哨音規定', '負責現場任務安全監控', '負責緊急狀況瓦斯汽笛使用'] },
+  { id: 's1', name: '搜索1組', group: '搜索組2名 + 結構技師', count: 3, badge: '搜索', badgeColor: 'var(--blue)', icon: '🔍', iconBg: '#007AFF20', duties: ['使用五用氣體偵測器、驗電棒進行環境風險評估', '執行快速搜索', '協助結構技師判定建築物安全性', '描繪「受困者標記」及「工作場地標記」（攜帶筆）'], extra: '結構技師：就現場建築物是否能執行救援進行安全認定；提供有關結構安全諮詢' },
+  { id: 's2', name: '搜索2組', group: '搜索組', count: 2, badge: '搜索', badgeColor: 'var(--blue)', icon: '🔎', iconBg: '#007AFF20', duties: ['架設位移偵測儀', '架設完畢後隨第一組進行快速搜索', '攜帶精密儀器，視情況進行儀器搜索', '研判是否可立即處理，或需後續救援組（ASR3）'] },
+  { id: 's3', name: '搜索3組', group: '救援組', count: 2, badge: '管制', badgeColor: 'var(--teal)', icon: '🚧', iconBg: '#5AC8FA20', duties: ['架設集結區帳篷', '拉封鎖線，協助劃設冷熱區', '管制現場人員進出', '如有需要，結合1、2組進行搜索'] },
+  { id: 'med', name: '醫療組', group: '救護組', count: 2, badge: '醫療', badgeColor: 'var(--green)', icon: '🏥', iconBg: '#34C75920', duties: ['攜帶基本救護器材，於現場隨時待命', '救難人員受傷醫療為優先', '如可接觸受困者，評估其生命徵象', '協助決定搶救優先順序（A/B/C/D）'] },
+  { id: 'rescue', name: '救援組', group: '救援組', count: 5, badge: '救援', badgeColor: 'var(--purple)', icon: '⛏️', iconBg: '#AF52DE20', duties: ['執行現場「快速搜索」任務', '架設集結區帳篷', 'BoO 領取任務 + 器材整理'] }
+];
+
+var defaultEquipments = [
+  "驗電棒", "五用氣體偵測器", "雷射位移監測儀", "聲納搜索儀", "蛇管鏡", "地音探測器", 
+  "無線電", "平板電腦", "紙本工作表 & 平面圖", "消毒罐", "瓦斯汽笛", "指揮帳", 
+  "人員管制板", "封鎖線", "急救包", "水 & 乾糧", "個人防護裝備（全套）"
+];
+
+var defaultSites = [
+  { id: 'site-1', code: '場地 A-1', status: '評估中', statusColor: 'var(--orange)', addr: '台東市中正路 xxx 號', victimGrade: 'C', buildingType: 'RC造', timeSpent: '30分', details: '關係人描述有人受困，現場尚未確認，暫評 C 級；RC造 5層樓，1~2樓部分倒塌，結構技師評估中；瓦斯已關閉，電力已斷路。' },
+  { id: 'site-2', code: '場地 A-2', status: '待命', statusColor: 'var(--g1)', addr: '台東市更生路 xxx 號', victimGrade: '—', buildingType: '待評估', timeSpent: '—', details: '尚未派隊評估，等待 UCC 指派。' }
+];
+
+var defaultNotes = [
+  { id: 'note-1', time: '14:00:00', category: '出勤', text: 'ASR2 快速評估任務啟動，隊伍整裝前往工作場地。' },
+  { id: 'note-2', time: '14:15:00', category: '狀況回報', text: '抵達工作場地 A-1，搭設前進指揮所，安全官開始劃分冷熱區與宣布避難訊號。' }
+];
+
+/* ── 狀態安全初始化 (防 corrupted local storage) ── */
+var roles = defaultRoles;
+try {
+  var stored = localStorage.getItem('asr2_roles');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) roles = parsed;
+  }
+} catch(e) { console.error('Error loading roles:', e); }
+
+var equipments = defaultEquipments;
+try {
+  var stored = localStorage.getItem('asr2_equipments');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) equipments = parsed;
+  }
+} catch(e) { console.error('Error loading equipments:', e); }
+
+var sites = defaultSites;
+try {
+  var stored = localStorage.getItem('asr2_sites');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) sites = parsed;
+  }
+} catch(e) { console.error('Error loading sites:', e); }
+
+var notes = defaultNotes;
+try {
+  var stored = localStorage.getItem('asr2_notes');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) notes = parsed;
+  }
+} catch(e) { console.error('Error loading notes:', e); }
+
+var checklistDone = [];
+try {
+  var stored = localStorage.getItem('asr2_checklist');
+  if (stored) {
+    var parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) checklistDone = parsed;
+  }
+} catch(e) { console.error('Error loading checklist:', e); }
+
+var currentWorkingSiteId = localStorage.getItem('asr2_current_site_id') || (sites[0] ? sites[0].id : null);
+
+var currentEditingRoleId = null;
+var equipEditMode = false;
+var noteSelectedCategory = '出勤';
+var noteVictimCount = 1;
+
+/* ── 核心保存函數 ── */
+function saveState(){
+  localStorage.setItem('asr2_roles', JSON.stringify(roles));
+  localStorage.setItem('asr2_equipments', JSON.stringify(equipments));
+  localStorage.setItem('asr2_sites', JSON.stringify(sites));
+  localStorage.setItem('asr2_notes', JSON.stringify(notes));
+  localStorage.setItem('asr2_checklist', JSON.stringify(checklistDone));
+  localStorage.setItem('asr2_current_site_id', currentWorkingSiteId);
 }
-function loadCk(){
-  var saved=JSON.parse(localStorage.getItem('asr2_checklist')||'[]');
-  var rows=document.querySelectorAll('.ck-row');
-  saved.forEach(function(i){
-    if(rows[i]){rows[i].classList.add('done');rows[i].querySelector('.ck-circle').textContent='✓';}
+
+/* ── 1. 人員與角色動態渲染與邏輯 ── */
+function renderRoles(){
+  var container = document.getElementById('role-list');
+  if (!container) return;
+  container.innerHTML = '';
+  var totalPeople = 0;
+  
+  roles.forEach(function(role){
+    totalPeople += role.count;
+    var badgeStyle = 'background:' + role.badgeColor + ';' + (role.badgeTextColor ? 'color:' + role.badgeTextColor : '');
+    
+    var btn = document.createElement('button');
+    btn.className = 'role-row';
+    btn.onclick = function(){ openRoleDetail(role.id); };
+    btn.innerHTML = `
+      <div class="role-icon" style="background:${role.iconBg}">${role.icon}</div>
+      <div class="role-info">
+        <div class="role-name">${role.name}</div>
+        <div class="role-sub">${role.group} · ${role.count}名</div>
+      </div>
+      <span class="role-badge" style="${badgeStyle}">${role.badge}</span>
+      <span class="role-chev">›</span>
+    `;
+    container.appendChild(btn);
   });
+  
+  var pCountEl = document.getElementById('mission-people-count');
+  if (pCountEl) pCountEl.textContent = totalPeople + '人';
+}
+
+function openRoleDetail(roleId){
+  currentEditingRoleId = roleId;
+  var role = roles.find(function(r){ return r.id === roleId; });
+  if(!role) return;
+  
+  document.getElementById('role-detail-icon').textContent = role.icon;
+  document.getElementById('role-detail-name').textContent = role.name;
+  document.getElementById('role-detail-group').textContent = role.group;
+  document.getElementById('role-detail-count').textContent = role.count;
+  
+  var dutiesContainer = document.getElementById('role-detail-duties');
+  dutiesContainer.innerHTML = '';
+  role.duties.forEach(function(duty, index){
+    var dr = document.createElement('div');
+    dr.className = 'dr';
+    dr.innerHTML = `
+      <div class="dn" style="background:${role.badgeColor}; ${role.badgeTextColor?'color:'+role.badgeTextColor:''}">${index+1}</div>
+      <div class="dt">${duty}</div>
+    `;
+    dutiesContainer.appendChild(dr);
+  });
+  
+  var extraSec = document.getElementById('role-detail-extra-sec');
+  if(role.extra){
+    extraSec.style.display = 'block';
+    document.getElementById('role-detail-extra').textContent = role.extra;
+  } else {
+    extraSec.style.display = 'none';
+  }
+  
+  openSheet('sheet-role-detail');
+}
+
+function adjustRoleCount(amount){
+  if(!currentEditingRoleId) return;
+  var role = roles.find(function(r){ return r.id === currentEditingRoleId; });
+  if(!role) return;
+  
+  var newCount = role.count + amount;
+  if(newCount < 0) newCount = 0;
+  
+  role.count = newCount;
+  document.getElementById('role-detail-count').textContent = newCount;
+  
+  saveState();
+  renderRoles();
+}
+
+/* ── 2. 器材清單動態渲染與邏輯 ── */
+function renderEquipments(){
+  var container = document.getElementById('cklist');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  equipments.forEach(function(equip, index){
+    var isDone = checklistDone.indexOf(index) !== -1;
+    
+    var wrapper = document.createElement('div');
+    wrapper.className = 'ck-row-wrapper' + (equipEditMode ? ' edit-mode' : '');
+    
+    var rowBtn = document.createElement('button');
+    rowBtn.className = 'ck-row' + (isDone ? ' done' : '');
+    rowBtn.onclick = function(){ toggleCk(index); };
+    rowBtn.innerHTML = `
+      <div class="ck-circle">${isDone ? '✓' : ''}</div>
+      <span class="ck-label">${index + 1}. ${equip}</span>
+    `;
+    
+    var delBtn = document.createElement('button');
+    delBtn.className = 'ck-delete-btn';
+    delBtn.textContent = '✖';
+    delBtn.onclick = function(e){
+      e.stopPropagation();
+      deleteEquip(index);
+    };
+    
+    wrapper.appendChild(rowBtn);
+    wrapper.appendChild(delBtn);
+    container.appendChild(wrapper);
+  });
+  
   updateCkCount();
 }
-function updateCkCount(){document.getElementById('ck-count').textContent='已確認：'+document.querySelectorAll('.ck-row.done').length+' / 17 項';}
-function toggleCk(row){
-  row.classList.toggle('done');
-  row.querySelector('.ck-circle').textContent=row.classList.contains('done')?'✓':'';
-  updateCkCount();saveCk();
+
+function updateCkCount(){
+  var total = equipments.length;
+  var done = checklistDone.filter(function(i){ return i < total; }).length;
+  var ckCountEl = document.getElementById('ck-count');
+  if (ckCountEl) ckCountEl.textContent = '已確認：' + done + ' / ' + total + ' 項';
+  
+  var percent = total > 0 ? Math.round((done / total) * 100) : 0;
+  var pPercentEl = document.getElementById('progress-percent');
+  if (pPercentEl) pPercentEl.textContent = percent + '%';
+  var pBarEl = document.getElementById('progress-bar');
+  if (pBarEl) pBarEl.style.width = percent + '%';
 }
+
+function toggleCk(index){
+  if(equipEditMode) return;
+  var pos = checklistDone.indexOf(index);
+  if(pos === -1){
+    checklistDone.push(index);
+  } else {
+    checklistDone.splice(pos, 1);
+  }
+  saveState();
+  renderEquipments();
+}
+
+function toggleEquipEditMode(){
+  equipEditMode = !equipEditMode;
+  var btn = document.getElementById('equip-edit-btn');
+  var form = document.getElementById('equip-add-form');
+  
+  if(equipEditMode){
+    btn.textContent = '完成編輯';
+    btn.style.color = 'var(--green)';
+    form.style.display = 'flex';
+  } else {
+    btn.textContent = '進入編輯模式';
+    btn.style.color = 'var(--blue)';
+    form.style.display = 'none';
+  }
+  
+  renderEquipments();
+}
+
+function addNewEquip(){
+  var input = document.getElementById('new-equip-input');
+  var val = input.value.trim();
+  if(!val) return;
+  
+  equipments.push(val);
+  input.value = '';
+  saveState();
+  renderEquipments();
+}
+
+function deleteEquip(index){
+  if(!confirm('確定刪除此器材項目？')) return;
+  
+  equipments.splice(index, 1);
+  
+  checklistDone = checklistDone.map(function(item){
+    if(item > index) return item - 1;
+    if(item === index) return -1;
+    return item;
+  }).filter(function(item){ return item !== -1; });
+  
+  saveState();
+  renderEquipments();
+}
+
 function resetChecklist(){
-  if(!confirm('確定清除所有勾選？'))return;
-  document.querySelectorAll('.ck-row').forEach(function(r){r.classList.remove('done');r.querySelector('.ck-circle').textContent='';});
-  updateCkCount();localStorage.removeItem('asr2_checklist');
+  if(!confirm('確定清除所有勾選？')) return;
+  checklistDone = [];
+  saveState();
+  renderEquipments();
 }
-loadCk();
 
-/* ── MAYDAY 長按3秒 ── */
-(function(){
-  var btn=document.querySelector('.mayday');
-  var timer=null,pressing=false;
-  function start(){pressing=true;timer=setTimeout(function(){if(pressing)openSheet('sheet-mayday');},3000);}
-  function cancel(){pressing=false;clearTimeout(timer);}
-  btn.addEventListener('pointerdown',start);
-  btn.addEventListener('pointerup',cancel);
-  btn.addEventListener('pointerleave',cancel);
-  btn.removeAttribute('onclick');
-})();
+/* ── 3. 場地評估動態渲染與邏輯 ── */
+var selectedSiteFormId = null;
 
-/* ── 受困等級選取 ── */
-function selectV(card){document.querySelectorAll('.vcard').forEach(function(c){c.classList.remove('selected');});card.classList.add('selected');}
+function renderSites(){
+  var container = document.getElementById('site-list');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  sites.forEach(function(site){
+    var wrapper = document.createElement('div');
+    wrapper.className = 'site-card-wrapper';
+    
+    var card = document.createElement('div');
+    card.className = 'site-card';
+    if(site.id === currentWorkingSiteId){
+      card.style.borderColor = 'var(--blue)';
+      card.style.borderWidth = '2px';
+    } else {
+      card.style.borderColor = 'var(--sep)';
+      card.style.borderWidth = '1px';
+    }
+    
+    // Swipe to Delete Drag Action
+    var isDragging = false;
+    var startX = 0;
+    var currentX = 0;
+    var swiped = false;
+    
+    var onStart = function(clientX) {
+      startX = clientX;
+      isDragging = true;
+      card.style.transition = 'none';
+    };
+    
+    var onMove = function(clientX) {
+      if(!isDragging) return;
+      var dx = clientX - startX;
+      if(swiped) {
+        currentX = Math.min(0, Math.max(-80, -80 + dx));
+      } else {
+        currentX = Math.min(0, Math.max(-80, dx));
+      }
+      card.style.transform = 'translateX(' + currentX + 'px)';
+    };
+    
+    var onEnd = function() {
+      if(!isDragging) return;
+      isDragging = false;
+      card.style.transition = 'transform 0.2s ease-out';
+      if(currentX < -30) {
+        card.style.transform = 'translateX(-80px)';
+        swiped = true;
+        currentX = -80;
+      } else {
+        card.style.transform = 'translateX(0px)';
+        swiped = false;
+        currentX = 0;
+      }
+    };
+    
+    card.addEventListener('touchstart', function(e){ onStart(e.touches[0].clientX); }, {passive: true});
+    card.addEventListener('touchmove', function(e){ onMove(e.touches[0].clientX); }, {passive: true});
+    card.addEventListener('touchend', onEnd);
+    
+    card.addEventListener('mousedown', function(e){ onStart(e.clientX); });
+    card.addEventListener('mousemove', function(e){ if(isDragging) onMove(e.clientX); });
+    card.addEventListener('mouseup', onEnd);
+    card.addEventListener('mouseleave', onEnd);
+    
+    card.onclick = function(){
+      if(Math.abs(currentX) > 5) {
+        return; 
+      }
+      if(swiped) {
+        card.style.transform = 'translateX(0px)';
+        swiped = false;
+        currentX = 0;
+      } else {
+        openSiteDetail(site.id);
+      }
+    };
+    
+    var color = getStatusColor(site.status);
+    card.innerHTML = `
+      <div class="site-head">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="site-code">${site.code}</div>
+          ${site.id === currentWorkingSiteId ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--blue);color:#fff;">目前工作</span>' : ''}
+        </div>
+        <div class="site-st" style="background:${color}">${site.status}</div>
+      </div>
+      <div class="site-addr">${site.addr || '無地址資訊'}</div>
+      <div class="site-m">
+        <div><div class="mv" style="color:${getGradeColor(site.victimGrade)}">${site.victimGrade}</div><div class="ml">受困等級</div></div>
+        <div><div class="mv">${site.buildingType || '—'}</div><div class="ml">建築類型</div></div>
+        <div><div class="mv">${site.timeSpent || '—'}</div><div class="ml">已用時間</div></div>
+      </div>
+    `;
+    
+    var delBtn = document.createElement('button');
+    delBtn.className = 'site-swipe-delete-btn';
+    delBtn.textContent = '刪除';
+    delBtn.onclick = function(e){
+      e.stopPropagation();
+      deleteSiteDirect(site.id);
+    };
+    
+    wrapper.appendChild(card);
+    wrapper.appendChild(delBtn);
+    container.appendChild(wrapper);
+  });
+  
+  var tabBadgeEl = document.getElementById('site-tab-badge');
+  if (tabBadgeEl) tabBadgeEl.textContent = sites.length;
+  
+  var currentSite = sites.find(function(s){ return s.id === currentWorkingSiteId; });
+  var curSiteEl = document.getElementById('mission-current-site');
+  if (curSiteEl) curSiteEl.textContent = currentSite ? currentSite.code : '—';
+}
 
-/* ── 截圖 ── */
+function getStatusColor(status){
+  if(status === '評估中') return 'var(--orange)';
+  if(status === '已完成') return 'var(--green)';
+  if(status === '撤離中') return 'var(--red)';
+  return 'var(--g1)';
+}
+
+function getGradeColor(grade){
+  if(grade === 'A') return 'var(--red)';
+  if(grade === 'B') return 'var(--orange)';
+  if(grade === 'C') return 'var(--yellow)';
+  if(grade === 'D') return 'var(--g1)';
+  return 'var(--text)';
+}
+
+function openSiteDetail(siteId){
+  selectedSiteFormId = siteId;
+  var site = sites.find(function(s){ return s.id === siteId; });
+  if(!site) return;
+  
+  var color = getStatusColor(site.status);
+  
+  document.getElementById('site-detail-code').textContent = site.code;
+  document.getElementById('site-detail-addr').textContent = site.addr || '無地址資訊';
+  document.getElementById('site-detail-status').textContent = site.status;
+  document.getElementById('site-detail-status-color').style.background = color;
+  document.getElementById('site-detail-building').textContent = site.buildingType || '—';
+  document.getElementById('site-detail-grade').textContent = site.victimGrade || '—';
+  document.getElementById('site-detail-grade').style.color = getGradeColor(site.victimGrade);
+  document.getElementById('site-detail-time').textContent = site.timeSpent || '—';
+  document.getElementById('site-detail-desc').textContent = site.details || '無備註資訊。';
+  
+  var activeBtn = document.getElementById('site-detail-set-active-btn');
+  if(site.id === currentWorkingSiteId){
+    activeBtn.textContent = '已設為目前工作場地';
+    activeBtn.style.background = 'var(--g3)';
+    activeBtn.style.color = 'var(--g1)';
+    activeBtn.disabled = true;
+  } else {
+    activeBtn.textContent = '設為目前工作場地';
+    activeBtn.style.background = 'var(--blue)';
+    activeBtn.style.color = '#fff';
+    activeBtn.disabled = false;
+  }
+  
+  openSheet('sheet-site-detail');
+}
+
+function setAsCurrentSiteClick(){
+  if(!selectedSiteFormId) return;
+  var site = sites.find(function(s){ return s.id === selectedSiteFormId; });
+  if(!site) return;
+  
+  currentWorkingSiteId = site.id;
+  saveState();
+  renderSites();
+  
+  var now = new Date();
+  var timeStr = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  var newNote = {
+    id: 'note-' + Date.now(),
+    time: timeStr,
+    category: '狀況回報',
+    text: `切換目前工作場地為：${site.code}`
+  };
+  notes.push(newNote);
+  saveState();
+  renderNotes();
+  
+  closeSheet();
+}
+
+function openSiteForm(siteId){
+  closeSheet();
+  
+  var title = document.getElementById('site-form-title');
+  var formId = document.getElementById('site-form-id');
+  var code = document.getElementById('site-form-code');
+  var addr = document.getElementById('site-form-addr');
+  var status = document.getElementById('site-form-status');
+  var grade = document.getElementById('site-form-grade');
+  var building = document.getElementById('site-form-building');
+  var time = document.getElementById('site-form-time');
+  var desc = document.getElementById('site-form-desc');
+  
+  if(siteId){
+    var site = sites.find(function(s){ return s.id === siteId; });
+    if(!site) return;
+    
+    title.textContent = '編輯工作場地';
+    formId.value = site.id;
+    code.value = site.code;
+    addr.value = site.addr || '';
+    status.value = site.status;
+    grade.value = site.victimGrade;
+    building.value = site.buildingType || '';
+    time.value = site.timeSpent || '';
+    desc.value = site.details || '';
+  } else {
+    title.textContent = '新增工作場地';
+    formId.value = '';
+    code.value = '';
+    addr.value = '';
+    status.value = '待命';
+    grade.value = '—';
+    building.value = 'RC造';
+    time.value = '—';
+    desc.value = '';
+  }
+  
+  setTimeout(function(){ openSheet('sheet-site-form'); }, 400);
+}
+
+function editSiteClick(){
+  if(selectedSiteFormId){
+    openSiteForm(selectedSiteFormId);
+  }
+}
+
+function deleteSiteClick(){
+  if(!selectedSiteFormId) return;
+  deleteSiteDirect(selectedSiteFormId);
+  closeSheet();
+}
+
+function deleteSiteDirect(siteId){
+  var site = sites.find(function(s){ return s.id === siteId; });
+  if(!site) return;
+  if(!confirm('確定刪除場地「' + site.code + '」？所有該場地的記錄將被移除。')) {
+    renderSites();
+    return;
+  }
+  
+  sites = sites.filter(function(s){ return s.id !== siteId; });
+  
+  if(siteId === currentWorkingSiteId){
+    currentWorkingSiteId = sites[0] ? sites[0].id : null;
+  }
+  
+  saveState();
+  renderSites();
+}
+
+function saveSiteForm(){
+  var formId = document.getElementById('site-form-id').value;
+  var code = document.getElementById('site-form-code').value.trim();
+  var addr = document.getElementById('site-form-addr').value.trim();
+  var status = document.getElementById('site-form-status').value;
+  var grade = document.getElementById('site-form-grade').value;
+  var building = document.getElementById('site-form-building').value.trim();
+  var time = document.getElementById('site-form-time').value.trim();
+  var desc = document.getElementById('site-form-desc').value.trim();
+  
+  if(!code){
+    alert('請填寫場地代碼！');
+    return;
+  }
+  
+  if(formId){
+    var site = sites.find(function(s){ return s.id === formId; });
+    if(site){
+      site.code = code;
+      site.addr = addr;
+      site.status = status;
+      site.victimGrade = grade;
+      site.buildingType = building;
+      site.timeSpent = time;
+      site.details = desc;
+    }
+  } else {
+    var newSiteId = 'site-' + Date.now();
+    var newSite = {
+      id: newSiteId,
+      code: code,
+      addr: addr,
+      status: status,
+      victimGrade: grade,
+      buildingType: building,
+      timeSpent: time,
+      details: desc
+    };
+    sites.push(newSite);
+    
+    if(!currentWorkingSiteId){
+      currentWorkingSiteId = newSiteId;
+    }
+  }
+  
+  saveState();
+  renderSites();
+  closeSheet();
+}
+
+/* ── 4. 現場記事動態渲染與邏輯 ── */
+function renderNotes(){
+  var container = document.getElementById('notes-timeline');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  if(notes.length === 0){
+    container.innerHTML = '<div style="text-align:center;color:var(--g1);padding:24px 0;font-size:14px;">尚無記事記錄</div>';
+    return;
+  }
+  
+  var sortedNotes = notes.slice().reverse();
+  
+  sortedNotes.forEach(function(note){
+    var item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.onclick = function(){ editOrDeleteNote(note.id); };
+    
+    var catColor = getNoteCategoryColor(note.category);
+    
+    item.innerHTML = `
+      <div class="timeline-header">
+        <span class="timeline-cat" style="background:${catColor}">${note.category}</span>
+        <span class="timeline-time">${note.time}</span>
+      </div>
+      <div class="timeline-body">${note.text}</div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function getNoteCategoryColor(cat){
+  if(cat === '出勤') return 'var(--green)';
+  if(cat === '返回') return 'var(--red)';
+  if(cat === '發現患者') return 'var(--orange)';
+  return 'var(--blue)';
+}
+
+function openNoteForm(){
+  document.getElementById('note-form-text').value = '';
+  var firstBtn = document.querySelector('#note-category-picker button');
+  if (firstBtn) {
+    selectNoteCategory('出勤', firstBtn);
+  } else {
+    noteSelectedCategory = '出勤';
+  }
+  openSheet('sheet-note-form');
+}
+
+function selectNoteCategory(cat, btn){
+  noteSelectedCategory = cat;
+  
+  document.querySelectorAll('#note-category-picker button').forEach(function(b){
+    b.style.borderColor = 'transparent';
+  });
+  
+  var borderColors = {
+    '出勤': 'var(--green)',
+    '發現患者': 'var(--orange)',
+    '狀況回報': 'var(--blue)',
+    '返回': 'var(--red)'
+  };
+  
+  if (btn) {
+    btn.style.borderColor = borderColors[cat] || 'var(--g1)';
+  }
+  
+  var victimSec = document.getElementById('note-victim-sec');
+  if (victimSec) {
+    if(cat === '發現患者'){
+      victimSec.style.display = 'flex';
+      noteVictimCount = 1;
+      var countEl = document.getElementById('note-victim-count');
+      if (countEl) countEl.textContent = 1;
+    } else {
+      victimSec.style.display = 'none';
+    }
+  }
+}
+
+function adjustNoteVictimCount(amount){
+  noteVictimCount += amount;
+  if(noteVictimCount < 1) noteVictimCount = 1;
+  var countEl = document.getElementById('note-victim-count');
+  if (countEl) countEl.textContent = noteVictimCount;
+}
+
+function saveNoteForm(){
+  var text = document.getElementById('note-form-text').value.trim();
+  var finalStr = '';
+  
+  var now = new Date();
+  var timeStr = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  
+  if(noteSelectedCategory === '發現患者'){
+    var status = document.getElementById('note-victim-status').value;
+    finalStr = `發現患者 ${noteVictimCount} 名 (${status})` + (text ? ` ｜ ${text}` : '');
+  } else {
+    if(!text){
+      alert('請輸入記事內容！');
+      return;
+    }
+    finalStr = text;
+  }
+  
+  var newNote = {
+    id: 'note-' + Date.now(),
+    time: timeStr,
+    category: noteSelectedCategory,
+    text: finalStr
+  };
+  
+  notes.push(newNote);
+  saveState();
+  renderNotes();
+  closeSheet();
+}
+
+function editOrDeleteNote(noteId){
+  var note = notes.find(function(n){ return n.id === noteId; });
+  if(!note) return;
+  
+  if(confirm(`【現場記事管理】\n時間：${note.time}\n類別：${note.category}\n內容：${note.text}\n\n是否刪除這筆記事？`)){
+    notes = notes.filter(function(n){ return n.id !== noteId; });
+    saveState();
+    renderNotes();
+  }
+}
+
+/* ── 5. 資料保存與備份管理 ── */
+function exportData(){
+  var backupData = {
+    roles: roles,
+    equipments: equipments,
+    sites: sites,
+    notes: notes,
+    checklistDone: checklistDone,
+    startTimer: t0,
+    currentWorkingSiteId: currentWorkingSiteId
+  };
+  
+  var now = new Date();
+  var dateStr = now.getFullYear() + ('0'+(now.getMonth()+1)).slice(-2) + ('0'+now.getDate()).slice(-2);
+  var filename = `ASR2_Backup_${dateStr}.json`;
+  
+  var jsonStr = JSON.stringify(backupData, null, 2);
+  var blob = new Blob([jsonStr], { type: 'application/json' });
+  
+  if(navigator.canShare && navigator.share){
+    var file = new File([blob], filename, { type: 'application/json' });
+    navigator.share({
+      title: 'ASR2 任務資料備份',
+      files: [file]
+    }).then(function(){
+      console.log('備份分享成功');
+    }).catch(function(err){
+      console.log('分享取消或出錯，改用下載', err);
+      triggerDownload(blob, filename);
+    });
+  } else {
+    triggerDownload(blob, filename);
+  }
+}
+
+function triggerDownload(blob, filename){
+  var link = document.createElement('a');
+  link.download = filename;
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function importData(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var data = JSON.parse(e.target.result);
+      if(!data.roles || !data.equipments || !data.sites || !data.notes){
+        throw new Error('無效的備份檔案格式');
+      }
+      
+      if(confirm('確認導入備份？這將覆蓋您目前的所有資料且無法還原！')){
+        roles = data.roles;
+        equipments = data.equipments;
+        sites = data.sites;
+        notes = data.notes;
+        checklistDone = data.checklistDone || [];
+        if(data.startTimer){
+          t0 = data.startTimer;
+          localStorage.setItem('asr2_mission_start', t0);
+        }
+        if(data.currentWorkingSiteId){
+          currentWorkingSiteId = data.currentWorkingSiteId;
+        } else {
+          currentWorkingSiteId = sites[0] ? sites[0].id : null;
+        }
+        
+        saveState();
+        location.reload();
+      }
+    } catch(err) {
+      alert('導入失敗: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetSystem(){
+  if(!confirm('⚠️ 警告：確定重設任務系統？\n這將清除所有自訂場地、記事、修改過的人員與器材清單，並還原至系統預設值！')) return;
+  if(!confirm('請再次確認是否重設？此操作無法取消。')) return;
+  
+  localStorage.clear();
+  location.reload();
+}
+
+/* ── 6. 受困等級選取（原功能保留）── */
+function selectV(card){
+  document.querySelectorAll('.vcard').forEach(function(c){c.classList.remove('selected');});
+  card.classList.add('selected');
+}
+
+/* ── 7. 截圖（原功能保留）── */
 function takeScreenshot(pageId){
-  var page=document.getElementById('page-'+pageId);
-  var scroll=page.querySelector('.scroll');
-  var btn=page.querySelector('.screenshot-btn');
+  var page = document.getElementById('page-'+pageId);
+  var scroll = page.querySelector('.scroll');
+  var btn = page.querySelector('.screenshot-btn');
   btn.style.visibility='hidden';
   var origScrollTop=scroll?scroll.scrollTop:0;
   if(scroll)scroll.scrollTop=0;
-  var pageNames={mission:'任務概覽',phase:'作業流程',equip:'器材清單',site:'場地評估'};
+  var pageNames={mission:'任務概覽',phase:'作業流程',equip:'器材清單',site:'參考指南'};
   var now=new Date();
   var ts=now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2)+'_'+('0'+now.getHours()).slice(-2)+('0'+now.getMinutes()).slice(-2);
   var filename='ASR2_'+(pageNames[pageId]||pageId)+'_'+ts+'.png';
@@ -752,6 +1661,26 @@ function takeScreenshot(pageId){
     var link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();
   }).finally(function(){btn.style.visibility='';if(scroll)scroll.scrollTop=origScrollTop;});
 }
+
+/* ── 8. MAYDAY 長按3秒（原功能保留）── */
+(function(){
+  var btn=document.querySelector('.mayday');
+  if (btn) {
+    var timer=null,pressing=false;
+    var start=function(){pressing=true;timer=setTimeout(function(){if(pressing)openSheet('sheet-mayday');},3000);};
+    var cancel=function(){pressing=false;clearTimeout(timer);};
+    btn.addEventListener('pointerdown',start);
+    btn.addEventListener('pointerup',cancel);
+    btn.addEventListener('pointerleave',cancel);
+    btn.removeAttribute('onclick');
+  }
+})();
+
+/* ── 初始化執行 ── */
+renderRoles();
+renderEquipments();
+renderSites();
+renderNotes();
 </script>
 </body>
 </html>
