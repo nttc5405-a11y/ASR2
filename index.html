@@ -2156,7 +2156,13 @@ try {
   var stored = safeStorage.getItem('asr2_notes');
   if (stored) {
     var parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) notes = parsed;
+    if (Array.isArray(parsed)) {
+      parsed = parsed.filter(function(note) {
+        return note.text.indexOf('後勤出庫') === -1 && note.text.indexOf('後勤歸還') === -1;
+      });
+      notes = parsed;
+      safeStorage.setItem('asr2_notes', JSON.stringify(notes));
+    }
   }
 } catch(e) { console.error('Error loading notes:', e); }
 
